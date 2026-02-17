@@ -1,0 +1,28 @@
+{
+  "layout": [
+    {
+      "id": "1",
+      "elements": [
+        {
+          "id": "el-ilkwimwez",
+          "type": "rect",
+          "x": 20,
+          "y": 15,
+          "w": 400,
+          "h": 300,
+          "rotate": 0,
+          "isContainer": true,
+          "style": {
+            "backgroundColor": "transparent",
+            "border": "2px dashed #64748b",
+            "borderTop": "2px dashed #64748b",
+            "borderRight": "2px dashed #64748b",
+            "textAlign": "left"
+          }
+        }
+      ],
+      "pageWidth": 794,
+      "pageHeight": 1123
+    }
+  ]
+}
