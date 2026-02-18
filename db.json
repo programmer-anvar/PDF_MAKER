@@ -4,25 +4,204 @@
       "id": "1",
       "elements": [
         {
-          "id": "el-ilkwimwez",
+          "id": "el-ls3qpi41a",
           "type": "rect",
-          "x": 20,
-          "y": 15,
-          "w": 400,
-          "h": 300,
+          "x": 4.79166666666667,
+          "y": 3.9687499999999996,
+          "w": 198.43749999999997,
+          "h": 287.07291666666663,
           "rotate": 0,
           "isContainer": true,
           "style": {
             "backgroundColor": "transparent",
             "border": "2px dashed #64748b",
-            "borderTop": "2px dashed #64748b",
-            "borderRight": "2px dashed #64748b",
-            "textAlign": "left"
+            "borderTop": "2px solid #64748b",
+            "borderRight": "2px solid #64748b",
+            "textAlign": "left",
+            "borderBottom": "2px solid #64748b",
+            "borderLeft": "2px solid #64748b"
           }
+        },
+        {
+          "id": "el-mi9lj5gk3",
+          "type": "text",
+          "x": 71.43749999999999,
+          "y": 11.906249999999998,
+          "w": 66.14583333333333,
+          "h": 3.175,
+          "rotate": 0,
+          "style": {
+            "fontSize": 12,
+            "fontWeight": "normal",
+            "color": "#000000",
+            "textAlign": "center",
+            "borderBottom": "1px solid black"
+          },
+          "content": "대신금속(주)마산4공장"
+        },
+        {
+          "id": "el-n0anvbw3b",
+          "type": "text",
+          "x": 5.820833333333333,
+          "y": 21.166666666666664,
+          "w": 29.104166666666664,
+          "h": 1.3229166666666665,
+          "rotate": 0,
+          "style": {
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "color": "#000000",
+            "borderTop": "1px solid #ccc",
+            "borderRight": "1px solid #ccc",
+            "textAlign": "left"
+          },
+          "content": "대신금속(주)마산4공장"
+        },
+        {
+          "id": "el-meez37vbe",
+          "type": "text",
+          "x": 34.39583333333333,
+          "y": 21.166666666666664,
+          "w": 59.53124999999999,
+          "h": 3.175,
+          "rotate": 0,
+          "style": {
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "color": "#000000",
+            "borderTop": "1px solid #ccc",
+            "borderRight": "1px solid #ccc",
+            "textAlign": "center"
+          },
+          "content": " 자유무역3길 96"
+        },
+        {
+          "id": "el-dcpocl9kn",
+          "type": "text",
+          "x": 93.92708333333333,
+          "y": 21.166666666666664,
+          "w": 29.104166666666664,
+          "h": 3.9687499999999996,
+          "rotate": 0,
+          "style": {
+            "fontSize": 8,
+            "fontWeight": "normal",
+            "color": "#000000",
+            "borderTop": "1px solid #ccc",
+            "borderRight": "1px solid #ccc",
+            "textAlign": "center"
+          },
+          "content": "산4공장"
+        },
+        {
+          "id": "el-nuotzp1w1",
+          "type": "text",
+          "x": 123.29583333333332,
+          "y": 21.166666666666664,
+          "w": 79.63958333333332,
+          "h": 6.614583333333333,
+          "rotate": 0,
+          "style": {
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "color": "#000000",
+            "borderTop": "1px solid #ccc",
+            "textAlign": "center"
+          },
+          "content": "알루미늄 주물 주조업"
+        },
+        {
+          "id": "el-22xm3bhhx",
+          "type": "text",
+          "x": 5.820833333333333,
+          "y": 26.458333333333332,
+          "w": 29.104166666666664,
+          "h": 3.175,
+          "rotate": 0,
+          "style": {
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "color": "#000000",
+            "borderTop": "1px solid #ccc",
+            "borderRight": "1px solid #ccc",
+            "textAlign": "left"
+          },
+          "content": "대신금속(주)마산4공장"
+        },
+        {
+          "id": "el-01dy9ba3m",
+          "type": "text",
+          "x": 34.39583333333333,
+          "y": 26.458333333333332,
+          "w": 59.53124999999999,
+          "h": 3.175,
+          "rotate": 0,
+          "style": {
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "color": "#000000",
+            "borderTop": "1px solid #ccc",
+            "borderRight": "1px solid #ccc",
+            "textAlign": "center"
+          },
+          "content": " 자유무역3길 96"
+        },
+        {
+          "id": "el-h79z3vvmh",
+          "type": "text",
+          "x": 93.92708333333333,
+          "y": 26.458333333333332,
+          "w": 29.104166666666664,
+          "h": 3.175,
+          "rotate": 0,
+          "style": {
+            "fontSize": 8,
+            "fontWeight": "normal",
+            "color": "#000000",
+            "borderTop": "1px solid #ccc",
+            "borderRight": "1px solid #ccc",
+            "textAlign": "center"
+          },
+          "content": "산4공장"
+        },
+        {
+          "id": "el-0qcvmaw5f",
+          "type": "text",
+          "x": 123.03124999999999,
+          "y": 26.458333333333332,
+          "w": 79.90416666666665,
+          "h": 6.614583333333333,
+          "rotate": 0,
+          "style": {
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "color": "#000000",
+            "borderTop": "1px solid #ccc",
+            "textAlign": "center"
+          },
+          "content": "알루미늄 주물 주조업"
+        },
+        {
+          "id": "el-tp88fhknv",
+          "type": "text",
+          "x": 5.5,
+          "y": 31.5,
+          "w": 29.104166666666664,
+          "h": 7,
+          "rotate": 0,
+          "style": {
+            "fontSize": 7,
+            "fontWeight": "normal",
+            "color": "#000000",
+            "borderTop": "1px solid #ccc",
+            "borderRight": "1px solid #ccc",
+            "textAlign": "center"
+          },
+          "content": "주조업"
         }
       ],
-      "pageWidth": 794,
-      "pageHeight": 1123
+      "pageWidth": 210,
+      "pageHeight": 297
     }
   ]
 }

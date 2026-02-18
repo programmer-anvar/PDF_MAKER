@@ -1,0 +1,29 @@
+diff --git a/node_modules/json-server/lib/app.js b/node_modules/json-server/lib/app.js
+index 857756a..38c5c6d 100644
+--- a/node_modules/json-server/lib/app.js
++++ b/node_modules/json-server/lib/app.js
+@@ -87,8 +87,8 @@ export function createApp(db, options = {}) {
+         })(req, res, next);
+     })
+         .options('*', cors());
+-    // Body parser
+-    app.use(json());
++    // Body parser (50MB – PDF base64 uchun)
++    app.use(json({ payloadLimit: 50 * 1024 * 1024 }));
+     app.get('/', (_req, res) => res.send(eta.render('index.html', { data: db.data })));
+     app.get('/:name', (req, res, next) => {
+         const { name = '' } = req.params;
+diff --git a/node_modules/json-server/lib/service.js b/node_modules/json-server/lib/service.js
+index aa7a0d6..e26c1bf 100644
+--- a/node_modules/json-server/lib/service.js
++++ b/node_modules/json-server/lib/service.js
+@@ -175,7 +175,8 @@ export class Service {
+         const items = this.#get(name);
+         if (items === undefined || !Array.isArray(items))
+             return;
+-        const item = items.find((item) => item['id'] === id);
++        const idStr = String(id);
++        const item = items.find((it) => String(it['id']) === idStr);
+         if (item === undefined)
+             return;
+         const index = items.indexOf(item);

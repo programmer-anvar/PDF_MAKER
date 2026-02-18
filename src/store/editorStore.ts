@@ -1,13 +1,13 @@
 import { create } from 'zustand'
 import type { EditorElement, ElementType, TableData } from '../types/editor'
-import { A4_WIDTH, A4_HEIGHT, GRID_SNAP } from '../types/editor'
+import { A4_WIDTH_MM, A4_HEIGHT_MM, GRID_SNAP_MM, PX_PER_MM } from '../types/editor'
 
 function generateId(): string {
   return 'el-' + Math.random().toString(36).slice(2, 11)
 }
 
 function snap(v: number): number {
-  return Math.round(v / GRID_SNAP) * GRID_SNAP
+  return Math.round(v / GRID_SNAP_MM) * GRID_SNAP_MM
 }
 
 /** Ikki to'rtburchak ustma-ust (intersect) qiladimi – yonma-yon/yopishiq bo‘lishi mumkin, faqat ustiga chiqmasin */
@@ -42,7 +42,7 @@ interface EditorStore {
   history: EditorElement[][]
   historyIndex: number
 
-  addElement: (type: ElementType, x?: number, y?: number, initialContent?: string) => void
+  addElement: (type: ElementType, x?: number, y?: number, initialContent?: string, size?: { w?: number; h?: number }) => void
   addFrame: () => void
   updateElement: (id: string, patch: Partial<EditorElement>) => void
   updateElementPosition: (id: string, x: number, y: number, w: number, h: number) => void
@@ -54,7 +54,7 @@ interface EditorStore {
   setCanvasScale: (scale: number) => void
   getSelected: () => EditorElement | null
   setElements: (elements: EditorElement[]) => void
-  loadLayoutFromServer: (elements: EditorElement[]) => void
+  loadLayoutFromServer: (elements: EditorElement[], pageWidth?: number, pageHeight?: number) => void
   bringForward: (id: string) => void
   sendBackward: (id: string) => void
   undo: () => void
@@ -62,12 +62,13 @@ interface EditorStore {
   pushHistory: () => void
 }
 
+/** Element default o'lchamlari, mm */
 const defaultElementSize: Record<ElementType, { w: number; h: number }> = {
-  text: { w: 200, h: 32 },
-  image: { w: 150, h: 100 },
-  rect: { w: 120, h: 80 },
-  line: { w: 200, h: 4 },
-  table: { w: 280, h: 120 },
+  text: { w: 53, h: 8 },
+  image: { w: 40, h: 26 },
+  rect: { w: 32, h: 21 },
+  line: { w: 53, h: 1 },
+  table: { w: 74, h: 32 },
 }
 
 function cloneElements(el: EditorElement[]): EditorElement[] {
@@ -79,8 +80,8 @@ const emptyElements: EditorElement[] = []
 export const useEditorStore = create<EditorStore>((set, get) => ({
   elements: emptyElements,
   selectedId: null,
-  pageWidth: A4_WIDTH,
-  pageHeight: A4_HEIGHT,
+  pageWidth: A4_WIDTH_MM,
+  pageHeight: A4_HEIGHT_MM,
   isDraggingFromSidebar: false,
   canvasScale: 0.65,
   history: [emptyElements],
@@ -94,10 +95,17 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     set({ history: next, historyIndex: next.length - 1 })
   },
 
-  addElement(type, x?, y?, initialContent?) {
+  addElement(type, x?, y?, initialContent?, size?) {
     get().pushHistory() // saqlaymiz: keyin undo bo‘lsa shu holatga qaytadi
     const { pageWidth, pageHeight, elements } = get()
-    const { w, h } = defaultElementSize[type]
+    let { w, h } = defaultElementSize[type]
+    if (size?.w != null) w = Math.max(2, size.w)
+    if (size?.h != null) h = Math.max(2, size.h)
+    if (type === 'text' && initialContent != null && size?.w == null) {
+      const minW = Math.min(185, Math.max(53, initialContent.length * 3.7))
+      w = Math.max(w, minW)
+      if (size?.h == null) h = Math.max(h, 8)
+    }
     const [nx, ny] =
       x !== undefined && y !== undefined
         ? (() => {
@@ -105,7 +113,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
             let py = snap(Math.max(0, Math.min(y, pageHeight - h)))
             const box = { x: px, y: py, w, h }
             if (!elements.some((e) => overlaps(box, e))) return [px, py]
-            for (let d = GRID_SNAP; d <= 200; d += GRID_SNAP) {
+            for (let d = GRID_SNAP_MM; d <= 50; d += GRID_SNAP_MM) {
               for (const [dx, dy] of [[d, 0], [0, d], [d, d], [-d, 0], [0, -d], [-d, -d], [d, -d], [-d, d]]) {
                 const tx = snap(Math.max(0, Math.min(px + dx, pageWidth - w)))
                 const ty = snap(Math.max(0, Math.min(py + dy, pageHeight - h)))
@@ -122,21 +130,21 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
               const cy = container.y
               const cw = container.w
               const ch = container.h
-              const margin = GRID_SNAP
-              for (let py = cy + margin; py + h <= cy + ch - margin; py += GRID_SNAP) {
-                for (let px = cx + margin; px + w <= cx + cw - margin; px += GRID_SNAP) {
+              const margin = GRID_SNAP_MM
+              for (let py = cy + margin; py + h <= cy + ch - margin; py += GRID_SNAP_MM) {
+                for (let px = cx + margin; px + w <= cx + cw - margin; px += GRID_SNAP_MM) {
                   const box = { x: px, y: py, w, h }
                   if (!elements.some((e) => overlaps(box, e))) return [px, py]
                 }
               }
             }
-            for (let py = GRID_SNAP; py + h <= pageHeight; py += GRID_SNAP) {
-              for (let px = GRID_SNAP; px + w <= pageWidth; px += GRID_SNAP) {
+            for (let py = GRID_SNAP_MM; py + h <= pageHeight; py += GRID_SNAP_MM) {
+              for (let px = GRID_SNAP_MM; px + w <= pageWidth; px += GRID_SNAP_MM) {
                 const box = { x: px, y: py, w, h }
                 if (!elements.some((e) => overlaps(box, e))) return [px, py]
               }
             }
-            return [80, 80]
+            return [21, 21]
           })()
     const id = generateId()
     const base: EditorElement = {
@@ -173,12 +181,12 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   addFrame() {
     get().pushHistory()
     const { pageWidth, pageHeight, elements } = get()
-    const w = 400
-    const h = 300
-    let nx = 80
-    let ny = 80
-    for (let py = GRID_SNAP; py + h <= pageHeight; py += GRID_SNAP) {
-      for (let px = GRID_SNAP; px + w <= pageWidth; px += GRID_SNAP) {
+    const w = 106
+    const h = 79
+    let nx = 21
+    let ny = 21
+    for (let py = GRID_SNAP_MM; py + h <= pageHeight; py += GRID_SNAP_MM) {
+      for (let px = GRID_SNAP_MM; px + w <= pageWidth; px += GRID_SNAP_MM) {
         const box = { x: px, y: py, w, h }
         if (!elements.some((e) => overlaps(box, e))) {
           nx = px
@@ -211,16 +219,25 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   updateElement(id, patch) {
     get().pushHistory()
     set((s) => ({
-      elements: s.elements.map((e) => (e.id === id ? { ...e, ...patch } : e)),
+      elements: s.elements.map((e) => {
+        if (e.id !== id) return e
+        let p = { ...patch }
+        if (p.w != null && p.w < 2) p.w = 2
+        if (p.h != null && p.h < 2) p.h = 2
+        return { ...e, ...p }
+      }),
     }))
   },
 
   updateElementPosition(id, x, y, w, h) {
     const { pageWidth, pageHeight, elements } = get()
-    let nx = snap(Math.max(0, Math.min(x, pageWidth - 20)))
-    let ny = snap(Math.max(0, Math.min(y, pageHeight - 12)))
-    let nw = Math.max(20, Math.min(w, pageWidth - nx))
-    let nh = Math.max(12, Math.min(h, pageHeight - ny))
+    const el = elements.find((e) => e.id === id)
+    const minW = 2
+    const minH = 2
+    let nx = snap(Math.max(0, Math.min(x, pageWidth - minW)))
+    let ny = snap(Math.max(0, Math.min(y, pageHeight - minH)))
+    let nw = Math.max(minW, Math.min(w, pageWidth - nx))
+    let nh = Math.max(minH, Math.min(h, pageHeight - ny))
     const container = elements.find((e) => e.isContainer && e.type === 'rect')
     if (container && container.id !== id) {
       const cx = container.x
@@ -291,9 +308,27 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     set({ elements: [...elements], selectedId: null })
   },
 
-  loadLayoutFromServer(elements: EditorElement[]) {
-    const next = cloneElements(elements)
-    set({ elements: next, selectedId: null, history: [next], historyIndex: 0 })
+  loadLayoutFromServer(elements: EditorElement[], pageWidth?: number, pageHeight?: number) {
+    const isOldPx = pageWidth === 794 && pageHeight === 1123
+    const next = cloneElements(
+      isOldPx
+        ? elements.map((e) => ({
+            ...e,
+            x: e.x / PX_PER_MM,
+            y: e.y / PX_PER_MM,
+            w: e.w / PX_PER_MM,
+            h: e.h / PX_PER_MM,
+          }))
+        : elements
+    )
+    set({
+      elements: next,
+      selectedId: null,
+      history: [next],
+      historyIndex: 0,
+      pageWidth: pageWidth != null ? (isOldPx ? A4_WIDTH_MM : pageWidth) : get().pageWidth,
+      pageHeight: pageHeight != null ? (isOldPx ? A4_HEIGHT_MM : pageHeight) : get().pageHeight,
+    })
   },
 
   bringForward(id) {

@@ -23,7 +23,6 @@ export function RectElement({ element, isSelected }: Props) {
         borderBottom: style.borderBottom,
       }}
     >
-      {isRamka && <span className="ramka-label">Ramka</span>}
     </div>
   )
 }

@@ -75,29 +75,37 @@ export function RightPanel() {
       </div>
 
       <div className="prop-group">
-        <label>Pozitsiya / o‘lcham</label>
+        <label>Pozitsiya / o‘lcham (mm)</label>
         <div className="row two">
           <input
             type="number"
-            value={Math.round(selected.x)}
+            step={0.5}
+            value={selected.x}
             onChange={(e) => updateElement(selected.id, { x: Number(e.target.value) })}
+            title="X, mm"
           />
           <input
             type="number"
-            value={Math.round(selected.y)}
+            step={0.5}
+            value={selected.y}
             onChange={(e) => updateElement(selected.id, { y: Number(e.target.value) })}
+            title="Y, mm"
           />
         </div>
         <div className="row two">
           <input
             type="number"
-            value={Math.round(selected.w)}
+            step={0.5}
+            value={selected.w}
             onChange={(e) => updateElement(selected.id, { w: Number(e.target.value) })}
+            title="Kenglik, mm"
           />
           <input
             type="number"
-            value={Math.round(selected.h)}
+            step={0.5}
+            value={selected.h}
             onChange={(e) => updateElement(selected.id, { h: Number(e.target.value) })}
+            title="Balandlik, mm"
           />
         </div>
       </div>

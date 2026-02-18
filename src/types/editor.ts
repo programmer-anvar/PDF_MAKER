@@ -47,11 +47,18 @@ export interface EditorElement {
 export interface EditorState {
   elements: EditorElement[]
   selectedId: string | null
-  /** A4 dimensions in px (794×1123 at 96dpi) */
+  /** Sahifa o'lchami, mm (210×297 A4) */
   pageWidth: number
   pageHeight: number
 }
 
-export const A4_WIDTH = 794
-export const A4_HEIGHT = 1123
-export const GRID_SNAP = 5
+/** 1 mm = necha px (96 DPI): 96/25.4 */
+export const PX_PER_MM = 96 / 25.4
+/** A4 mm da – barcha o'lchamlar shu birlikda */
+export const A4_WIDTH_MM = 210
+export const A4_HEIGHT_MM = 297
+/** Eksport uchun A4 px (html2canvas) */
+export const A4_WIDTH = A4_WIDTH_MM * PX_PER_MM
+export const A4_HEIGHT = A4_HEIGHT_MM * PX_PER_MM
+/** Panjara qadami, mm */
+export const GRID_SNAP_MM = 1

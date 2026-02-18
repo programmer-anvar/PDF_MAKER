@@ -13,7 +13,7 @@ export function TableElement({ element, isSelected }: Props) {
   const padding = table.cellPadding ?? 4
 
   return (
-    <div className={`element-table ${isSelected ? 'selected' : ''}`} style={{ width: '100%', height: '100%', overflow: 'auto' }}>
+    <div className={`element-table ${isSelected ? 'selected' : ''}`} style={{ overflow: 'auto' }}>
       <table
         style={{
           width: '100%',

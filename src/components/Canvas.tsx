@@ -1,7 +1,7 @@
 import { Rnd } from 'react-rnd'
 import { useEditorStore } from '../store/editorStore'
 import { ElementRenderer } from './elements'
-import { GRID_SNAP } from '../types/editor'
+import { PX_PER_MM, GRID_SNAP_MM, A4_WIDTH_MM, A4_HEIGHT_MM } from '../types/editor'
 
 export function Canvas() {
   const {
@@ -37,9 +37,9 @@ export function Canvas() {
     const page = document.getElementById('a4-page')
     if (!page) return
     const rect = page.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * pageWidth
-    const y = ((e.clientY - rect.top) / rect.height) * pageHeight
-    addElement('text', x, y, text)
+    const xMm = ((e.clientX - rect.left) / rect.width) * pageWidth
+    const yMm = ((e.clientY - rect.top) / rect.height) * pageHeight
+    addElement('text', xMm, yMm, text)
   }
 
   return (
@@ -49,8 +49,8 @@ export function Canvas() {
         className="a4-page"
         role="presentation"
         style={{
-          width: pageWidth,
-          height: pageHeight,
+          width: `${A4_WIDTH_MM}mm`,
+          height: `${A4_HEIGHT_MM}mm`,
           position: 'relative',
           background: '#fff',
           boxShadow: '0 2px 20px rgba(0,0,0,0.15)',
@@ -81,19 +81,26 @@ export function Canvas() {
           .map((el) => (
           <Rnd
             key={el.id}
-            size={{ width: el.w, height: el.h }}
-            position={{ x: el.x, y: el.y }}
+            size={{ width: el.w * PX_PER_MM, height: el.h * PX_PER_MM }}
+            position={{ x: el.x * PX_PER_MM, y: el.y * PX_PER_MM }}
             scale={canvasScale}
             onDragStop={(_e, d) => {
-              const dx = Math.abs(d.x - el.x)
-              const dy = Math.abs(d.y - el.y)
-              if (dx > 8 || dy > 8) updateElementPosition(el.id, d.x, d.y, el.w, el.h)
+              const dx = Math.abs(d.x - el.x * PX_PER_MM)
+              const dy = Math.abs(d.y - el.y * PX_PER_MM)
+              if (dx > 8 || dy > 8)
+                updateElementPosition(el.id, d.x / PX_PER_MM, d.y / PX_PER_MM, el.w, el.h)
             }}
             onResizeStop={(_e, _dir, ref, _delta, pos) => {
-              updateElementPosition(el.id, pos.x, pos.y, ref.offsetWidth, ref.offsetHeight)
+              updateElementPosition(
+                el.id,
+                pos.x / PX_PER_MM,
+                pos.y / PX_PER_MM,
+                ref.offsetWidth / PX_PER_MM,
+                ref.offsetHeight / PX_PER_MM
+              )
             }}
-            dragGrid={[1, 1]}
-            resizeGrid={[GRID_SNAP, GRID_SNAP]}
+            dragGrid={[GRID_SNAP_MM * PX_PER_MM, GRID_SNAP_MM * PX_PER_MM]}
+            resizeGrid={[GRID_SNAP_MM * PX_PER_MM, GRID_SNAP_MM * PX_PER_MM]}
             bounds="parent"
             enableResizing={selectedId === el.id}
             disableDragging={false}
@@ -108,7 +115,7 @@ export function Canvas() {
               boxSizing: 'border-box',
             }}
           >
-            <div style={{ width: '100%', height: '100%', transform: el.rotate ? `rotate(${el.rotate}deg)` : undefined }}>
+            <div style={{ width: '100%', height: '100%', overflow: 'visible', transform: el.rotate ? `rotate(${el.rotate}deg)` : undefined }}>
               <ElementRenderer element={el} isSelected={selectedId === el.id} />
             </div>
           </Rnd>

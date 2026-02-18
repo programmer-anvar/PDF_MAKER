@@ -335,6 +335,14 @@
 }
 
 /* Element selection outline */
+.element-text {
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+}
+
 .element-text.selected,
 .element-image.selected,
 .element-rect.selected,

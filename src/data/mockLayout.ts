@@ -1,17 +1,17 @@
 import type { EditorElement } from '../types/editor'
 
-/** Mock layout – barcha ma'lumot shu data orqali keladi */
+/** Mock layout – barcha o'lchamlar mm da */
 export const mockLayout = {
-  pageWidth: 794,
-  pageHeight: 1123,
+  pageWidth: 210,
+  pageHeight: 297,
   elements: [
     {
       id: 'mock-text-1',
       type: 'text' as const,
-      x: 80,
-      y: 60,
-      w: 300,
-      h: 36,
+      x: 21,
+      y: 16,
+      w: 79,
+      h: 9.5,
       rotate: 0,
       style: { fontSize: 18, fontWeight: 'bold', color: '#000', textAlign: 'center' },
       content: 'Sarlavha',
@@ -19,10 +19,10 @@ export const mockLayout = {
     {
       id: 'mock-text-2',
       type: 'text' as const,
-      x: 80,
-      y: 110,
-      w: 400,
-      h: 28,
+      x: 21,
+      y: 29,
+      w: 106,
+      h: 7.4,
       rotate: 0,
       style: { fontSize: 12, color: '#333', textAlign: 'left' },
       content: 'Quyida ma’lumotlar va jadval joylashadi.',
@@ -30,10 +30,10 @@ export const mockLayout = {
     {
       id: 'mock-rect-1',
       type: 'rect' as const,
-      x: 80,
-      y: 160,
-      w: 200,
-      h: 100,
+      x: 21,
+      y: 42,
+      w: 53,
+      h: 26,
       rotate: 0,
       style: {
         backgroundColor: '#f5f5f5',
@@ -46,20 +46,20 @@ export const mockLayout = {
     {
       id: 'mock-line-1',
       type: 'line' as const,
-      x: 80,
-      y: 280,
-      w: 400,
-      h: 4,
+      x: 21,
+      y: 74,
+      w: 106,
+      h: 1,
       rotate: 0,
       style: { color: '#000', borderWidth: 2 },
     },
     {
       id: 'mock-table-1',
       type: 'table' as const,
-      x: 80,
-      y: 300,
-      w: 400,
-      h: 140,
+      x: 21,
+      y: 79,
+      w: 106,
+      h: 37,
       rotate: 0,
       style: { fontSize: 11 },
       table: {
@@ -78,10 +78,10 @@ export const mockLayout = {
     {
       id: 'mock-text-3',
       type: 'text' as const,
-      x: 500,
-      y: 160,
-      w: 220,
-      h: 80,
+      x: 132,
+      y: 42,
+      w: 58,
+      h: 21,
       rotate: 0,
       style: {
         fontSize: 14,

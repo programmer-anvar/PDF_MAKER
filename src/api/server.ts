@@ -31,7 +31,7 @@ function getEmptyLayout(): LayoutRecord {
   return {
     id: LAYOUT_ID,
     elements: [],
-    pageWidth: 794,
-    pageHeight: 1123,
+    pageWidth: 210,
+    pageHeight: 297,
   }
 }

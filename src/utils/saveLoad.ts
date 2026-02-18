@@ -13,7 +13,7 @@ export async function loadFromServer(): Promise<boolean> {
   try {
     const data = await fetchLayout()
     const elements = (data.elements ?? []) as EditorElement[]
-    useEditorStore.getState().loadLayoutFromServer(elements)
+    useEditorStore.getState().loadLayoutFromServer(elements, data.pageWidth, data.pageHeight)
     return true
   } catch {
     return false
@@ -48,7 +48,9 @@ export function exportLayoutJson(): string {
 export function importLayoutJson(json: string): boolean {
   try {
     const data = JSON.parse(json) as SavedLayout
-    useEditorStore.getState().setElements((data.elements ?? []) as EditorElement[])
+    const elements = (data.elements ?? []) as EditorElement[]
+    const store = useEditorStore.getState()
+    store.loadLayoutFromServer(elements, data.pageWidth, data.pageHeight)
     return true
   } catch {
     return false
