@@ -42,7 +42,7 @@ interface EditorStore {
   history: EditorElement[][]
   historyIndex: number
 
-  addElement: (type: ElementType, x?: number, y?: number, initialContent?: string, size?: { w?: number; h?: number }) => void
+  addElement: (type: ElementType, x?: number, y?: number, initialContent?: string, size?: { w?: number; h?: number }, dataKey?: string) => void
   addFrame: () => void
   updateElement: (id: string, patch: Partial<EditorElement>) => void
   updateElementPosition: (id: string, x: number, y: number, w: number, h: number) => void
@@ -95,7 +95,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     set({ history: next, historyIndex: next.length - 1 })
   },
 
-  addElement(type, x?, y?, initialContent?, size?) {
+  addElement(type, x?, y?, initialContent?, size?, dataKey?) {
     get().pushHistory() // saqlaymiz: keyin undo bo‘lsa shu holatga qaytadi
     const { pageWidth, pageHeight, elements } = get()
     let { w, h } = defaultElementSize[type]
@@ -156,22 +156,22 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       h,
       rotate: 0,
       style: {
-        fontSize: 14,
+        fontSize: 8,
         fontWeight: 'normal',
         color: '#000000',
         backgroundColor: type === 'rect' ? '#f0f0f0' : undefined,
         border: type === 'rect' ? '1px solid #999' : undefined,
-        borderTop: '1px solid #ccc',
-        borderRight: '1px solid #ccc',
+        borderBottom: '1px solid black',
+        borderRight: '1px solid black',
         textAlign: 'left',
       },
     }
     const textContent = type === 'text' && initialContent != null ? initialContent : undefined
     const el: EditorElement =
       type === 'text'
-        ? { ...base, content: textContent ?? 'Matn' }
+        ? { ...base, content: textContent ?? (dataKey ?? 'Matn'), dataKey: dataKey ?? base.dataKey }
         : type === 'image'
-          ? { ...base, src: '' }
+          ? { ...base, src: '', dataKey: dataKey ?? undefined }
           : type === 'table'
             ? { ...base, table: { ...defaultTableData } }
             : base
@@ -207,9 +207,12 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       isContainer: true,
       style: {
         backgroundColor: 'transparent',
-        border: '2px dashed #64748b',
-        borderTop: '2px dashed #64748b',
-        borderRight: '2px dashed #64748b',
+        border: '2px solid black',
+        borderTop: '2px solid black',
+        borderRight: '2px solid black',
+        borderLeft: '2px solid black',
+        borderBottom: '2px solid black',
+
         textAlign: 'left',
       },
     }

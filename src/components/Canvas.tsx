@@ -28,9 +28,11 @@ export function Canvas() {
     const raw = e.dataTransfer.getData('application/json')
     if (!raw) return
     let text: string
+    let dataKey: string | undefined
     try {
-      const data = JSON.parse(raw) as { text?: string; label?: string; value?: string }
+      const data = JSON.parse(raw) as { text?: string; label?: string; value?: string; dataKey?: string }
       text = data.text ?? (data.value ? `${data.label}: ${data.value}` : data.label ?? '')
+      dataKey = data.dataKey ?? data.label
     } catch {
       return
     }
@@ -39,7 +41,7 @@ export function Canvas() {
     const rect = page.getBoundingClientRect()
     const xMm = ((e.clientX - rect.left) / rect.width) * pageWidth
     const yMm = ((e.clientY - rect.top) / rect.height) * pageHeight
-    addElement('text', xMm, yMm, text)
+    addElement('text', xMm, yMm, text, undefined, dataKey)
   }
 
   return (

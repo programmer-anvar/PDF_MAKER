@@ -4,6 +4,17 @@ export interface DataSection {
   items: { label: string; value: string }[]
 }
 
+/** Sampling da ishlatish uchun: label → value map (dataKey = label) */
+export function getMockDataAsRecord(): Record<string, string> {
+  const out: Record<string, string> = {}
+  mockSidebarData.forEach((section) => {
+    section.items.forEach((item) => {
+      out[item.label] = item.value
+    })
+  })
+  return out
+}
+
 export const mockSidebarData: DataSection[] = [
   {
     title: 'Korxona',

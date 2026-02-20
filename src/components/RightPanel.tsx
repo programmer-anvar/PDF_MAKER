@@ -32,7 +32,7 @@ export function RightPanel() {
                     onClick={() => setSelected(el.id)}
                   >
                     <span className="el-type">{TYPE_LABELS[el.type] ?? el.type}</span>
-                    <span className="el-preview">{el.type === 'text' ? (el.content || '—').slice(0, 20) : `#${i + 1}`}</span>
+                    <span className="el-preview">{el.type === 'text' ? (el.dataKey ?? el.content ?? '—').slice(0, 20) : `#${i + 1}`}</span>
                   </button>
                 </li>
               ))}
@@ -112,8 +112,14 @@ export function RightPanel() {
 
       {selected.type === 'text' && (
         <>
+          {selected.dataKey && (
+            <div className="prop-group">
+              <label>Ma’lumot kaliti (sampling da value chiqadi)</label>
+              <input type="text" value={selected.dataKey} readOnly style={{ background: 'rgba(0,0,0,0.2)', cursor: 'default' }} />
+            </div>
+          )}
           <div className="prop-group">
-            <label>Matn</label>
+            <label>Text</label>
             <textarea
               value={selected.content ?? ''}
               onChange={(e) => updateElement(selected.id, { content: e.target.value })}
@@ -124,7 +130,7 @@ export function RightPanel() {
             <label>Shrift o‘lchami</label>
             <input
               type="number"
-              value={selected.style?.fontSize ?? 14}
+              value={selected.style?.fontSize ?? 8}
               onChange={(e) => updateStyle({ fontSize: Number(e.target.value) })}
             />
           </div>
@@ -137,7 +143,7 @@ export function RightPanel() {
             />
           </div>
           <div className="prop-group">
-            <label>Hizalash</label>
+            <label>Hizalash (X)</label>
             <select
               value={selected.style?.textAlign ?? 'left'}
               onChange={(e) => updateStyle({ textAlign: e.target.value as 'left' | 'center' | 'right' })}
@@ -145,6 +151,17 @@ export function RightPanel() {
               <option value="left">Chap</option>
               <option value="center">Markaz</option>
               <option value="right">O‘ng</option>
+            </select>
+          </div>
+          <div className="prop-group">
+            <label>Hizalash (Y)</label>
+            <select
+              value={selected.style?.verticalAlign ?? 'middle'}
+              onChange={(e) => updateStyle({ verticalAlign: e.target.value as 'top' | 'middle' | 'bottom' })}
+            >
+              <option value="top">Yuqori</option>
+              <option value="middle">O‘rta</option>
+              <option value="bottom">Past</option>
             </select>
           </div>
           <div className="prop-group">
@@ -178,10 +195,27 @@ export function RightPanel() {
       )}
 
       {selected.type === 'image' && (
-        <div className="prop-group">
-          <label>Rasm</label>
-          <input type="file" accept="image/*" onChange={handleImageUpload} />
-        </div>
+        <>
+          <div className="prop-group">
+            <label>Rasm turi (PDF da)</label>
+            <select
+              value={selected.dataKey ?? ''}
+              onChange={(e) => updateElement(selected.id, { dataKey: e.target.value || undefined })}
+            >
+              <option value="">Rasm (o‘zingiz yuklaysiz)</option>
+              <option value="__sign1Img__">Imzo 1 (meaSignature1)</option>
+              <option value="__sign2Img__">Imzo 2 (meaSignature2)</option>
+            </select>
+          </div>
+          {(selected.dataKey === '__sign1Img__' || selected.dataKey === '__sign2Img__') ? (
+            <p className="panel-hint">Kefa-dev da PDF exportda sampling imzosi avtomatik chiqadi. Backend ga saqlang.</p>
+          ) : (
+            <div className="prop-group">
+              <label>Rasm</label>
+              <input type="file" accept="image/*" onChange={handleImageUpload} />
+            </div>
+          )}
+        </>
       )}
 
       {selected.type === 'rect' && (

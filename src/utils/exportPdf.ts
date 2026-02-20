@@ -7,13 +7,33 @@ const A4_MM = { w: 210, h: 297 }
 
 /**
  * A4 page element'ni html2canvas bilan rasmga aylantiradi va jsPDF orqali PDF yuklab oladi (WYSIWYG).
- * Eksport vaqtida zoom 1 qilinadi – sahifa to'liq o'lchamda yakhlanadi, PDF buzilmaydi.
+ * data berilsa (sampling): layout bir xil, lekin data-data-key li elementlarda key o'rniga data[key] value ko'rsatiladi.
  */
-export async function exportPageToPdf(selector = '#a4-page', filename = 'document.pdf'): Promise<void> {
-  const el = document.querySelector(selector) as HTMLElement
+export async function exportPageToPdf(
+  selector = '#a4-page',
+  filename = 'document.pdf',
+  data?: Record<string, string>
+): Promise<void> {
+  let el = document.querySelector(selector) as HTMLElement
   if (!el) {
     console.error('A4 page element topilmadi:', selector)
     return
+  }
+
+  let clone: HTMLElement | null = null
+  if (data && Object.keys(data).length > 0) {
+    clone = el.cloneNode(true) as HTMLElement
+    clone.querySelectorAll('[data-data-key]').forEach((node) => {
+      const key = (node as HTMLElement).getAttribute('data-data-key')
+      if (key && data[key] !== undefined) {
+        ;(node as HTMLElement).textContent = data[key]
+      }
+    })
+    clone.style.position = 'absolute'
+    clone.style.left = '-9999px'
+    clone.style.top = '0'
+    el.parentElement?.appendChild(clone)
+    el = clone
   }
 
   const wrapper = el.parentElement as HTMLElement | null
@@ -43,6 +63,9 @@ export async function exportPageToPdf(selector = '#a4-page', filename = 'documen
   } finally {
     if (wrapper) {
       wrapper.style.transform = savedTransform || `scale(${savedScale})`
+    }
+    if (clone?.parentElement) {
+      clone.parentElement.removeChild(clone)
     }
   }
 }

@@ -20,7 +20,7 @@ export async function loadFromServer(): Promise<boolean> {
   }
 }
 
-export async function saveToServer(): Promise<boolean> {
+export async function saveToServer(): Promise<{ ok: boolean; error?: string }> {
   try {
     const state = useEditorStore.getState()
     await saveLayout({
@@ -28,9 +28,10 @@ export async function saveToServer(): Promise<boolean> {
       pageWidth: state.pageWidth,
       pageHeight: state.pageHeight,
     })
-    return true
-  } catch {
-    return false
+    return { ok: true }
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Saqlash xatosi'
+    return { ok: false, error: message }
   }
 }
 

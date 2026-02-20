@@ -7,22 +7,48 @@ import { RightPanel } from './components/RightPanel'
 import { Toast } from './components/Toast'
 import { exportPageToPdf } from './utils/exportPdf'
 import { saveToServer, loadFromServer, exportLayoutJson, importLayoutJson } from './utils/saveLoad'
+import { getMockDataAsRecord } from './data/mockSidebarData'
+import { fetchSamplingDataAsRecord } from './api/sampling'
+import { getAccessToken, setAccessToken, initAuth, handleLogout } from './api/auth'
+import { LoginView } from './components/LoginView'
 import './App.css'
 
 function App() {
   const toast = useToastStore((s) => s.show)
   const { undo, redo, deleteElement, setSelected, getSelected } = useEditorStore()
   const [loading, setLoading] = useState(true)
+  const [tokenInput, setTokenInput] = useState('')
+  const [showTokenInput, setShowTokenInput] = useState(false)
+  const [, setAuthVersion] = useState(0)
+  const hasToken = !!getAccessToken()
 
   useEffect(() => {
-    setLoading(true)
-    loadFromServer()
-      .then((ok) => {
-        if (!ok) toast('Serverdan yuklash mumkin emas. Avval "npm run server" ishga tushiring.', 'error')
-      })
-      .catch(() => toast('Server xatosi', 'error'))
-      .finally(() => setLoading(false))
+    const onAuthChange = () => setAuthVersion((v) => v + 1)
+    window.addEventListener('authLogout', onAuthChange)
+    window.addEventListener('storage', onAuthChange)
+    return () => {
+      window.removeEventListener('authLogout', onAuthChange)
+      window.removeEventListener('storage', onAuthChange)
+    }
   }, [])
+
+  useEffect(() => {
+    if (!hasToken) return
+    setLoading(true)
+    const load = () => {
+      loadFromServer()
+        .then((ok) => {
+          if (!ok) toast('Serverdan yuklash mumkin emas.', 'error')
+        })
+        .finally(() => setLoading(false))
+    }
+    initAuth()
+      .then(load)
+      .catch(() => {
+        toast('Auth xatosi', 'error')
+        load()
+      })
+  }, [hasToken])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -60,10 +86,36 @@ function App() {
     toast('PDF yuklandi', 'success')
   }, [toast])
 
+  const handleExportPdfSampling = useCallback(async () => {
+    const realData = await fetchSamplingDataAsRecord()
+    const data = realData ?? getMockDataAsRecord()
+    if (!realData) toast('Serverdan ma’lumot kelmadi, namuna ishlatildi', 'info')
+    exportPageToPdf('#a4-page', `sampling-${Date.now()}.pdf`, data)
+    toast('PDF (value\'lar bilan) yuklandi', 'success')
+  }, [toast])
+
   const handleSave = useCallback(async () => {
-    const ok = await saveToServer()
-    if (ok) toast('Serverga saqlandi', 'success')
-    else toast('Serverga saqlashda xatolik', 'error')
+    const result = await saveToServer()
+    if (result.ok) toast('Serverga saqlandi', 'success')
+    else toast(result.error ?? 'Serverga saqlashda xatolik', 'error')
+  }, [toast])
+
+  const handleSaveToken = useCallback(() => {
+    const t = tokenInput.trim()
+    if (t) {
+      setAccessToken(t)
+      setTokenInput('')
+      setShowTokenInput(false)
+      toast('Token saqlandi', 'success')
+      setAuthVersion((v) => v + 1)
+    }
+  }, [tokenInput, toast])
+
+  const onLogout = useCallback(() => {
+    handleLogout()
+    setShowTokenInput(true)
+    setAuthVersion((v) => v + 1)
+    toast('Chiqildi', 'info')
   }, [toast])
 
   const handleLoad = useCallback(async () => {
@@ -100,6 +152,15 @@ function App() {
   const canvasScale = useEditorStore((s) => s.canvasScale)
   const setCanvasScale = useEditorStore((s) => s.setCanvasScale)
 
+  if (!hasToken) {
+    return (
+      <>
+        <LoginView onSuccess={() => setAuthVersion((v) => v + 1)} />
+        <Toast />
+      </>
+    )
+  }
+
   if (loading) {
     return (
       <div className="app editor-app app-loading">
@@ -116,6 +177,36 @@ function App() {
         <h1>PDF Designer</h1>
         <p>Elementlarni sahifaga qo‘shing, joylashtiring. <span className="kbd-hint">Ctrl+Z</span> bekor qilish, <span className="kbd-hint">Delete</span> o‘chirish.</p>
         <div className="toolbar">
+          {!hasToken || showTokenInput ? (
+            <span className="toolbar-token-wrap">
+              <input
+                type="password"
+                className="toolbar-token-input"
+                placeholder="Bearer token (kefa-dev dan nusxalang)"
+                value={tokenInput}
+                onChange={(e) => setTokenInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveToken()}
+              />
+              <button type="button" className="btn primary small" onClick={handleSaveToken}>
+                Token saqlash
+              </button>
+              {hasToken && (
+                <button type="button" className="btn small" onClick={() => setShowTokenInput(false)}>
+                  Yopish
+                </button>
+              )}
+            </span>
+          ) : (
+            <>
+              <button type="button" className="btn small" onClick={() => setShowTokenInput(true)} title="Token yangilash">
+                Token ✓
+              </button>
+              <button type="button" className="btn small danger" onClick={onLogout} title="Chiqish">
+                Chiqish
+              </button>
+            </>
+          )}
+          <span className="toolbar-sep" />
           <button type="button" className="btn" onClick={undo} disabled={!canUndo} title="Bekor qilish (Ctrl+Z)">
             ↩ Bekor
           </button>
@@ -124,7 +215,10 @@ function App() {
           </button>
           <span className="toolbar-sep" />
           <button type="button" className="btn primary" onClick={handleExportPdf}>
-            PDF yuklab olish
+            PDF (key’lar)
+          </button>
+          <button type="button" className="btn primary" onClick={handleExportPdfSampling} title="Xuddi shu layout, lekin dataKey o‘rniga value">
+            PDF (value’lar / sampling)
           </button>
           <button type="button" className="btn" onClick={handleSave}>
             Saqlash
@@ -157,7 +251,9 @@ function App() {
       <div className="editor-body">
         <DataSidebar />
         <div className="canvas-area">
-          <Canvas />
+          <div className="canvas-area-inner">
+            <Canvas />
+          </div>
         </div>
         <RightPanel />
       </div>

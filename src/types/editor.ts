@@ -14,6 +14,8 @@ export interface ElementStyle {
   borderTop?: string
   borderBottom?: string
   textAlign?: 'left' | 'center' | 'right'
+  /** Y o'qi bo'yicha: yuqori, o'rta, past */
+  verticalAlign?: 'top' | 'middle' | 'bottom'
   fontFamily?: string
 }
 
@@ -36,6 +38,8 @@ export interface EditorElement {
   style?: ElementStyle
   /** Text content */
   content?: string
+  /** Ma'lumot kaliti – designer da key ko'rsatiladi, sampling da data[dataKey] value */
+  dataKey?: string
   /** Image src (data URL or URL) */
   src?: string
   /** Table config */

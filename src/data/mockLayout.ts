@@ -38,9 +38,9 @@ export const mockLayout = {
       style: {
         backgroundColor: '#f5f5f5',
         borderLeft: '3px solid #3b82f6',
-        borderRight: '1px solid #ccc',
-        borderTop: '1px solid #ccc',
-        borderBottom: '1px solid #ccc',
+        borderRight: '1px solid black',
+        borderTop: '1px solid black',
+        borderBottom: '1px solid black',
       },
     },
     {

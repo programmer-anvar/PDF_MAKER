@@ -30,6 +30,28 @@ export function LeftPanel() {
             </button>
           </li>
         ))}
+        <li>
+          <button
+            type="button"
+            className="element-btn"
+            onClick={() => addElement('image', undefined, undefined, undefined, { w: 20, h: 10 }, '__sign1Img__')}
+            title="PDF da meaSignature1"
+          >
+            <span className="element-icon">✍</span>
+            <span>Imzo 1</span>
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            className="element-btn"
+            onClick={() => addElement('image', undefined, undefined, undefined, { w: 20, h: 10 }, '__sign2Img__')}
+            title="PDF da meaSignature2"
+          >
+            <span className="element-icon">✍</span>
+            <span>Imzo 2</span>
+          </button>
+        </li>
       </ul>
     </aside>
   )

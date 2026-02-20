@@ -1,6 +1,6 @@
 import { useEditorStore } from '../store/editorStore'
 import type { ElementType } from '../types/editor'
-import { mockSidebarData } from '../data/mockSidebarData'
+import { samplingReportKeysStatic } from '../data/samplingReportKeysStatic'
 
 const setDraggingFromSidebar = () => useEditorStore.getState().setDraggingFromSidebar(true)
 const setNotDraggingFromSidebar = () => useEditorStore.getState().setDraggingFromSidebar(false)
@@ -13,33 +13,41 @@ const ELEMENTS: { type: ElementType; label: string; icon: string }[] = [
   { type: 'table', label: 'Jadval', icon: '▦' },
 ]
 
-/** Chap panel: ma’lumotlar sidebar ko‘rinishida + elementlar */
+/** title bo‘yicha guruhlash */
+const fieldsByTitle = samplingReportKeysStatic.reduce<Record<string, typeof samplingReportKeysStatic>>((acc, f) => {
+  if (!acc[f.title]) acc[f.title] = []
+  acc[f.title].push(f)
+  return acc
+}, {})
+
+/** Chap panel: Sampling Report keylari (dbName). Layout shu yerda (pdf-maker) saqlanadi; sampling PDF faqat kefa-dev-front da chiqadi (layout + sampling ma'lumoti). */
 export function DataSidebar() {
   return (
     <aside className="panel left-panel data-sidebar">
       <section className="sidebar-section">
-        <h3>Ma’lumotlar</h3>
-        <p className="panel-hint">PDF da chiqadigan ma’lumotlar</p>
+        <h3>Sampling Report 데이터</h3>
+        <p className="panel-hint">Keylarni sahifaga torting. Saqlash: db.json. Kefa-dev-front da sampling da value lar chiqadi.</p>
         <div className="data-blocks">
-          {mockSidebarData.map((section, i) => (
-            <div key={i} className="data-block">
-              <div className="data-block-title">{section.title}</div>
+          {Object.entries(fieldsByTitle).map(([title, items]) => (
+            <div key={title} className="data-block">
+              <div className="data-block-title">{title}</div>
               <ul className="data-list">
-                {section.items.map((item, j) => (
+                {items.map((item) => (
                   <li
-                    key={j}
+                    key={item.dataKey}
                     className="data-row data-row-draggable"
                     draggable
                     onDragStart={(e) => {
-                      const text = item.value ? `${item.label}: ${item.value}` : item.label
-                      e.dataTransfer.setData('application/json', JSON.stringify({ label: item.label, value: item.value, text }))
+                      e.dataTransfer.setData(
+                        'application/json',
+                        JSON.stringify({ label: item.dataKey, value: '', text: item.dataKey, dataKey: item.dataKey })
+                      )
                       e.dataTransfer.effectAllowed = 'copy'
                       setDraggingFromSidebar()
                     }}
                     onDragEnd={() => setNotDraggingFromSidebar()}
                   >
-                    <span className="data-label">{item.label}</span>
-                    <span className="data-value">{item.value || '—'}</span>
+                    <span className="data-label">{item.dataKey}</span>
                   </li>
                 ))}
               </ul>
@@ -67,6 +75,28 @@ export function DataSidebar() {
               <ElementBtn type={type} label={label} icon={icon} />
             </li>
           ))}
+          <li>
+            <button
+              type="button"
+              className="element-btn"
+              onClick={() => useEditorStore.getState().addElement('image', undefined, undefined, undefined, { w: 20, h: 10 }, '__sign1Img__')}
+              title="PDF da meaSignature1 (o‘lcham 20×10 mm)"
+            >
+              <span className="element-icon">✍</span>
+              <span>Imzo 1</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className="element-btn"
+              onClick={() => useEditorStore.getState().addElement('image', undefined, undefined, undefined, { w: 20, h: 10 }, '__sign2Img__')}
+              title="PDF da meaSignature2 (o‘lcham 20×10 mm)"
+            >
+              <span className="element-icon">✍</span>
+              <span>Imzo 2</span>
+            </button>
+          </li>
         </ul>
       </section>
     </aside>
