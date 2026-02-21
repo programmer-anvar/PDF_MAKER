@@ -12,7 +12,6 @@ export interface SamplingReportKeyItem {
 const VALUE_LIST_DB_NAMES = [
   'companyName',
   'facilityPreventions',
-  'receiptDay',
   'totalAmountWater',
   'moistureWeightDiff1',
   'suctionGasFlowRate',
@@ -138,6 +137,6 @@ const VALUE_LIST_DB_NAMES = [
 /** Designer da: faqat keylar. Sampling da: value lar dinamik. */
 export const samplingReportKeysStatic: SamplingReportKeyItem[] = VALUE_LIST_DB_NAMES.map((dataKey) => ({
   dataKey,
-  title: '데이터',
+  title: 'sasasasas',
   label: dataKey,
 }))

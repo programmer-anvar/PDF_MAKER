@@ -205,10 +205,13 @@ export function RightPanel() {
               <option value="">Rasm (o‘zingiz yuklaysiz)</option>
               <option value="__sign1Img__">Imzo 1 (meaSignature1)</option>
               <option value="__sign2Img__">Imzo 2 (meaSignature2)</option>
+              <option value="__shapeImage__">Shape (shapeImage)</option>
             </select>
           </div>
           {(selected.dataKey === '__sign1Img__' || selected.dataKey === '__sign2Img__') ? (
             <p className="panel-hint">Kefa-dev da PDF exportda sampling imzosi avtomatik chiqadi. Backend ga saqlang.</p>
+          ) : selected.dataKey === '__shapeImage__' ? (
+            <p className="panel-hint">Kefa-dev da PDF da shapeImage avtomatik chiqadi. Eni va balandlikni yuqoridagi Kenglik/Balandlik (mm) orqali boshqaring.</p>
           ) : (
             <div className="prop-group">
               <label>Rasm</label>

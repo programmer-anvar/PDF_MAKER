@@ -52,6 +52,17 @@ export function LeftPanel() {
             <span>Imzo 2</span>
           </button>
         </li>
+        <li>
+          <button
+            type="button"
+            className="element-btn"
+            onClick={() => addElement('image', undefined, undefined, undefined, { w: 28, h: 25 }, '__shapeImage__')}
+            title="PDF da shapeImage (eni/balandlik boshqariladi)"
+          >
+            <span className="element-icon">▢</span>
+            <span>Shape</span>
+          </button>
+        </li>
       </ul>
     </aside>
   )
