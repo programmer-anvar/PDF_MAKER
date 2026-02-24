@@ -10,6 +10,9 @@ const setNotDraggingFromSidebar = () => useEditorStore.getState().setDraggingFro
 
 const ELEMENTS: { type: ElementType; label: string; icon: string }[] = [
   { type: 'text', label: 'Matn', icon: 'T' },
+  { type: 'root', label: 'Matematik ildiz', icon: '√' },
+  { type: 'fraction', label: 'Kasr', icon: 'a/b' },
+  { type: 'formula', label: 'Ildizli kasr', icon: '√ ⁄' },
   { type: 'image', label: 'Rasm', icon: '🖼' },
   { type: 'rect', label: 'To‘rtburchak', icon: '▢' },
   { type: 'line', label: 'Chiziq', icon: '—' },

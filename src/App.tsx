@@ -32,11 +32,12 @@ function App() {
     }
   }, [])
 
+  // Token bor bo‘lganda avval pdf-template API dan layout yuklanadi (serverdan)
   useEffect(() => {
     if (!hasToken) return
     setLoading(true)
     const load = () => {
-      loadFromServer()
+      loadFromServer() // pdf-template dan ovol
         .then((ok) => {
           if (!ok) toast('Serverdan yuklash mumkin emas.', 'error')
         })
@@ -82,7 +83,9 @@ function App() {
   }, [undo, redo, deleteElement, setSelected, getSelected])
 
   const handleExportPdf = useCallback(() => {
-    exportPageToPdf('#a4-page', `document-${Date.now()}.pdf`)
+    const pages = useEditorStore.getState().pages
+    const selectors = pages.map((p) => `#a4-page-${p.id}`)
+    exportPageToPdf(selectors, `document-${Date.now()}.pdf`)
     toast('PDF yuklandi', 'success')
   }, [toast])
 
@@ -90,7 +93,9 @@ function App() {
     const realData = await fetchSamplingDataAsRecord()
     const data = realData ?? getMockDataAsRecord()
     if (!realData) toast('Serverdan ma’lumot kelmadi, namuna ishlatildi', 'info')
-    exportPageToPdf('#a4-page', `sampling-${Date.now()}.pdf`, data)
+    const pages = useEditorStore.getState().pages
+    const selectors = pages.map((p) => `#a4-page-${p.id}`)
+    exportPageToPdf(selectors, `sampling-${Date.now()}.pdf`, data)
     toast('PDF (value\'lar bilan) yuklandi', 'success')
   }, [toast])
 

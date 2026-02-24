@@ -1,10 +1,10 @@
 import { useEditorStore } from '../store/editorStore'
 import type { ElementStyle } from '../types/editor'
 
-const TYPE_LABELS: Record<string, string> = { text: 'Matn', image: 'Rasm', rect: 'To‘rtburchak', line: 'Chiziq', table: 'Jadval' }
+const TYPE_LABELS: Record<string, string> = { text: 'Matn', root: 'Matematik ildiz', fraction: 'Kasr', formula: 'Ildizli kasr', image: 'Rasm', rect: 'To‘rtburchak', line: 'Chiziq', table: 'Jadval' }
 
 export function RightPanel() {
-  const elements = useEditorStore((s) => s.elements)
+  const elements = useEditorStore((s) => s.pages[s.activePageIndex]?.elements ?? [])
   const selectedId = useEditorStore((s) => s.selectedId)
   const selected = useEditorStore((s) => s.getSelected())
   const updateElement = useEditorStore((s) => s.updateElement)
@@ -32,7 +32,7 @@ export function RightPanel() {
                     onClick={() => setSelected(el.id)}
                   >
                     <span className="el-type">{TYPE_LABELS[el.type] ?? el.type}</span>
-                    <span className="el-preview">{el.type === 'text' ? (el.dataKey ?? el.content ?? '—').slice(0, 20) : `#${i + 1}`}</span>
+                    <span className="el-preview">{(el.type === 'text' || el.type === 'root' || el.type === 'fraction' || el.type === 'formula') ? (el.type === 'formula' ? `${(el.formulaNum ?? '').slice(0, 12)}…` : (el.dataKey ?? el.content ?? '—').slice(0, 20)) : `#${i + 1}`}</span>
                   </button>
                 </li>
               ))}
@@ -110,22 +110,104 @@ export function RightPanel() {
         </div>
       </div>
 
-      {selected.type === 'text' && (
+      <div className="prop-group">
+        <label>Burchak (gradus)</label>
+        <input
+          type="number"
+          step={5}
+          min={-360}
+          max={360}
+          value={selected.rotate ?? 0}
+          onChange={(e) => updateElement(selected.id, { rotate: Number(e.target.value) || 0 })}
+          title="Elementni qiyshaytirish"
+        />
+      </div>
+
+      {(selected.type === 'text' || selected.type === 'root' || selected.type === 'fraction' || selected.type === 'formula') && (
         <>
-          {selected.dataKey && (
-            <div className="prop-group">
-              <label>Ma’lumot kaliti (sampling da value chiqadi)</label>
-              <input type="text" value={selected.dataKey} readOnly style={{ background: 'rgba(0,0,0,0.2)', cursor: 'default' }} />
-            </div>
-          )}
           <div className="prop-group">
-            <label>Text</label>
-            <textarea
-              value={selected.content ?? ''}
-              onChange={(e) => updateElement(selected.id, { content: e.target.value })}
-              rows={3}
+              <label>Ma’lumot kaliti (sampling da value chiqadi)</label>
+              <input
+              type="text"
+              value={selected.dataKey ?? ''}
+              onChange={(e) => updateElement(selected.id, { dataKey: e.target.value || undefined })}
+              placeholder="key nomi yoki bo'sh qoldiring"
             />
           </div>
+          {selected.type === 'formula' ? (
+            <>
+              <div className="prop-group">
+                <label>Surat (ildiz ostidagi kasrning ustki qismi)</label>
+                <input
+                  type="text"
+                  value={selected.formulaNum ?? ''}
+                  onChange={(e) => updateElement(selected.id, { formulaNum: e.target.value })}
+                  placeholder="2 × 9.81 × (-)"
+                />
+              </div>
+              <div className="prop-group">
+                <label>Maxraj (pastki qismi)</label>
+                <input
+                  type="text"
+                  value={selected.formulaDen ?? ''}
+                  onChange={(e) => updateElement(selected.id, { formulaDen: e.target.value })}
+                  placeholder="(-)"
+                />
+              </div>
+              <div className="prop-group">
+                <label>Tepadagi chiziq uzunligi (%)</label>
+                <input
+                  type="number"
+                  min={10}
+                  max={200}
+                  value={selected.formulaTopLineWidth ?? 100}
+                  onChange={(e) => updateElement(selected.id, { formulaTopLineWidth: Math.max(10, Math.min(200, Number(e.target.value) || 100)) })}
+                />
+              </div>
+              <div className="prop-group">
+                <label>Kasr chizig'i uzunligi (%)</label>
+                <input
+                  type="number"
+                  min={10}
+                  max={200}
+                  value={selected.fractionLineWidth ?? 100}
+                  onChange={(e) => updateElement(selected.id, { fractionLineWidth: Math.max(10, Math.min(200, Number(e.target.value) || 100)) })}
+                />
+              </div>
+              <div className="prop-group">
+                <label>Chiziq burchagi (gradus)</label>
+                <input
+                  type="number"
+                  min={-45}
+                  max={45}
+                  value={selected.formulaLineAngle ?? 0}
+                  onChange={(e) => updateElement(selected.id, { formulaLineAngle: Math.max(-45, Math.min(45, Number(e.target.value) || 0)) })}
+                  placeholder="0 = gorizontal"
+                />
+              </div>
+            </>
+          ) : (
+            <div className="prop-group">
+              <label>{selected.type === 'fraction' ? 'Kasr (masalan: a/b)' : selected.type === 'root' ? 'Ildiz ostidagi ifoda' : 'Text'}</label>
+              <textarea
+                value={selected.content ?? ''}
+                onChange={(e) => updateElement(selected.id, { content: e.target.value })}
+                rows={3}
+              />
+            </div>
+          )}
+          {selected.type === 'fraction' && (
+            <div className="prop-group">
+              <label>Kasr chizig'i uzunligi (%)</label>
+              <input
+                type="number"
+                min={10}
+                max={200}
+                value={selected.fractionLineWidth ?? 100}
+                onChange={(e) => updateElement(selected.id, { fractionLineWidth: Math.max(10, Math.min(200, Number(e.target.value) || 100)) })}
+              />
+            </div>
+          )}
           <div className="prop-group">
             <label>Shrift o‘lchami</label>
             <input

@@ -44,21 +44,16 @@ function parseResponseList(list: unknown[]): SamplingDefineItem[] {
       return {
         dataKey: dbName,
         title: '데이터',
-        label: typeof showName === 'string' && showName ? showName : dbName,
+        // label: typeof showName === 'string' && showName ? showName : dbName,
+        label: dbName,
       }
     })
     .filter((x): x is SamplingDefineItem => x != null)
     .sort((a, b) => a.dataKey.localeCompare(b.dataKey))
 }
 
-/**
- * Sidebar uchun sampling-define ro‘yxatini olish.
- * Avval POST .../search, keyin GET .../fetch-fields fallback.
- * Xato yoki bo‘sh qaytsa null (caller static ishlatadi).
- */
 export async function fetchSamplingDefineKeys(): Promise<SamplingDefineItem[] | null> {
   try {
-    // 1) POST .../search – kefa-dev config service bilan bir xil
     const searchRes = await request(`${SAMPLING_DEFINE_BASE}/search`, {
       method: 'POST',
       body: JSON.stringify({ page: 1, size: 20 }),
@@ -75,7 +70,6 @@ export async function fetchSamplingDefineKeys(): Promise<SamplingDefineItem[] | 
       }
     }
 
-    // 2) GET .../fetch-fields – to‘g‘ridan-to‘g‘ri massiv (SelectSamplingDefine kabi)
     const fetchRes = await request(`${SAMPLING_DEFINE_BASE}/fetch-fields`)
     if (fetchRes.ok) {
       const json = (await fetchRes.json()) as { success?: boolean; dataSource?: unknown[] }

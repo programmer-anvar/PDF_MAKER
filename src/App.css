@@ -148,11 +148,12 @@
   background: rgba(239, 68, 68, 0.35);
 }
 
-/* Editor body: left | canvas | right */
+/* Editor body: left | canvas | right. Balandlik cheklangan — scroll faqat sidebar/canvas ichida */
 .editor-body {
-  flex: 1;
+  flex: 1 1 0;
   display: flex;
   min-height: 0;
+  overflow: hidden;
 }
 
 .panel {
@@ -187,6 +188,11 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .sidebar-section {
@@ -356,6 +362,28 @@
 
 .a4-page {
   /* Full A4 pixel size for export (794×1123) - html2canvas captures this */
+}
+
+.a4-page-active {
+  outline: 2px solid rgba(59, 130, 246, 0.6);
+  outline-offset: 2px;
+}
+
+.canvas-page-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.canvas-add-page-wrap {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.canvas-add-page-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
 }
 
 .canvas-drop-overlay-active {

@@ -17,6 +17,8 @@ export interface LayoutRecord {
   pageHeight: number
 }
 
+export type LayoutPayload = Omit<LayoutRecord, 'id'> | { layout: Array<{ id?: string; elements: unknown[]; pageWidth: number; pageHeight: number }> }
+
 function getHeaders(): Record<string, string> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
   const token = getAccessToken()
@@ -56,25 +58,28 @@ function getTemplateIdFromResponse(json: unknown): string | null {
   return typeof firstId === 'string' && firstId ? firstId : null
 }
 
-function parseLayoutFromPdfString(pdfStr: string): LayoutRecord | null {
+function parseLayoutFromPdfString(pdfStr: string): LayoutRecord | { layout: LayoutRecord[] } | null {
   try {
-    const parsed = JSON.parse(pdfStr) as { layout?: Array<{ id?: number; elements?: unknown[]; pageWidth?: number; pageHeight?: number }> }
+    const parsed = JSON.parse(pdfStr) as { layout?: Array<{ id?: number | string; elements?: unknown[]; pageWidth?: number; pageHeight?: number }> }
     const layoutArr = parsed?.layout
     if (!Array.isArray(layoutArr) || layoutArr.length === 0) return null
-    const item = layoutArr[0]
-    if (!item?.elements || !Array.isArray(item.elements)) return null
-    return {
-      id: LAYOUT_ID,
-      elements: item.elements,
-      pageWidth: Number(item.pageWidth) || 210,
-      pageHeight: Number(item.pageHeight) || 297,
-    }
+    const pages: LayoutRecord[] = layoutArr
+      .filter((item) => item?.elements && Array.isArray(item.elements))
+      .map((item) => ({
+        id: LAYOUT_ID,
+        elements: item.elements!,
+        pageWidth: Number(item.pageWidth) || 210,
+        pageHeight: Number(item.pageHeight) || 297,
+      }))
+    if (pages.length === 0) return null
+    if (pages.length === 1) return pages[0]
+    return { layout: pages }
   } catch {
     return null
   }
 }
 
-function parseLayoutResponse(json: unknown): LayoutRecord {
+function parseLayoutResponse(json: unknown): LayoutRecord | { layout: LayoutRecord[] } {
   const obj = json as Record<string, unknown>
   const pdfStr = (obj?.pdf ?? (obj?.dataSource as Record<string, unknown>)?.pdf ?? (obj?.data as Record<string, unknown>)?.pdf) as string | undefined
   if (typeof pdfStr === 'string') {
@@ -120,7 +125,7 @@ async function requestWithAuthRetry(url: string, init?: RequestInit): Promise<Re
 }
 
 /** GET /kefa/v1/pdf-template – dataSource.dataSource.responseList dan type=sampling2 ni tanlab layout qaytaradi */
-export async function fetchLayout(): Promise<LayoutRecord> {
+export async function fetchLayout(): Promise<LayoutRecord | { layout: LayoutRecord[] }> {
   const res = await requestWithAuthRetry(BASE_URL)
   if (!res.ok) {
     if (res.status === 404) return getEmptyLayout()
@@ -138,9 +143,11 @@ export async function fetchLayout(): Promise<LayoutRecord> {
   return parseLayoutResponse(json)
 }
 
-function buildSaveBody(id: string | null, data: Omit<LayoutRecord, 'id'>): string {
-  const layout = { id: String(LAYOUT_ID), ...data }
-  const pdfPayload = { layout: [layout] }
+function buildSaveBody(id: string | null, data: LayoutPayload): string {
+  const layoutArray = 'layout' in data && Array.isArray(data.layout)
+    ? data.layout.map((p) => ({ id: p.id ?? String(LAYOUT_ID), elements: p.elements, pageWidth: p.pageWidth, pageHeight: p.pageHeight }))
+    : [{ id: String(LAYOUT_ID), ...data }]
+  const pdfPayload = { layout: layoutArray }
   return JSON.stringify({
     imgId: id ?? '',
     name: 'pdf-template',
@@ -152,7 +159,7 @@ function buildSaveBody(id: string | null, data: Omit<LayoutRecord, 'id'>): strin
 const TEMPLATE_ALREADY_EXISTS = 'TEMPLATE_ALREADY_EXISTS'
 
 /** POST /kefa/v1/pdf-template – yangi template yaratish (id bo‘lmaganda) */
-async function createLayout(data: Omit<LayoutRecord, 'id'>): Promise<LayoutRecord> {
+async function createLayout(data: LayoutPayload): Promise<LayoutRecord | { layout: LayoutRecord[] }> {
   const body = buildSaveBody(null, data)
   const res = await requestWithAuthRetry(BASE_URL, {
     method: 'POST',
@@ -172,7 +179,7 @@ async function createLayout(data: Omit<LayoutRecord, 'id'>): Promise<LayoutRecor
 }
 
 /** PUT /kefa/v1/pdf-template/:id – body: imgId, name, type, pdf (db.json format stringified) */
-export async function saveLayout(data: Omit<LayoutRecord, 'id'>): Promise<LayoutRecord> {
+export async function saveLayout(data: LayoutPayload): Promise<LayoutRecord | { layout: LayoutRecord[] }> {
   let id = currentTemplateId
   if (!id) {
     await fetchLayout()
@@ -186,7 +193,7 @@ export async function saveLayout(data: Omit<LayoutRecord, 'id'>): Promise<Layout
         await fetchLayout()
         id = currentTemplateId
         if (id) {
-          const body = buildSaveBody(id, data)
+          const body = buildSaveBody(id, data as LayoutPayload)
           const res = await requestWithAuthRetry(`${BASE_URL}/${id}`, { method: 'PUT', body })
           if (!res.ok) throw new Error(`Saqlash: ${res.status}`)
           const json = await res.json()
@@ -197,7 +204,7 @@ export async function saveLayout(data: Omit<LayoutRecord, 'id'>): Promise<Layout
       throw e
     }
   }
-  const body = buildSaveBody(id, data)
+  const body = buildSaveBody(id, data as LayoutPayload)
   const res = await requestWithAuthRetry(`${BASE_URL}/${id}`, {
     method: 'PUT',
     body,

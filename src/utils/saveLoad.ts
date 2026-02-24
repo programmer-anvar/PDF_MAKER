@@ -1,4 +1,5 @@
 import type { EditorElement } from '../types/editor'
+import type { EditorPage } from '../store/editorStore'
 import { useEditorStore } from '../store/editorStore'
 import { fetchLayout, saveLayout } from '../api/server'
 
@@ -9,11 +10,28 @@ export interface SavedLayout {
   pageHeight: number
 }
 
+export interface SavedLayoutMulti {
+  version?: number
+  layout: Array<{ id: string; elements: EditorElement[]; pageWidth: number; pageHeight: number }>
+}
+
 export async function loadFromServer(): Promise<boolean> {
   try {
     const data = await fetchLayout()
-    const elements = (data.elements ?? []) as EditorElement[]
-    useEditorStore.getState().loadLayoutFromServer(elements, data.pageWidth, data.pageHeight)
+    const store = useEditorStore.getState()
+    if (data && 'layout' in data && Array.isArray(data.layout) && data.layout.length > 0) {
+      const pages: EditorPage[] = data.layout.map((p, i) => ({
+        id: String(p.id ?? i + 1),
+        elements: (p.elements ?? []) as EditorElement[],
+        pageWidth: Number(p.pageWidth) || 210,
+        pageHeight: Number(p.pageHeight) || 297,
+      }))
+      store.loadLayoutPages(pages)
+    } else {
+      const record = data as { elements?: EditorElement[]; pageWidth?: number; pageHeight?: number }
+      const elements = (record.elements ?? []) as EditorElement[]
+      store.loadLayoutFromServer(elements, record.pageWidth, record.pageHeight)
+    }
     return true
   } catch {
     return false
@@ -23,11 +41,13 @@ export async function loadFromServer(): Promise<boolean> {
 export async function saveToServer(): Promise<{ ok: boolean; error?: string }> {
   try {
     const state = useEditorStore.getState()
-    await saveLayout({
-      elements: state.elements,
-      pageWidth: state.pageWidth,
-      pageHeight: state.pageHeight,
-    })
+    const layout = state.pages.map((p) => ({
+      id: p.id,
+      elements: p.elements,
+      pageWidth: p.pageWidth,
+      pageHeight: p.pageHeight,
+    }))
+    await saveLayout({ layout })
     return { ok: true }
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Saqlash xatosi'
@@ -37,21 +57,30 @@ export async function saveToServer(): Promise<{ ok: boolean; error?: string }> {
 
 export function exportLayoutJson(): string {
   const state = useEditorStore.getState()
-  const data: SavedLayout = {
+  const data: SavedLayoutMulti = {
     version: 1,
-    elements: state.elements,
-    pageWidth: state.pageWidth,
-    pageHeight: state.pageHeight,
+    layout: state.pages.map((p) => ({ id: p.id, elements: p.elements, pageWidth: p.pageWidth, pageHeight: p.pageHeight })),
   }
   return JSON.stringify(data, null, 2)
 }
 
 export function importLayoutJson(json: string): boolean {
   try {
-    const data = JSON.parse(json) as SavedLayout
-    const elements = (data.elements ?? []) as EditorElement[]
+    const parsed = JSON.parse(json)
     const store = useEditorStore.getState()
-    store.loadLayoutFromServer(elements, data.pageWidth, data.pageHeight)
+    if (Array.isArray(parsed?.layout)) {
+      const pages: EditorPage[] = parsed.layout.map((p: { id?: string; elements?: EditorElement[]; pageWidth?: number; pageHeight?: number }, i: number) => ({
+        id: p.id ?? String(i + 1),
+        elements: (p.elements ?? []) as EditorElement[],
+        pageWidth: Number(p.pageWidth) || 210,
+        pageHeight: Number(p.pageHeight) || 297,
+      }))
+      store.loadLayoutPages(pages)
+    } else {
+      const data = parsed as SavedLayout
+      const elements = (data.elements ?? []) as EditorElement[]
+      store.loadLayoutFromServer(elements, data.pageWidth, data.pageHeight)
+    }
     return true
   } catch {
     return false

@@ -32,18 +32,35 @@ const defaultTableData: TableData = {
 
 const MAX_HISTORY = 50
 
-interface EditorStore {
+export interface EditorPage {
+  id: string
   elements: EditorElement[]
-  selectedId: string | null
   pageWidth: number
   pageHeight: number
+}
+
+function createEmptyPage(id?: string): EditorPage {
+  return {
+    id: id ?? String(Date.now()),
+    elements: [],
+    pageWidth: A4_WIDTH_MM,
+    pageHeight: A4_HEIGHT_MM,
+  }
+}
+
+interface EditorStore {
+  pages: EditorPage[]
+  activePageIndex: number
+  selectedId: string | null
   isDraggingFromSidebar: boolean
   canvasScale: number
-  history: EditorElement[][]
+  history: EditorPage[][]
   historyIndex: number
 
   addElement: (type: ElementType, x?: number, y?: number, initialContent?: string, size?: { w?: number; h?: number }, dataKey?: string) => void
   addFrame: () => void
+  addPage: () => void
+  setActivePageIndex: (index: number) => void
   updateElement: (id: string, patch: Partial<EditorElement>) => void
   updateElementPosition: (id: string, x: number, y: number, w: number, h: number) => void
   deleteElement: (id: string) => void
@@ -55,11 +72,17 @@ interface EditorStore {
   getSelected: () => EditorElement | null
   setElements: (elements: EditorElement[]) => void
   loadLayoutFromServer: (elements: EditorElement[], pageWidth?: number, pageHeight?: number) => void
+  loadLayoutPages: (pages: EditorPage[]) => void
   bringForward: (id: string) => void
   sendBackward: (id: string) => void
   undo: () => void
   redo: () => void
   pushHistory: () => void
+}
+
+function getActivePage(get: () => EditorStore): EditorPage | null {
+  const s = get()
+  return s.pages[s.activePageIndex] ?? null
 }
 
 /** Element default o'lchamlari, mm */
@@ -69,6 +92,9 @@ const defaultElementSize: Record<ElementType, { w: number; h: number }> = {
   rect: { w: 32, h: 21 },
   line: { w: 53, h: 1 },
   table: { w: 74, h: 32 },
+  root: { w: 40, h: 14 },
+  fraction: { w: 30, h: 14 },
+  formula: { w: 70, h: 22 },
 }
 
 function cloneElements(el: EditorElement[]): EditorElement[] {
@@ -78,30 +104,45 @@ function cloneElements(el: EditorElement[]): EditorElement[] {
 const emptyElements: EditorElement[] = []
 
 export const useEditorStore = create<EditorStore>((set, get) => ({
-  elements: emptyElements,
+  pages: [createEmptyPage('1')],
+  activePageIndex: 0,
   selectedId: null,
-  pageWidth: A4_WIDTH_MM,
-  pageHeight: A4_HEIGHT_MM,
   isDraggingFromSidebar: false,
   canvasScale: 0.65,
-  history: [emptyElements],
+  history: [[createEmptyPage('1')]],
   historyIndex: 0,
 
   pushHistory() {
-    const { elements, history, historyIndex } = get()
+    const { pages, history, historyIndex } = get()
+    const snapshot = pages.map((p) => ({ ...p, elements: cloneElements(p.elements) }))
     const next = history.slice(0, historyIndex + 1)
-    next.push(cloneElements(elements))
+    next.push(snapshot)
     if (next.length > MAX_HISTORY) next.shift()
     set({ history: next, historyIndex: next.length - 1 })
   },
 
-  addElement(type, x?, y?, initialContent?, size?, dataKey?) {
-    get().pushHistory() // saqlaymiz: keyin undo bo‘lsa shu holatga qaytadi
-    const { pageWidth, pageHeight, elements } = get()
+  addPage() {
+    get().pushHistory()
+    const { pages } = get()
+    const newPage = createEmptyPage(String(pages.length + 1))
+    set({ pages: [...pages, newPage], activePageIndex: pages.length, selectedId: null })
+  },
+
+  setActivePageIndex(index: number) {
+    const { pages } = get()
+    const i = Math.max(0, Math.min(index, pages.length - 1))
+    set({ activePageIndex: i, selectedId: null })
+  },
+
+  addElement(type, x?, y?, initialContent?, size?, dataKey?) { // saqlaymiz: keyin undo bo‘lsa shu holatga qaytadi
+    const page = getActivePage(get)
+    if (!page) return
+    get().pushHistory()
+    const { pageWidth, pageHeight, elements } = page
     let { w, h } = defaultElementSize[type]
     if (size?.w != null) w = Math.max(2, size.w)
     if (size?.h != null) h = Math.max(2, size.h)
-    if (type === 'text' && initialContent != null && size?.w == null) {
+    if ((type === 'text' || type === 'root' || type === 'fraction') && initialContent != null && size?.w == null) {
       const minW = Math.min(185, Math.max(53, initialContent.length * 3.7))
       w = Math.max(w, minW)
       if (size?.h == null) h = Math.max(h, 8)
@@ -166,21 +207,34 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         textAlign: 'left',
       },
     }
-    const textContent = type === 'text' && initialContent != null ? initialContent : undefined
+    const textContent = (type === 'text' || type === 'root' || type === 'fraction') && initialContent != null ? initialContent : undefined
     const el: EditorElement =
       type === 'text'
         ? { ...base, content: textContent ?? (dataKey ?? 'Matn'), dataKey: dataKey ?? base.dataKey }
-        : type === 'image'
-          ? { ...base, src: '', dataKey: dataKey ?? undefined }
-          : type === 'table'
-            ? { ...base, table: { ...defaultTableData } }
-            : base
-    set((s) => ({ elements: [...s.elements, el], selectedId: id }))
+        : type === 'root'
+          ? { ...base, content: textContent ?? (dataKey ?? 'x'), dataKey: dataKey ?? base.dataKey }
+          : type === 'fraction'
+            ? { ...base, content: textContent ?? (dataKey ?? 'a/b'), dataKey: dataKey ?? base.dataKey }
+            : type === 'formula'
+              ? { ...base, formulaNum: '2 × 9.81 × (-)', formulaDen: '(-)' }
+              : type === 'image'
+              ? { ...base, src: '', dataKey: dataKey ?? undefined }
+              : type === 'table'
+                ? { ...base, table: { ...defaultTableData } }
+                : base
+    set((s) => ({
+      pages: s.pages.map((p, i) =>
+        i === s.activePageIndex ? { ...p, elements: [...p.elements, el] } : p
+      ),
+      selectedId: id,
+    }))
   },
 
   addFrame() {
+    const page = getActivePage(get)
+    if (!page) return
     get().pushHistory()
-    const { pageWidth, pageHeight, elements } = get()
+    const { pageWidth, pageHeight, elements } = page
     const w = 106
     const h = 79
     let nx = 21
@@ -216,26 +270,40 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         textAlign: 'left',
       },
     }
-    set((s) => ({ elements: [...s.elements, frame], selectedId: id }))
+    set((s) => ({
+      pages: s.pages.map((p, i) =>
+        i === s.activePageIndex ? { ...p, elements: [...p.elements, frame] } : p
+      ),
+      selectedId: id,
+    }))
   },
 
   updateElement(id, patch) {
     get().pushHistory()
     set((s) => ({
-      elements: s.elements.map((e) => {
-        if (e.id !== id) return e
-        let p = { ...patch }
-        if (p.w != null && p.w < 2) p.w = 2
-        if (p.h != null && p.h < 2) p.h = 2
-        return { ...e, ...p }
-      }),
+      pages: s.pages.map((p, i) =>
+        i !== s.activePageIndex
+          ? p
+          : {
+              ...p,
+              elements: p.elements.map((e) => {
+                if (e.id !== id) return e
+                let patchVal = { ...patch }
+                if (patchVal.w != null && patchVal.w < 2) patchVal.w = 2
+                if (patchVal.h != null && patchVal.h < 2) patchVal.h = 2
+                return { ...e, ...patchVal }
+              }),
+            }
+      ),
     }))
   },
 
   updateElementPosition(id, x, y, w, h) {
-    const { pageWidth, pageHeight, elements } = get()
+    const page = getActivePage(get)
+    if (!page) return
+    const { pageWidth, pageHeight, elements } = page
     const el = elements.find((e) => e.id === id)
-    const minW = 2
+    const minW = el?.type === 'formula' ? 15 : el?.type === 'fraction' ? 10 : 2
     const minH = 2
     let nx = snap(Math.max(0, Math.min(x, pageWidth - minW)))
     let ny = snap(Math.max(0, Math.min(y, pageHeight - minH)))
@@ -256,8 +324,10 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       nh = Math.min(nh, pageHeight - ny)
     }
     set((s) => ({
-      elements: s.elements.map((e) =>
-        e.id === id ? { ...e, x: nx, y: ny, w: nw, h: nh } : e
+      pages: s.pages.map((p, i) =>
+        i !== s.activePageIndex
+          ? p
+          : { ...p, elements: p.elements.map((e) => (e.id === id ? { ...e, x: nx, y: ny, w: nw, h: nh } : e)) }
       ),
     }))
   },
@@ -265,13 +335,17 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   deleteElement(id) {
     get().pushHistory()
     set((s) => ({
-      elements: s.elements.filter((e) => e.id !== id),
+      pages: s.pages.map((p, i) =>
+        i !== s.activePageIndex ? p : { ...p, elements: p.elements.filter((e) => e.id !== id) }
+      ),
       selectedId: s.selectedId === id ? null : s.selectedId,
     }))
   },
 
   duplicateElement(id) {
-    const { elements } = get()
+    const page = getActivePage(get)
+    if (!page) return
+    const { elements } = page
     const src = elements.find((e) => e.id === id)
     if (!src) return
     get().pushHistory()
@@ -281,7 +355,12 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       x: src.x + 20,
       y: src.y + 20,
     }
-    set((s) => ({ elements: [...s.elements, copy], selectedId: copy.id }))
+    set((s) => ({
+      pages: s.pages.map((p, i) =>
+        i === s.activePageIndex ? { ...p, elements: [...p.elements, copy] } : p
+      ),
+      selectedId: copy.id,
+    }))
   },
 
   setSelected(id) {
@@ -290,7 +369,11 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
   setContainer(elementId) {
     set((s) => ({
-      elements: s.elements.map((e) => ({ ...e, isContainer: e.id === elementId })),
+      pages: s.pages.map((p, i) =>
+        i !== s.activePageIndex
+          ? p
+          : { ...p, elements: p.elements.map((e) => ({ ...e, isContainer: e.id === elementId })) }
+      ),
     }))
   },
 
@@ -303,12 +386,18 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   },
 
   getSelected() {
-    const { elements, selectedId } = get()
-    return selectedId ? elements.find((e) => e.id === selectedId) ?? null : null
+    const page = getActivePage(get)
+    const { selectedId } = get()
+    return page && selectedId ? page.elements.find((e) => e.id === selectedId) ?? null : null
   },
 
   setElements(elements: EditorElement[]) {
-    set({ elements: [...elements], selectedId: null })
+    set((s) => ({
+      pages: s.pages.map((p, i) =>
+        i === s.activePageIndex ? { ...p, elements: [...elements] } : p
+      ),
+      selectedId: null,
+    }))
   },
 
   loadLayoutFromServer(elements: EditorElement[], pageWidth?: number, pageHeight?: number) {
@@ -324,45 +413,71 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
           }))
         : elements
     )
+    const pw = pageWidth != null ? (isOldPx ? A4_WIDTH_MM : pageWidth) : A4_WIDTH_MM
+    const ph = pageHeight != null ? (isOldPx ? A4_HEIGHT_MM : pageHeight) : A4_HEIGHT_MM
+    const singlePage: EditorPage = { id: '1', elements: next, pageWidth: pw, pageHeight: ph }
     set({
-      elements: next,
+      pages: [singlePage],
+      activePageIndex: 0,
       selectedId: null,
-      history: [next],
+      history: [[singlePage]],
       historyIndex: 0,
-      pageWidth: pageWidth != null ? (isOldPx ? A4_WIDTH_MM : pageWidth) : get().pageWidth,
-      pageHeight: pageHeight != null ? (isOldPx ? A4_HEIGHT_MM : pageHeight) : get().pageHeight,
     })
   },
 
+  loadLayoutPages(pages: EditorPage[]) {
+    if (!pages.length) return
+    const cloned = pages.map((p) => ({ ...p, elements: cloneElements(p.elements) }))
+    set({ pages: cloned, activePageIndex: 0, selectedId: null, history: [cloned], historyIndex: 0 })
+  },
+
   bringForward(id) {
-    const { elements } = get()
+    const page = getActivePage(get)
+    if (!page) return
+    const { elements } = page
     const i = elements.findIndex((e) => e.id === id)
     if (i < 0 || i >= elements.length - 1) return
     const next = [...elements]
     ;[next[i], next[i + 1]] = [next[i + 1], next[i]]
-    set({ elements: next })
+    set((s) => ({
+      pages: s.pages.map((p, idx) => (idx === s.activePageIndex ? { ...p, elements: next } : p)),
+    }))
   },
 
   sendBackward(id) {
-    const { elements } = get()
+    const page = getActivePage(get)
+    if (!page) return
+    const { elements } = page
     const i = elements.findIndex((e) => e.id === id)
     if (i <= 0) return
     const next = [...elements]
     ;[next[i - 1], next[i]] = [next[i], next[i - 1]]
-    set({ elements: next })
+    set((s) => ({
+      pages: s.pages.map((p, idx) => (idx === s.activePageIndex ? { ...p, elements: next } : p)),
+    }))
   },
 
   undo() {
     const { history, historyIndex } = get()
     if (historyIndex <= 0) return
     const newIndex = historyIndex - 1
-    set({ elements: cloneElements(history[newIndex]), historyIndex: newIndex, selectedId: null })
+    const snapshot = history[newIndex]
+    set({
+      pages: snapshot.map((p) => ({ ...p, elements: cloneElements(p.elements) })),
+      historyIndex: newIndex,
+      selectedId: null,
+    })
   },
 
   redo() {
     const { history, historyIndex } = get()
     if (historyIndex >= history.length - 1) return
     const newIndex = historyIndex + 1
-    set({ elements: cloneElements(history[newIndex]), historyIndex: newIndex, selectedId: null })
+    const snapshot = history[newIndex]
+    set({
+      pages: snapshot.map((p) => ({ ...p, elements: cloneElements(p.elements) })),
+      historyIndex: newIndex,
+      selectedId: null,
+    })
   },
 }))

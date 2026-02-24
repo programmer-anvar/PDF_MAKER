@@ -1,5 +1,5 @@
 /** Element types in the designer */
-export type ElementType = 'text' | 'image' | 'rect' | 'line' | 'table'
+export type ElementType = 'text' | 'image' | 'rect' | 'line' | 'table' | 'root' | 'fraction' | 'formula'
 
 export interface ElementStyle {
   fontSize?: number
@@ -46,6 +46,16 @@ export interface EditorElement {
   table?: TableData
   /** To‘rtburchak ramka bo‘lsa – boshqa elementlar shundan chiqib ketmasin */
   isContainer?: boolean
+  /** Formula (ildizli kasr): surat */
+  formulaNum?: string
+  /** Formula: maxraj */
+  formulaDen?: string
+  /** Kasr chizig'i uzunligi, % (kasr va formula) */
+  fractionLineWidth?: number
+  /** Formula tepasidagi chiziq (ildiz ostidagi) uzunligi, % */
+  formulaTopLineWidth?: number
+  /** Formula chiziqlarini qiyshaytirish, gradus (-45 … 45), 0 = gorizontal */
+  formulaLineAngle?: number
 }
 
 export interface EditorState {
