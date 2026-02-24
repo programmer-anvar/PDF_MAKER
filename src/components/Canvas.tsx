@@ -96,7 +96,7 @@ export function Canvas() {
                 .sort((a, b) => (a.isContainer ? 0 : 1) - (b.isContainer ? 0 : 1))
                 .map((el) => (
                   <Rnd
-                    key={el.id}
+                    key={`${el.id}-${el.w}-${el.h}`}
                     size={{ width: el.w * PX_PER_MM, height: el.h * PX_PER_MM }}
                     position={{ x: el.x * PX_PER_MM, y: el.y * PX_PER_MM }}
                     scale={canvasScale}
@@ -132,7 +132,7 @@ export function Canvas() {
                       boxSizing: 'border-box',
                     }}
                   >
-                    <div style={{ width: '100%', height: '100%', overflow: 'visible', transform: el.rotate ? `rotate(${el.rotate}deg)` : undefined }}>
+                    <div style={{ width: '100%', height: '100%', minHeight: 0, overflow: 'visible', transform: el.rotate ? `rotate(${el.rotate}deg)` : undefined }}>
                       <ElementRenderer element={el} isSelected={selectedId === el.id} />
                     </div>
                   </Rnd>

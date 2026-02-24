@@ -182,7 +182,7 @@ function App() {
         <h1>PDF Designer</h1>
         {/* <p>Elementlarni sahifaga qo‘shing, joylashtiring. <span className="kbd-hint">Ctrl+Z</span> bekor qilish, <span className="kbd-hint">Delete</span> o‘chirish.</p> */}
         <div className="toolbar">
-          {/* {!hasToken || showTokenInput ? (
+          {!hasToken || showTokenInput ? (
             <span className="toolbar-token-wrap">
               <input
                 type="password"
@@ -210,7 +210,7 @@ function App() {
                 Chiqish
               </button>
             </>
-          )} */}
+          )}
           <span className="toolbar-sep" />
           <button type="button" className="btn" onClick={undo} disabled={!canUndo} title="Bekor qilish (Ctrl+Z)">
             ↩ Cancel
