@@ -1,9 +1,5 @@
-/**
- * PDF birinchi sahifasini rasmga (data URL) aylantiradi.
- * PDF.js orqali render qilinadi – matn (harflar) to'g'ri chiqadi.
- */
+
 import * as pdfjsLib from 'pdfjs-dist'
-// Vite: worker faylini URL sifatida import qilish kerak
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url'
 
 const TARGET_WIDTH = 794
@@ -31,7 +27,7 @@ export async function pdfFirstPageToDataUrl(pdfBlob: Blob): Promise<PdfPageImage
     cMapPacked: true,
   }).promise
   const numPages = pdf.numPages
-  if (numPages < 1) throw new Error('PDF da sahifa yo‘q')
+  if (numPages < 1) throw new Error('The PDF has no pages.')
   const page = await pdf.getPage(1)
   const view = page.getViewport({ scale: 1 })
   const scale = TARGET_WIDTH / view.width
@@ -40,7 +36,7 @@ export async function pdfFirstPageToDataUrl(pdfBlob: Blob): Promise<PdfPageImage
   canvas.width = viewport.width
   canvas.height = viewport.height
   const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('Canvas context yo‘q')
+  if (!ctx) throw new Error('Canvas context not found.')
   await page.render({
     canvasContext: ctx,
     canvas,
@@ -62,7 +58,6 @@ export async function pdfBase64ToDataUrl(base64: string): Promise<PdfPageImage> 
   return pdfFirstPageToDataUrl(blob)
 }
 
-/** PDF sahifasidan tahrirlanadigan matn bloklari (pozitsiya + matn) */
 export interface PdfTextBlock {
   str: string
   x: number
@@ -78,7 +73,6 @@ export interface PdfEditablePage {
   pageHeight: number
 }
 
-/** PDF birinchi sahifasini rasm + matn bloklari sifatida qaytaradi – har bir matnni edit/delete qilish mumkin */
 export async function getPdfFirstPageAsEditable(
   pdfBlob: Blob
 ): Promise<PdfEditablePage> {
@@ -90,7 +84,7 @@ export async function getPdfFirstPageAsEditable(
     cMapUrl: 'https://unpkg.com/pdfjs-dist@5.4.624/cmaps/',
     cMapPacked: true,
   }).promise
-  if (pdf.numPages < 1) throw new Error('PDF da sahifa yo‘q')
+  if (pdf.numPages < 1) throw new Error('No page in the PDF.')
   const page = await pdf.getPage(1)
   const view = page.getViewport({ scale: 1 })
   const scale = TARGET_WIDTH / view.width
@@ -102,7 +96,7 @@ export async function getPdfFirstPageAsEditable(
   canvas.width = pageWidth
   canvas.height = pageHeight
   const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('Canvas context yo‘q')
+  if (!ctx) throw new Error('Canvas context is missing.')
   await page.render({
     canvasContext: ctx,
     canvas,

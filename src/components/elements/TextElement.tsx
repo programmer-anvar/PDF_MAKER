@@ -40,7 +40,7 @@ export function TextElement({ element, isSelected }: Props) {
         borderBottom: style.borderBottom,
       }}
     >
-      {element.dataKey ?? element.content ?? 'Matn'}
+      {element.dataKey ?? element.content ?? 'Text'}
     </div>
   )
 }

@@ -9,14 +9,14 @@ const setDraggingFromSidebar = () => useEditorStore.getState().setDraggingFromSi
 const setNotDraggingFromSidebar = () => useEditorStore.getState().setDraggingFromSidebar(false)
 
 const ELEMENTS: { type: ElementType; label: string; icon: string }[] = [
-  { type: 'text', label: 'Matn', icon: 'T' },
-  { type: 'root', label: 'Matematik ildiz', icon: '√' },
-  { type: 'fraction', label: 'Kasr', icon: 'a/b' },
-  { type: 'formula', label: 'Ildizli kasr', icon: '√ ⁄' },
-  { type: 'image', label: 'Rasm', icon: '🖼' },
-  { type: 'rect', label: 'To‘rtburchak', icon: '▢' },
-  { type: 'line', label: 'Chiziq', icon: '—' },
-  { type: 'table', label: 'Jadval', icon: '▦' },
+  { type: 'text', label: 'Text', icon: 'T' },
+  { type: 'root', label: 'Square root', icon: '√' },
+  { type: 'fraction', label: 'Fraction', icon: 'a/b' },
+  { type: 'formula', label: 'Radical fraction', icon: '√ ⁄' },
+  // { type: 'image', label: 'Rasm', icon: '🖼' },
+  { type: 'rect', label: 'Rectangle', icon: '▢' },
+  { type: 'line', label: 'Line', icon: '—' },
+  { type: 'table', label: 'Table', icon: '▦' },
 ]
 
 /** title bo‘yicha guruhlash */
@@ -51,8 +51,8 @@ export function DataSidebar() {
   return (
     <aside className="panel left-panel data-sidebar">
       <section className="sidebar-section">
-        <p className="panel-hint">Keylarni sahifaga torting. API dan dbName / showName. Kefa-dev da value lar chiqadi.</p>
-        {loading && <p className="panel-hint">Yuklanmoqda…</p>}
+        <p className="panel-hint">Sampling define</p>
+        {loading && <p className="panel-hint">Loading… ✅</p>}
         <div className="data-blocks">
           {Object.entries(fieldsByTitle).map(([title, items]) => (
             <div key={title} className="data-block">
@@ -82,8 +82,8 @@ export function DataSidebar() {
         </div>
       </section>
       <section className="sidebar-section element-section">
-        <h3>Elementlar</h3>
-        <p className="panel-hint">Sahifaga qo‘shish. Avval Ramka qo‘ying, keyin ichiga elementlarni joylashtiring.</p>
+        <h3>Elements</h3>
+        <p className="panel-hint">Add it to the page. First put a frame, then put the elements inside.</p>
         <ul className="element-list">
           <li>
             <button
@@ -93,7 +93,7 @@ export function DataSidebar() {
               title="Ramka – elementlar shu ichida qoladi"
             >
               <span className="element-icon">▣</span>
-              <span>Ramka</span>
+              <span>Outline</span>
             </button>
           </li>
           {ELEMENTS.map(({ type, label, icon }) => (
@@ -109,7 +109,7 @@ export function DataSidebar() {
               title="PDF da meaSignature1 (o‘lcham 20×10 mm)"
             >
               <span className="element-icon">✍</span>
-              <span>Imzo 1</span>
+              <span>Signature 1</span>
             </button>
           </li>
           <li>
@@ -121,7 +121,7 @@ export function DataSidebar() {
               title="PDF da meaSignature2 (o‘lcham 20×10 mm)"
             >
               <span className="element-icon">✍</span>
-              <span>Imzo 2</span>
+              <span>Signature 2</span>
             </button>
           </li>
           <li>

@@ -17,9 +17,9 @@ export function RightPanel() {
   if (!selected) {
     return (
       <aside className="panel right-panel">
-        <h3>Xossalar</h3>
-        <p className="panel-hint">Sahifadan elementni tanlang yoki ro‘yxatdan bosing.</p>
-        <p className="panel-hint kbd-hint-inline"><kbd>Delete</kbd> o‘chirish · <kbd>Esc</kbd> tanlovni bekor</p>
+        <h3>Properties</h3>
+        <p className="panel-hint">Select an element from the page or click it from the list.</p>
+        <p className="panel-hint kbd-hint-inline"><kbd>Delete</kbd> <kbd>Esc</kbd> tanlovni bekor</p>
         {elements.length > 0 && (
           <div className="element-list-panel">
             <label className="prop-group label">Sahifadagi elementlar ({elements.length})</label>
@@ -58,24 +58,24 @@ export function RightPanel() {
 
   return (
     <aside className="panel right-panel">
-      <h3>Xossalar</h3>
+      <h3>Properties</h3>
       <div className="props-actions">
         <button type="button" className="btn small" onClick={() => duplicateElement(selected.id)} title="Nusxa (Ctrl+D ni keyinroq qo‘shamiz)">
-          📋 Nusxa
+          📋 Copy
         </button>
         <button type="button" className="btn small" onClick={() => bringForward(selected.id)}>
-          Oldinga
+          Forward
         </button>
         <button type="button" className="btn small" onClick={() => sendBackward(selected.id)}>
-          Orqaga
+          Back
         </button>
         <button type="button" className="btn small danger" onClick={() => { deleteElement(selected.id); setSelected(null) }} title="Delete">
-          O‘chirish
+          Delete
         </button>
       </div>
 
       <div className="prop-group">
-        <label>Pozitsiya / o‘lcham (mm)</label>
+        <label>Position / Size (mm)</label>
         <div className="row two">
           <input
             type="number"
@@ -111,7 +111,7 @@ export function RightPanel() {
       </div>
 
       <div className="prop-group">
-        <label>Burchak (gradus)</label>
+        <label>Angle (degrees)</label>
         <input
           type="number"
           step={5}
@@ -126,7 +126,7 @@ export function RightPanel() {
       {(selected.type === 'text' || selected.type === 'root' || selected.type === 'fraction' || selected.type === 'formula') && (
         <>
           <div className="prop-group">
-              <label>Ma’lumot kaliti (sampling da value chiqadi)</label>
+              <label>Data Key (displays “value” in sampling)</label>
               <input
               type="text"
               value={selected.dataKey ?? ''}
@@ -137,7 +137,7 @@ export function RightPanel() {
           {selected.type === 'formula' ? (
             <>
               <div className="prop-group">
-                <label>Surat (ildiz ostidagi kasrning ustki qismi)</label>
+                <label>Numerator (under the radical)</label>
                 <input
                   type="text"
                   value={selected.formulaNum ?? ''}
@@ -315,11 +315,11 @@ export function RightPanel() {
                   setContainer(e.target.checked ? selected.id : null)
                 }}
               />
-              <span>Ramka (barcha elementlar shu ichida qolsin)</span>
+              <span>Frame (all elements must stay inside it)</span>
             </label>
           </div>
           <div className="prop-group">
-            <label>Orqa fon</label>
+            <label>Backround</label>
             <input
               type="color"
               value={selected.style?.backgroundColor ?? '#f0f0f0'}
@@ -327,7 +327,7 @@ export function RightPanel() {
             />
           </div>
           <div className="prop-group">
-            <label>Chegara (chap, o‘ng, yuqori, past)</label>
+            <label>border (left, right, top, bottom)</label>
             <input
               type="text"
               placeholder="Chap: 1px solid #999"

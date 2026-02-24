@@ -180,9 +180,9 @@ function App() {
       <Toast />
       <header className="editor-header">
         <h1>PDF Designer</h1>
-        <p>Elementlarni sahifaga qo‘shing, joylashtiring. <span className="kbd-hint">Ctrl+Z</span> bekor qilish, <span className="kbd-hint">Delete</span> o‘chirish.</p>
+        {/* <p>Elementlarni sahifaga qo‘shing, joylashtiring. <span className="kbd-hint">Ctrl+Z</span> bekor qilish, <span className="kbd-hint">Delete</span> o‘chirish.</p> */}
         <div className="toolbar">
-          {!hasToken || showTokenInput ? (
+          {/* {!hasToken || showTokenInput ? (
             <span className="toolbar-token-wrap">
               <input
                 type="password"
@@ -210,25 +210,25 @@ function App() {
                 Chiqish
               </button>
             </>
-          )}
+          )} */}
           <span className="toolbar-sep" />
           <button type="button" className="btn" onClick={undo} disabled={!canUndo} title="Bekor qilish (Ctrl+Z)">
-            ↩ Bekor
+            ↩ Cancel
           </button>
           <button type="button" className="btn" onClick={redo} disabled={!canRedo} title="Qayta (Ctrl+Y)">
-            ↪ Qayta
+            ↪ Again
           </button>
           <span className="toolbar-sep" />
           <button type="button" className="btn primary" onClick={handleExportPdf}>
-            PDF (key’lar)
+            PDF 
           </button>
-          <button type="button" className="btn primary" onClick={handleExportPdfSampling} title="Xuddi shu layout, lekin dataKey o‘rniga value">
+          {/* <button type="button" className="btn primary" onClick={handleExportPdfSampling} title="Xuddi shu layout, lekin dataKey o‘rniga value">
             PDF (value’lar / sampling)
-          </button>
+          </button> */}
           <button type="button" className="btn" onClick={handleSave}>
             Saqlash
           </button>
-          <button type="button" className="btn" onClick={handleLoad}>
+          {/* <button type="button" className="btn" onClick={handleLoad}>
             Serverdan yuklash
           </button>
           <button type="button" className="btn" onClick={handleExportJson}>
@@ -237,7 +237,7 @@ function App() {
           <label className="btn">
             Import
             <input type="file" accept=".json" onChange={handleImportJson} hidden />
-          </label>
+          </label> */}
           <span className="toolbar-sep" />
           <span className="zoom-label">Zoom</span>
           {[0.5, 0.65, 0.8, 1].map((s) => (

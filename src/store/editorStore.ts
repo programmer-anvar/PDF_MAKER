@@ -210,7 +210,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     const textContent = (type === 'text' || type === 'root' || type === 'fraction') && initialContent != null ? initialContent : undefined
     const el: EditorElement =
       type === 'text'
-        ? { ...base, content: textContent ?? (dataKey ?? 'Matn'), dataKey: dataKey ?? base.dataKey }
+        ? { ...base, content: textContent ?? (dataKey ?? 'Text'), dataKey: dataKey ?? base.dataKey }
         : type === 'root'
           ? { ...base, content: textContent ?? (dataKey ?? 'x'), dataKey: dataKey ?? base.dataKey }
           : type === 'fraction'

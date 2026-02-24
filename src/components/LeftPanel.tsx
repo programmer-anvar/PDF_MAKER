@@ -2,11 +2,11 @@ import { useEditorStore } from '../store/editorStore'
 import type { ElementType } from '../types/editor'
 
 const ELEMENTS: { type: ElementType; label: string; icon: string }[] = [
-  { type: 'text', label: 'Matn', icon: 'T' },
-  { type: 'image', label: 'Rasm', icon: '🖼' },
-  { type: 'rect', label: 'To‘rtburchak', icon: '▢' },
-  { type: 'line', label: 'Chiziq', icon: '—' },
-  { type: 'table', label: 'Jadval', icon: '▦' },
+  { type: 'text', label: 'Text', icon: 'T' },
+  { type: 'image', label: 'Image', icon: '🖼' },
+  { type: 'rect', label: 'Rect', icon: '▢' },
+  { type: 'line', label: 'Line', icon: '—' },
+  { type: 'table', label: 'Table', icon: '▦' },
 ]
 
 export function LeftPanel() {
