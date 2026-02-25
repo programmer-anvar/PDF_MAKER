@@ -12,6 +12,7 @@ export function FractionElement({ element, isSelected }: Props) {
   const num = slashIdx >= 0 ? raw.slice(0, slashIdx).trim() || 'a' : raw
   const den = slashIdx >= 0 ? raw.slice(slashIdx + 1).trim() || 'b' : ''
   const lineWidth = Math.max(10, Math.min(200, element.fractionLineWidth ?? 100))
+  const lineThickness = Math.max(1, Math.min(20, element.fractionLineThickness ?? 2))
 
   return (
     <div
@@ -49,8 +50,8 @@ export function FractionElement({ element, isSelected }: Props) {
         }}
       >
         <span>{num}</span>
-        <span style={{ borderBottom: `2px solid ${style.color ?? '#000'}`, width: `${lineWidth}%`, textAlign: 'center' }} />
-        <span>{den}</span>
+        <span style={{ borderBottom: `${lineThickness}px solid ${style.color ?? '#000'}`, width: `${lineWidth}%`, textAlign: 'center', paddingTop:"1px", paddingBottom:"1px" }} />
+        <span style={{paddingTop:'1px'}}>{den}</span>
       </span>
     </div>
   )

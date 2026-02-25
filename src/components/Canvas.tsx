@@ -120,11 +120,6 @@ export function Canvas() {
                     bounds="parent"
                     enableResizing={selectedId === el.id}
                     disableDragging={false}
-                    onMouseDown={(e) => {
-                      e.stopPropagation()
-                      setActivePageIndex(index)
-                      setSelected(el.id)
-                    }}
                     style={{
                       zIndex: el.isContainer ? 0 : (selectedId === el.id ? 1000 : 1),
                       border: 'none',
@@ -132,7 +127,15 @@ export function Canvas() {
                       boxSizing: 'border-box',
                     }}
                   >
-                    <div style={{ width: '100%', height: '100%', minHeight: 0, overflow: 'visible', transform: el.rotate ? `rotate(${el.rotate}deg)` : undefined }}>
+                    <div
+                      style={{ width: '100%', height: '100%', minHeight: 0, overflow: 'visible', transform: el.rotate ? `rotate(${el.rotate}deg)` : undefined }}
+                      onMouseDown={() => {
+                        setActivePageIndex(index)
+                        setSelected(el.id)
+                      }}
+                      role="button"
+                      tabIndex={-1}
+                    >
                       <ElementRenderer element={el} isSelected={selectedId === el.id} />
                     </div>
                   </Rnd>

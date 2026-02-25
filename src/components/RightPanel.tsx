@@ -1,7 +1,7 @@
 import { useEditorStore } from '../store/editorStore'
 import type { ElementStyle } from '../types/editor'
 
-const TYPE_LABELS: Record<string, string> = { text: 'Matn', root: 'Matematik ildiz', fraction: 'Kasr', formula: 'Ildizli kasr', image: 'Rasm', rect: 'To‘rtburchak', line: 'Chiziq', table: 'Jadval' }
+const TYPE_LABELS: Record<string, string> = { text: 'Matn', root: 'Matematik ildiz', fraction: 'Kasr', formula: 'Ildizli kasr', script: 'Indeks (P_a)', image: 'Rasm', rect: 'To‘rtburchak', line: 'Chiziq', table: 'Jadval' }
 
 export function RightPanel() {
   const elements = useEditorStore((s) => s.pages[s.activePageIndex]?.elements ?? [])
@@ -32,7 +32,7 @@ export function RightPanel() {
                     onClick={() => setSelected(el.id)}
                   >
                     <span className="el-type">{TYPE_LABELS[el.type] ?? el.type}</span>
-                    <span className="el-preview">{(el.type === 'text' || el.type === 'root' || el.type === 'fraction' || el.type === 'formula') ? (el.type === 'formula' ? `${(el.formulaNum ?? '').slice(0, 12)}…` : (el.dataKey ?? el.content ?? '—').slice(0, 20)) : `#${i + 1}`}</span>
+                    <span className="el-preview">{(el.type === 'text' || el.type === 'root' || el.type === 'fraction' || el.type === 'formula' || el.type === 'script') ? (el.type === 'formula' ? `${(el.formulaNum ?? '').slice(0, 12)}…` : el.type === 'script' ? `${el.content ?? 'P'}${(el.scriptSub ?? '').slice(0, 4)}${(el.scriptSuper ?? '').slice(0, 4)}` : (el.dataKey ?? el.content ?? '—').slice(0, 20)) : `#${i + 1}`}</span>
                   </button>
                 </li>
               ))}
@@ -123,7 +123,7 @@ export function RightPanel() {
         />
       </div>
 
-      {(selected.type === 'text' || selected.type === 'root' || selected.type === 'fraction' || selected.type === 'formula') && (
+      {(selected.type === 'text' || selected.type === 'root' || selected.type === 'fraction' || selected.type === 'formula' || selected.type === 'script') && (
         <>
           <div className="prop-group">
               <label>Data Key (displays “value” in sampling)</label>
@@ -175,6 +175,16 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
+                <label>Kasr chizig'i qalinligi (px)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={selected.fractionLineThickness ?? 2}
+                  onChange={(e) => updateElement(selected.id, { fractionLineThickness: Math.max(1, Math.min(20, Number(e.target.value) || 2)) })}
+                />
+              </div>
+              <div className="prop-group">
                 <label>Chiziq burchagi (gradus)</label>
                 <input
                   type="number"
@@ -183,6 +193,36 @@ export function RightPanel() {
                   value={selected.formulaLineAngle ?? 0}
                   onChange={(e) => updateElement(selected.id, { formulaLineAngle: Math.max(-45, Math.min(45, Number(e.target.value) || 0)) })}
                   placeholder="0 = gorizontal"
+                />
+              </div>
+            </>
+          ) : selected.type === 'script' ? (
+            <>
+              <div className="prop-group">
+                <label>Asosiy belgi (masalan: P)</label>
+                <input
+                  type="text"
+                  value={selected.content ?? ''}
+                  onChange={(e) => updateElement(selected.id, { content: e.target.value })}
+                  placeholder="P"
+                />
+              </div>
+              <div className="prop-group">
+                <label>Pastki indeks (P_a)</label>
+                <input
+                  type="text"
+                  value={selected.scriptSub ?? ''}
+                  onChange={(e) => updateElement(selected.id, { scriptSub: e.target.value })}
+                  placeholder="a"
+                />
+              </div>
+              <div className="prop-group">
+                <label>Yuqori indeks (x^2)</label>
+                <input
+                  type="text"
+                  value={selected.scriptSuper ?? ''}
+                  onChange={(e) => updateElement(selected.id, { scriptSuper: e.target.value })}
+                  placeholder="2"
                 />
               </div>
             </>
@@ -197,16 +237,28 @@ export function RightPanel() {
             </div>
           )}
           {selected.type === 'fraction' && (
-            <div className="prop-group">
-              <label>Kasr chizig'i uzunligi (%)</label>
-              <input
-                type="number"
-                min={10}
-                max={200}
-                value={selected.fractionLineWidth ?? 100}
-                onChange={(e) => updateElement(selected.id, { fractionLineWidth: Math.max(10, Math.min(200, Number(e.target.value) || 100)) })}
-              />
-            </div>
+            <>
+              <div className="prop-group">
+                <label>Kasr chizig'i uzunligi (%)</label>
+                <input
+                  type="number"
+                  min={10}
+                  max={200}
+                  value={selected.fractionLineWidth ?? 100}
+                  onChange={(e) => updateElement(selected.id, { fractionLineWidth: Math.max(10, Math.min(200, Number(e.target.value) || 100)) })}
+                />
+              </div>
+              <div className="prop-group">
+                <label>Kasr chizig'i qalinligi (px)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={selected.fractionLineThickness ?? 2}
+                  onChange={(e) => updateElement(selected.id, { fractionLineThickness: Math.max(1, Math.min(20, Number(e.target.value) || 2)) })}
+                />
+              </div>
+            </>
           )}
           <div className="prop-group">
             <label>Shrift o‘lchami</label>
@@ -285,8 +337,8 @@ export function RightPanel() {
               onChange={(e) => updateElement(selected.id, { dataKey: e.target.value || undefined })}
             >
               <option value="">Rasm (o‘zingiz yuklaysiz)</option>
-              <option value="__sign1Img__">Imzo 1 (meaSignature1)</option>
-              <option value="__sign2Img__">Imzo 2 (meaSignature2)</option>
+              <option value="__sign1Img__"> 1 (meaSignature1)</option>
+              <option value="__sign2Img__">2 (meaSignature2)</option>
               <option value="__shapeImage__">Shape (shapeImage)</option>
             </select>
           </div>

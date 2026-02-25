@@ -6,6 +6,7 @@ import { TableElement } from './TableElement'
 import { RootElement } from './RootElement'
 import { FractionElement } from './FractionElement'
 import { FormulaElement } from './FormulaElement'
+import { ScriptElement } from './ScriptElement'
 import type { EditorElement } from '../../types/editor'
 
 interface Props {
@@ -31,6 +32,8 @@ export function ElementRenderer({ element, isSelected }: Props) {
       return <FractionElement element={element} isSelected={isSelected} />
     case 'formula':
       return <FormulaElement element={element} isSelected={isSelected} />
+    case 'script':
+      return <ScriptElement element={element} isSelected={isSelected} />
     default:
       return null
   }

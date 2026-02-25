@@ -11,6 +11,7 @@ export function FormulaElement({ element, isSelected }: Props) {
   const den = element.formulaDen ?? '(-)'
   const topLineWidth = Math.max(10, Math.min(200, element.formulaTopLineWidth ?? 100))
   const fractionLineWidth = Math.max(10, Math.min(200, element.fractionLineWidth ?? 100))
+  const lineThickness = Math.max(1, Math.min(20, element.fractionLineThickness ?? 2))
   const lineAngle = Math.max(-45, Math.min(45, element.formulaLineAngle ?? 0))
   const lineTransform = lineAngle !== 0 ? `rotate(${lineAngle}deg)` : undefined
 
@@ -59,9 +60,9 @@ export function FormulaElement({ element, isSelected }: Props) {
             paddingTop: 2,
           }}
         >
-          <span style={{ borderTop: `2px solid ${style.color ?? '#000'}`, width: `${topLineWidth}%`, alignSelf: 'center', display: 'block', height: 0, marginBottom: 2, transform: lineTransform, transformOrigin: 'center center' }} />
+          <span style={{ borderTop: `${lineThickness}px solid ${style.color ?? '#000'}`, width: `${topLineWidth}%`, alignSelf: 'center', display: 'block', height: 0, marginBottom: 2, transform: lineTransform, transformOrigin: 'center center' }} />
           <span>{num}</span>
-          <span style={{ borderBottom: `2px solid ${style.color ?? '#000'}`, width: `${fractionLineWidth}%`, textAlign: 'center', transform: lineTransform, transformOrigin: 'center center' }} />
+          <span style={{ borderBottom: `${lineThickness}px solid ${style.color ?? '#000'}`, width: `${fractionLineWidth}%`, textAlign: 'center', transform: lineTransform, transformOrigin: 'center center' }} />
           <span>{den}</span>
         </span>
       </span>

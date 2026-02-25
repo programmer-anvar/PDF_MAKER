@@ -38,7 +38,7 @@ export function LeftPanel() {
             title="PDF da meaSignature1"
           >
             <span className="element-icon">✍</span>
-            <span>Imzo 1</span>
+            <span>1</span>
           </button>
         </li>
         <li>
@@ -49,7 +49,7 @@ export function LeftPanel() {
             title="PDF da meaSignature2"
           >
             <span className="element-icon">✍</span>
-            <span>Imzo 2</span>
+            <span>2</span>
           </button>
         </li>
         <li>

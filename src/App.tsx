@@ -193,11 +193,11 @@ function App() {
                 onKeyDown={(e) => e.key === 'Enter' && handleSaveToken()}
               />
               <button type="button" className="btn primary small" onClick={handleSaveToken}>
-                Token saqlash
+                Save Token
               </button>
               {hasToken && (
                 <button type="button" className="btn small" onClick={() => setShowTokenInput(false)}>
-                  Yopish
+                  Close
                 </button>
               )}
             </span>
@@ -226,7 +226,7 @@ function App() {
             PDF (value’lar / sampling)
           </button> */}
           <button type="button" className="btn" onClick={handleSave}>
-            Saqlash
+            Save
           </button>
           {/* <button type="button" className="btn" onClick={handleLoad}>
             Serverdan yuklash

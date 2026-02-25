@@ -1,5 +1,5 @@
 /** Element types in the designer */
-export type ElementType = 'text' | 'image' | 'rect' | 'line' | 'table' | 'root' | 'fraction' | 'formula'
+export type ElementType = 'text' | 'image' | 'rect' | 'line' | 'table' | 'root' | 'fraction' | 'formula' | 'script'
 
 export interface ElementStyle {
   fontSize?: number
@@ -52,10 +52,16 @@ export interface EditorElement {
   formulaDen?: string
   /** Kasr chizig'i uzunligi, % (kasr va formula) */
   fractionLineWidth?: number
+  /** Kasr chizig'i qalinligi, px (kasr va formula) */
+  fractionLineThickness?: number
   /** Formula tepasidagi chiziq (ildiz ostidagi) uzunligi, % */
   formulaTopLineWidth?: number
   /** Formula chiziqlarini qiyshaytirish, gradus (-45 … 45), 0 = gorizontal */
   formulaLineAngle?: number
+  /** Indeksli matn (P_a): pastki indeks */
+  scriptSub?: string
+  /** Indeksli matn (x^2): yuqori indeks */
+  scriptSuper?: string
 }
 
 export interface EditorState {

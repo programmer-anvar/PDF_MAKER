@@ -95,6 +95,7 @@ const defaultElementSize: Record<ElementType, { w: number; h: number }> = {
   root: { w: 40, h: 14 },
   fraction: { w: 30, h: 14 },
   formula: { w: 70, h: 22 },
+  script: { w: 20, h: 10 },
 }
 
 function cloneElements(el: EditorElement[]): EditorElement[] {
@@ -142,7 +143,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     let { w, h } = defaultElementSize[type]
     if (size?.w != null) w = Math.max(2, size.w)
     if (size?.h != null) h = Math.max(2, size.h)
-    if ((type === 'text' || type === 'root' || type === 'fraction') && initialContent != null && size?.w == null) {
+    if ((type === 'text' || type === 'root' || type === 'fraction' || type === 'script') && initialContent != null && size?.w == null) {
       const minW = Math.min(185, Math.max(53, initialContent.length * 3.7))
       w = Math.max(w, minW)
       if (size?.h == null) h = Math.max(h, 8)
@@ -207,7 +208,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         textAlign: 'left',
       },
     }
-    const textContent = (type === 'text' || type === 'root' || type === 'fraction') && initialContent != null ? initialContent : undefined
+    const textContent = (type === 'text' || type === 'root' || type === 'fraction' || type === 'script') && initialContent != null ? initialContent : undefined
     const el: EditorElement =
       type === 'text'
         ? { ...base, content: textContent ?? (dataKey ?? 'Text'), dataKey: dataKey ?? base.dataKey }
@@ -217,7 +218,9 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
             ? { ...base, content: textContent ?? (dataKey ?? 'a/b'), dataKey: dataKey ?? base.dataKey }
             : type === 'formula'
               ? { ...base, formulaNum: '2 × 9.81 × (-)', formulaDen: '(-)' }
-              : type === 'image'
+              : type === 'script'
+                ? { ...base, content: textContent ?? 'P', scriptSub: 'a', dataKey: dataKey ?? base.dataKey }
+                : type === 'image'
               ? { ...base, src: '', dataKey: dataKey ?? undefined }
               : type === 'table'
                 ? { ...base, table: { ...defaultTableData } }
@@ -303,7 +306,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     if (!page) return
     const { pageWidth, pageHeight, elements } = page
     const el = elements.find((e) => e.id === id)
-    const minW = el?.type === 'formula' ? 15 : el?.type === 'fraction' ? 10 : 2
+    const minW = el?.type === 'formula' ? 15 : el?.type === 'fraction' ? 10 : el?.type === 'script' ? 8 : 2
     const minH = 2
     let nx = snap(Math.max(0, Math.min(x, pageWidth - minW)))
     let ny = snap(Math.max(0, Math.min(y, pageHeight - minH)))

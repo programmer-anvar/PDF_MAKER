@@ -13,6 +13,7 @@ const ELEMENTS: { type: ElementType; label: string; icon: string }[] = [
   { type: 'root', label: 'Square root', icon: '√' },
   { type: 'fraction', label: 'Fraction', icon: 'a/b' },
   { type: 'formula', label: 'Radical fraction', icon: '√ ⁄' },
+  { type: 'script', label: 'Indeks (P_a)', icon: 'Pₐ' },
   // { type: 'image', label: 'Rasm', icon: '🖼' },
   { type: 'rect', label: 'Rectangle', icon: '▢' },
   { type: 'line', label: 'Line', icon: '—' },

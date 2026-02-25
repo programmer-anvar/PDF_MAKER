@@ -6,8 +6,8 @@ interface Props {
 }
 
 const PLACEHOLDER_LABELS: Record<string, string> = {
-  __sign1Img__: 'Imzo 1',
-  __sign2Img__: 'Imzo 2',
+  __sign1Img__: 'Signature 1',
+  __sign2Img__: 'Signature 2',
   __shapeImage__: 'Shape',
 }
 
@@ -21,7 +21,7 @@ export function ImageElement({ element, isSelected }: Props) {
       {element.src ? (
         <img src={element.src} alt="" style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }} />
       ) : (
-        <div style={{ background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666', fontSize: 11, width: '100%', height: '100%', minHeight: 0 }}>
+        <div style={{  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666', fontSize: 11, width: '100%', height: '100%', minHeight: 0 }}>
           {placeholder ?? 'Rasm'}
         </div>
       )}
