@@ -15,6 +15,16 @@ export function getMockDataAsRecord(): Record<string, string> {
   return out
 }
 
+/** Mock + gaseousList – sampling PDF da gaseous loop ni sinash uchun */
+export function getMockDataWithGaseousList(): Record<string, unknown> {
+  const flat = getMockDataAsRecord()
+  const gaseousList = [
+    { pollutantName: '폼알데하이드', gasVolumeStart: '135.3638', gasVolumeEnd: '135.3748', collectionTime: '11', gasMeterTemp: '11', gaugePressureHg: '1.47', gasVolumeResult: '11' },
+    { pollutantName: '에틸벤젠', gasVolumeStart: '0', gasVolumeEnd: '0.0011', collectionTime: '5', gasMeterTemp: '17', gaugePressureHg: '0', gasVolumeResult: '1.1' },
+  ]
+  return { ...flat, gaseousList }
+}
+
 export const mockSidebarData: DataSection[] = [
   {
     title: 'Korxona',

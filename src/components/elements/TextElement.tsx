@@ -12,6 +12,8 @@ export function TextElement({ element, isSelected }: Props) {
     <div
       className={`element-text ${isSelected ? 'selected' : ''}`}
       data-data-key={element.dataKey ?? undefined}
+      data-gaseous-key={element.gaseousKey ?? undefined}
+      data-gaseous-row-height={element.gaseousRowHeight ?? undefined}
       style={{
         width: '100%',
         height: '100%',
@@ -40,7 +42,7 @@ export function TextElement({ element, isSelected }: Props) {
         borderBottom: style.borderBottom,
       }}
     >
-      {element.dataKey ?? element.content ?? 'Text'}
+      {element.gaseousKey ? `[${element.gaseousKey}]` : (element.dataKey ?? element.content ?? 'Text')}
     </div>
   )
 }

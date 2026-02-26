@@ -7,8 +7,9 @@ import { RightPanel } from './components/RightPanel'
 import { Toast } from './components/Toast'
 import { exportPageToPdf } from './utils/exportPdf'
 import { saveToServer, loadFromServer, exportLayoutJson, importLayoutJson } from './utils/saveLoad'
-import { getMockDataAsRecord } from './data/mockSidebarData'
+import { getMockDataWithGaseousList } from './data/mockSidebarData'
 import { fetchSamplingDataAsRecord } from './api/sampling'
+import { normalizeSamplingDataForPdf } from './utils/pdfDataNormalizer'
 import { getAccessToken, setAccessToken, initAuth, handleLogout } from './api/auth'
 import { LoginView } from './components/LoginView'
 import './App.css'
@@ -90,13 +91,13 @@ function App() {
   }, [toast])
 
   const handleExportPdfSampling = useCallback(async () => {
-    const realData = await fetchSamplingDataAsRecord()
-    const data = realData ?? getMockDataAsRecord()
-    if (!realData) toast('Serverdan ma’lumot kelmadi, namuna ishlatildi', 'info')
+    const flat = await fetchSamplingDataAsRecord()
+    const data = flat ? normalizeSamplingDataForPdf(flat) : getMockDataWithGaseousList()
+    if (!flat) toast('Serverdan ma’lumot kelmadi, namuna ishlatildi', 'info')
     const pages = useEditorStore.getState().pages
     const selectors = pages.map((p) => `#a4-page-${p.id}`)
     exportPageToPdf(selectors, `sampling-${Date.now()}.pdf`, data)
-    toast('PDF (value\'lar bilan) yuklandi', 'success')
+    toast('PDF (value / gaseousList loop) yuklandi', 'success')
   }, [toast])
 
   const handleSave = useCallback(async () => {

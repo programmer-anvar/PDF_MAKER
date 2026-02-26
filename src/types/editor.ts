@@ -62,6 +62,10 @@ export interface EditorElement {
   scriptSub?: string
   /** Indeksli matn (x^2): yuqori indeks */
   scriptSuper?: string
+  /** data.gaseousList qatorida chiqarish: har bir element uchun kalit (pollutantName, gasVolumeStart, …) */
+  gaseousKey?: string
+  /** Gaseous qator balandligi, mm – har bir yangi qator uchun Y += gaseousRowHeight */
+  gaseousRowHeight?: number
 }
 
 export interface EditorState {

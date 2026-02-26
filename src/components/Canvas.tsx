@@ -128,6 +128,7 @@ export function Canvas() {
                     }}
                   >
                     <div
+                      data-element-id={el.id}
                       style={{ width: '100%', height: '100%', minHeight: 0, overflow: 'visible', transform: el.rotate ? `rotate(${el.rotate}deg)` : undefined }}
                       onMouseDown={() => {
                         setActivePageIndex(index)

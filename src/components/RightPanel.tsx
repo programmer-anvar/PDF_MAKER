@@ -134,6 +134,30 @@ export function RightPanel() {
               placeholder="key nomi yoki bo'sh qoldiring"
             />
           </div>
+          {selected.type === 'text' && (
+            <>
+              <div className="prop-group">
+                <label>Gaseous qator kaliti (data.gaseousList[i] dan key)</label>
+                <input
+                  type="text"
+                  value={selected.gaseousKey ?? ''}
+                  onChange={(e) => updateElement(selected.id, { gaseousKey: e.target.value || undefined })}
+                  placeholder="pollutantName, gasVolumeStart, gasVolumeEnd, …"
+                />
+                <p className="panel-hint">To'ldirsangiz sampling PDF da loop: har qator uchun Y += qator balandligi. Katak ramkasi uchun matn elementiga style (border) bering.</p>
+              </div>
+              <div className="prop-group">
+                <label>Qator balandligi (mm) – har yangi qator uchun Y += shu qiymat</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={selected.gaseousRowHeight ?? 6}
+                  onChange={(e) => updateElement(selected.id, { gaseousRowHeight: Number(e.target.value) || undefined })}
+                />
+              </div>
+            </>
+          )}
           {selected.type === 'formula' ? (
             <>
               <div className="prop-group">
