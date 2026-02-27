@@ -66,6 +66,12 @@ export interface EditorElement {
   gaseousKey?: string
   /** Gaseous qator balandligi, mm – har bir yangi qator uchun Y += gaseousRowHeight */
   gaseousRowHeight?: number
+  /** Qatorlar soni – shuncha katak chiqadi; data.gaseousList dan to'ldiriladi (ortiqchasi bo'sh) */
+  gaseousRowCount?: number
+  /** Ustun boshiga qatorlar soni (masalan 6) – X o'qi bo'yicha keyingi ustun shu qatordan boshlanadi */
+  gaseousBlock2AtRow?: number
+  /** Faqat 2-ustun (o'ng): faqat list[block2AtRow].. chiqaradi, Y bir xil (baseY) */
+  gaseousBlock2Only?: boolean
 }
 
 export interface EditorState {

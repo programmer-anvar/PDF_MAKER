@@ -156,6 +156,38 @@ export function RightPanel() {
                   onChange={(e) => updateElement(selected.id, { gaseousRowHeight: Number(e.target.value) || undefined })}
                 />
               </div>
+              <div className="prop-group">
+                <label>Qatorlar soni – shuncha katak chiqadi (data.gaseousList dan to'ldiriladi, ortiqchasi bo'sh)</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={selected.gaseousRowCount ?? ''}
+                  onChange={(e) => updateElement(selected.id, { gaseousRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                  placeholder="bo'sh = list uzunligi"
+                />
+              </div>
+              <div className="prop-group">
+                <label>Ustun boshiga qatorlar (X o'qi: 6 = birinchi 6 chapda, keyingi 6 o'ngda)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={30}
+                  value={selected.gaseousBlock2AtRow ?? ''}
+                  onChange={(e) => updateElement(selected.id, { gaseousBlock2AtRow: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                  placeholder="6"
+                />
+              </div>
+              <div className="prop-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={!!selected.gaseousBlock2Only}
+                    onChange={(e) => updateElement(selected.id, { gaseousBlock2Only: e.target.checked || undefined })}
+                  />
+                  {' '}Faqat 2-ustun (o'ng): list[6].. chiqadi, Y bir xil
+                </label>
+              </div>
             </>
           )}
           {selected.type === 'formula' ? (

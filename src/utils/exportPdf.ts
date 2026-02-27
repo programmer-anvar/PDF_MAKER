@@ -10,27 +10,93 @@ function getString(data: Record<string, unknown>, key: string): string {
   return v !== undefined && v !== null ? String(v) : ''
 }
 
-type PageEl = { id: string; type: string; x: number; y: number; gaseousKey?: string; gaseousRowHeight?: number; table?: { bodyDataKey?: string; columnKeys?: string[]; firstRow?: string[]; cols: number } }
+type PageEl = { id: string; type: string; x: number; y: number; gaseousKey?: string; gaseousRowHeight?: number; gaseousRowCount?: number; gaseousBlock2AtRow?: number; gaseousBlock2Only?: boolean; table?: { bodyDataKey?: string; columnKeys?: string[]; firstRow?: string[]; cols: number } }
 
 function expandGaseousRowsInClone(pageClone: HTMLElement, pageElements: PageEl[], data: Record<string, unknown>): void {
-  const list = data.gaseousList
-  if (!Array.isArray(list) || list.length === 0) return
+  const list = (data.gaseousList as unknown[] | undefined) ?? []
+  const arr = Array.isArray(list) ? list : []
+  let baseYmm: number | null = null
+  let rowsPerColumn = 6
   for (const el of pageElements) {
-    if (!el.gaseousKey) continue
+    if (el.gaseousBlock2Only) continue
+    if (el.gaseousKey || (el.gaseousRowCount != null && el.gaseousRowCount > 0)) {
+      baseYmm = el.y
+      if (el.gaseousBlock2AtRow != null && el.gaseousBlock2AtRow > 0) rowsPerColumn = el.gaseousBlock2AtRow
+      break
+    }
+  }
+  for (const el of pageElements) {
+    const hasKey = !!el.gaseousKey
+    const hasRowCount = el.gaseousRowCount != null && el.gaseousRowCount > 0
+    if (!hasKey && !hasRowCount) continue
     const rowHeightMm = el.gaseousRowHeight ?? 6
-    const node = pageClone.querySelector(`[data-element-id="${el.id}"] [data-gaseous-key]`) as HTMLElement | null
-    if (!node) continue
-    const wrapperWithId = node.closest('[data-element-id]')
-    const wrapper = wrapperWithId?.parentElement
-    if (!wrapper) continue
-    const baseYpx = el.y * PX_PER_MM
     const rowHeightPx = rowHeightMm * PX_PER_MM
-    node.textContent = getString(list[0] as Record<string, unknown>, el.gaseousKey)
-    for (let i = 1; i < list.length; i++) {
+    const gasKey = (el.gaseousKey ?? '').trim().split(',')[0]?.trim() ?? ''
+
+    if (el.gaseousBlock2Only && baseYmm != null) {
+      const startIdx = rowsPerColumn
+      const count = Math.max(0, Math.min(rowsPerColumn, arr.length - startIdx))
+      if (count <= 0) continue
+      const wrapperWithId = pageClone.querySelector(`[data-element-id="${el.id}"]`) as HTMLElement | null
+      if (!wrapperWithId) continue
+      const wrapper = wrapperWithId.parentElement
+      if (!wrapper) continue
+      const node = wrapperWithId.querySelector('[data-gaseous-key]') as HTMLElement | null
+      const baseYpx = baseYmm * PX_PER_MM
+      wrapper.style.top = `${baseYpx}px`
+      if (hasKey && node) {
+        node.textContent = arr[startIdx] != null ? getString(arr[startIdx] as Record<string, unknown>, gasKey) : ''
+      }
+      for (let idx = 1; idx < count; idx++) {
+        const i = startIdx + idx
+        const cloneWrapper = wrapper.cloneNode(true) as HTMLElement
+        cloneWrapper.style.top = `${baseYpx + idx * rowHeightPx}px`
+        const cloneInner = cloneWrapper.querySelector(`[data-element-id="${el.id}"]`) as HTMLElement | null
+        if (cloneInner) {
+          const cloneNode = cloneInner.querySelector('[data-gaseous-key]') as HTMLElement | null
+          if (cloneNode) {
+            cloneNode.textContent = hasKey && arr[i] != null ? getString(arr[i] as Record<string, unknown>, gasKey) : ''
+            cloneNode.style.borderTop = 'none'
+          } else {
+            cloneInner.textContent = ''
+            cloneInner.style.borderTop = 'none'
+          }
+        }
+        wrapper.parentElement?.appendChild(cloneWrapper)
+      }
+      continue
+    }
+
+    const maxRows = hasRowCount ? el.gaseousRowCount! : (el.gaseousRowCount ?? 0)
+    const rowCount =
+      arr.length > 0
+        ? (maxRows > 0 ? Math.min(arr.length, maxRows) : arr.length)
+        : 0
+    const cappedCount = Math.min(rowCount, rowsPerColumn)
+    if (cappedCount <= 0) continue
+    const wrapperWithId = pageClone.querySelector(`[data-element-id="${el.id}"]`) as HTMLElement | null
+    if (!wrapperWithId) continue
+    const wrapper = wrapperWithId.parentElement
+    if (!wrapper) continue
+    const node = wrapperWithId.querySelector('[data-gaseous-key]') as HTMLElement | null
+    const baseYpx = (baseYmm != null ? baseYmm : el.y) * PX_PER_MM
+    if (hasKey && node) {
+      node.textContent = arr[0] != null ? getString(arr[0] as Record<string, unknown>, gasKey) : ''
+    }
+    for (let i = 1; i < cappedCount; i++) {
       const cloneWrapper = wrapper.cloneNode(true) as HTMLElement
       cloneWrapper.style.top = `${baseYpx + i * rowHeightPx}px`
-      const cloneNode = cloneWrapper.querySelector('[data-gaseous-key]') as HTMLElement | null
-      if (cloneNode) cloneNode.textContent = getString(list[i] as Record<string, unknown>, el.gaseousKey)
+      const cloneInner = cloneWrapper.querySelector(`[data-element-id="${el.id}"]`) as HTMLElement | null
+      if (cloneInner) {
+        const cloneNode = cloneInner.querySelector('[data-gaseous-key]') as HTMLElement | null
+        if (cloneNode) {
+          cloneNode.textContent = hasKey && arr[i] != null ? getString(arr[i] as Record<string, unknown>, gasKey) : ''
+          cloneNode.style.borderTop = 'none'
+        } else {
+          cloneInner.textContent = ''
+          cloneInner.style.borderTop = 'none'
+        }
+      }
       wrapper.parentElement?.appendChild(cloneWrapper)
     }
   }
@@ -113,8 +179,10 @@ export async function exportPageToPdf(
       if (data && Object.keys(data).length > 0) {
         clone = el.cloneNode(true) as HTMLElement
         clone.querySelectorAll('[data-data-key]').forEach((node) => {
-          const key = (node as HTMLElement).getAttribute('data-data-key')
-          if (key) (node as HTMLElement).textContent = getString(data, key)
+          const elNode = node as HTMLElement
+          if (elNode.hasAttribute('data-gaseous-key')) return
+          const key = elNode.getAttribute('data-data-key')
+          if (key) elNode.textContent = getString(data, key)
         })
         if (pages[i]?.elements) {
           expandGaseousRowsInClone(clone, pages[i].elements, data)

@@ -14,6 +14,7 @@ export function TextElement({ element, isSelected }: Props) {
       data-data-key={element.dataKey ?? undefined}
       data-gaseous-key={element.gaseousKey ?? undefined}
       data-gaseous-row-height={element.gaseousRowHeight ?? undefined}
+      data-gaseous-row-count={element.gaseousRowCount ?? undefined}
       style={{
         width: '100%',
         height: '100%',

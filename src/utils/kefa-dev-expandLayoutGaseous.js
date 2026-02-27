@@ -12,6 +12,17 @@
 const DEFAULT_ROW_HEIGHT_MM = 6;
 
 /**
+ * Sahifa elementlari ichidan "Qatorlar soni" (gaseousRowCount) ni oladi.
+ * Birinchi topilgan gaseousRowCount > 0 qiymatini qaytaradi, yo'q bo'lsa 0.
+ * Kefa-dev da o'ng blok uchun for (r < N) da N o'rniga ishlatish: getMaxRowsFromElements(page.elements)
+ */
+export function getMaxRowsFromElements(elements) {
+  if (!Array.isArray(elements)) return 0;
+  const el = elements.find((e) => e.gaseousRowCount != null && e.gaseousRowCount > 0);
+  return el ? Math.max(0, Number(el.gaseousRowCount)) : 0;
+}
+
+/**
  * Bitta elementni data bo'yicha content bilan yangilaydi (dataKey bo'lsa).
  */
 function getElementContent(el, data) {
@@ -25,7 +36,8 @@ function getElementContent(el, data) {
 /**
  * Layout ni qayta ishlaydi: gaseousKey li elementlarni data.gaseousList
  * bo'yicha loop qilib, har qator uchun alohida element qiladi (border bilan).
- * Natijada "Text" o'rniga haqiqiy qiymatlar chiqadi.
+ * Qatorlar soni layout dan olinadi: sahifa elementlarida gaseousRowCount
+ * berilgan bo'lsa, shuncha qator chiqadi (ortiqchasi bo'sh); berilmagan bo'lsa list uzunligi.
  *
  * @param {Object} layout - Backend dan kelgan layout: { layout: [ { id, elements: [...] } ] }
  * @param {Object} data   - { gaseousList: [...], companyName, ... }
@@ -43,20 +55,22 @@ export function expandLayoutWithGaseous(layout, data = {}) {
   const newLayout = {
     ...layout,
     layout: layout.layout.map((page) => {
+      const pageElements = page.elements || [];
+      const maxRows = getMaxRowsFromElements(pageElements);
+      const rowCount = maxRows > 0 ? maxRows : list.length;
+
       const elements = [];
-      for (const el of page.elements || []) {
+      for (const el of pageElements) {
         if (!el.gaseousKey) {
-          // Oddiy element: bitta, content ni data dan to'ldirish
           elements.push({
             ...el,
             content: getElementContent(el, data),
           });
           continue;
         }
-        // Gaseous: "Text" chiqarma, loop qil
         const keys = String(el.gaseousKey).split(',').map((k) => k.trim()).filter(Boolean);
         const h = el.gaseousRowHeight ?? el.h ?? rowHeight;
-        for (let i = 0; i < list.length; i++) {
+        for (let i = 0; i < rowCount; i++) {
           const item = list[i] || {};
           const y = el.y + i * h;
           const text = keys.length === 1
