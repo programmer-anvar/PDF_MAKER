@@ -1,5 +1,5 @@
 /** Element types in the designer */
-export type ElementType = 'text' | 'image' | 'rect' | 'line' | 'table' | 'root' | 'fraction' | 'formula' | 'script'
+export type ElementType = 'text' | 'textSplit' | 'image' | 'rect' | 'line' | 'table' | 'root' | 'fraction' | 'formula' | 'script'
 
 export interface ElementStyle {
   fontSize?: number
@@ -64,6 +64,8 @@ export interface EditorElement {
   scriptSuper?: string
   /** data.gaseousList qatorida chiqarish: har bir element uchun kalit (pollutantName, gasVolumeStart, …) */
   gaseousKey?: string
+  /** TextSplit uchun: pastdagi qism uchun gaseous kalit (masalan gasVolumeEnd) */
+  gaseousKeyBottom?: string
   /** Gaseous qator balandligi, mm – har bir yangi qator uchun Y += gaseousRowHeight */
   gaseousRowHeight?: number
   /** Qatorlar soni – shuncha katak chiqadi; data.gaseousList dan to'ldiriladi (ortiqchasi bo'sh) */

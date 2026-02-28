@@ -88,6 +88,7 @@ function getActivePage(get: () => EditorStore): EditorPage | null {
 /** Element default o'lchamlari, mm */
 const defaultElementSize: Record<ElementType, { w: number; h: number }> = {
   text: { w: 53, h: 8 },
+  textSplit: { w: 53, h: 8 },
   image: { w: 40, h: 26 },
   rect: { w: 32, h: 21 },
   line: { w: 53, h: 1 },
@@ -143,7 +144,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     let { w, h } = defaultElementSize[type]
     if (size?.w != null) w = Math.max(2, size.w)
     if (size?.h != null) h = Math.max(2, size.h)
-    if ((type === 'text' || type === 'root' || type === 'fraction' || type === 'script') && initialContent != null && size?.w == null) {
+    if ((type === 'text' || type === 'textSplit' || type === 'root' || type === 'fraction' || type === 'script') && initialContent != null && size?.w == null) {
       const minW = Math.min(185, Math.max(53, initialContent.length * 3.7))
       w = Math.max(w, minW)
       if (size?.h == null) h = Math.max(h, 8)
@@ -208,11 +209,13 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         textAlign: 'left',
       },
     }
-    const textContent = (type === 'text' || type === 'root' || type === 'fraction' || type === 'script') && initialContent != null ? initialContent : undefined
+    const textContent = (type === 'text' || type === 'textSplit' || type === 'root' || type === 'fraction' || type === 'script') && initialContent != null ? initialContent : undefined
     const el: EditorElement =
       type === 'text'
         ? { ...base, content: textContent ?? (dataKey ?? 'Text'), dataKey: dataKey ?? base.dataKey }
-        : type === 'root'
+        : type === 'textSplit'
+          ? { ...base, content: textContent ?? (dataKey ?? 'Text'), dataKey: dataKey ?? base.dataKey }
+          : type === 'root'
           ? { ...base, content: textContent ?? (dataKey ?? 'x'), dataKey: dataKey ?? base.dataKey }
           : type === 'fraction'
             ? { ...base, content: textContent ?? (dataKey ?? 'a/b'), dataKey: dataKey ?? base.dataKey }

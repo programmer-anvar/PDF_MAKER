@@ -69,13 +69,21 @@ export function expandLayoutWithGaseous(layout, data = {}) {
           continue;
         }
         const keys = String(el.gaseousKey).split(',').map((k) => k.trim()).filter(Boolean);
+        const bottomKey = (el.gaseousKeyBottom ?? '').trim() || null;
         const h = el.gaseousRowHeight ?? el.h ?? rowHeight;
         for (let i = 0; i < rowCount; i++) {
           const item = list[i] || {};
           const y = el.y + i * h;
-          const text = keys.length === 1
-            ? (item[keys[0]] ?? '')
-            : keys.map((k) => item[k] ?? '').join(' ');
+          let text;
+          if (bottomKey) {
+            const topVal = keys[0] ? (item[keys[0]] ?? '') : '';
+            const bottomVal = item[bottomKey] ?? '';
+            text = topVal + '\n' + bottomVal;
+          } else if (keys.length === 1) {
+            text = item[keys[0]] ?? '';
+          } else {
+            text = keys.map((k) => item[k] ?? '').join('\n');
+          }
           const style = {
             ...(el.style || {}),
             border: '1px solid black',

@@ -3,6 +3,7 @@ import type { ElementType } from '../types/editor'
 
 const ELEMENTS: { type: ElementType; label: string; icon: string }[] = [
   { type: 'text', label: 'Text', icon: 'T' },
+  { type: 'textSplit', label: 'Text (o\'rtada chiziq)', icon: '|T' },
   { type: 'image', label: 'Image', icon: '🖼' },
   { type: 'rect', label: 'Rect', icon: '▢' },
   { type: 'line', label: 'Line', icon: '—' },

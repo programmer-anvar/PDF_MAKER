@@ -1,7 +1,7 @@
 import { useEditorStore } from '../store/editorStore'
 import type { ElementStyle } from '../types/editor'
 
-const TYPE_LABELS: Record<string, string> = { text: 'Matn', root: 'Matematik ildiz', fraction: 'Kasr', formula: 'Ildizli kasr', script: 'Indeks (P_a)', image: 'Rasm', rect: 'To‘rtburchak', line: 'Chiziq', table: 'Jadval' }
+const TYPE_LABELS: Record<string, string> = { text: 'Matn', textSplit: 'Matn (o\'rtada chiziq)', root: 'Matematik ildiz', fraction: 'Kasr', formula: 'Ildizli kasr', script: 'Indeks (P_a)', image: 'Rasm', rect: 'To‘rtburchak', line: 'Chiziq', table: 'Jadval' }
 
 export function RightPanel() {
   const elements = useEditorStore((s) => s.pages[s.activePageIndex]?.elements ?? [])
@@ -32,7 +32,7 @@ export function RightPanel() {
                     onClick={() => setSelected(el.id)}
                   >
                     <span className="el-type">{TYPE_LABELS[el.type] ?? el.type}</span>
-                    <span className="el-preview">{(el.type === 'text' || el.type === 'root' || el.type === 'fraction' || el.type === 'formula' || el.type === 'script') ? (el.type === 'formula' ? `${(el.formulaNum ?? '').slice(0, 12)}…` : el.type === 'script' ? `${el.content ?? 'P'}${(el.scriptSub ?? '').slice(0, 4)}${(el.scriptSuper ?? '').slice(0, 4)}` : (el.dataKey ?? el.content ?? '—').slice(0, 20)) : `#${i + 1}`}</span>
+                    <span className="el-preview">{(el.type === 'text' || el.type === 'textSplit' || el.type === 'root' || el.type === 'fraction' || el.type === 'formula' || el.type === 'script') ? (el.type === 'formula' ? `${(el.formulaNum ?? '').slice(0, 12)}…` : el.type === 'script' ? `${el.content ?? 'P'}${(el.scriptSub ?? '').slice(0, 4)}${(el.scriptSuper ?? '').slice(0, 4)}` : (el.dataKey ?? el.content ?? '—').slice(0, 20)) : `#${i + 1}`}</span>
                   </button>
                 </li>
               ))}
@@ -123,7 +123,7 @@ export function RightPanel() {
         />
       </div>
 
-      {(selected.type === 'text' || selected.type === 'root' || selected.type === 'fraction' || selected.type === 'formula' || selected.type === 'script') && (
+      {(selected.type === 'text' || selected.type === 'textSplit' || selected.type === 'root' || selected.type === 'fraction' || selected.type === 'formula' || selected.type === 'script') && (
         <>
           <div className="prop-group">
               <label>Data Key (displays “value” in sampling)</label>
@@ -134,16 +134,27 @@ export function RightPanel() {
               placeholder="key nomi yoki bo'sh qoldiring"
             />
           </div>
-          {selected.type === 'text' && (
+          {(selected.type === 'text' || selected.type === 'textSplit') && (
             <>
               <div className="prop-group">
-                <label>Gaseous qator kaliti (data.gaseousList[i] dan key)</label>
+                <label>Gaseous qator kaliti (data.gaseousList[i] dan key){selected.type === 'textSplit' ? ' (tepa)' : ''}</label>
                 <input
                   type="text"
                   value={selected.gaseousKey ?? ''}
                   onChange={(e) => updateElement(selected.id, { gaseousKey: e.target.value || undefined })}
-                  placeholder="pollutantName, gasVolumeStart, gasVolumeEnd, …"
+                  placeholder={selected.type === 'textSplit' ? 'gasVolumeStart' : 'pollutantName, gasVolumeStart, gasVolumeEnd, …'}
                 />
+                {selected.type === 'textSplit' && (
+                  <div className="prop-group">
+                    <label>Gaseous qator kaliti (past)</label>
+                    <input
+                      type="text"
+                      value={selected.gaseousKeyBottom ?? ''}
+                      onChange={(e) => updateElement(selected.id, { gaseousKeyBottom: e.target.value || undefined })}
+                      placeholder="gasVolumeEnd"
+                    />
+                  </div>
+                )}
                 <p className="panel-hint">To'ldirsangiz sampling PDF da loop: har qator uchun Y += qator balandligi. Katak ramkasi uchun matn elementiga style (border) bering.</p>
               </div>
               <div className="prop-group">
@@ -249,6 +260,33 @@ export function RightPanel() {
                   value={selected.formulaLineAngle ?? 0}
                   onChange={(e) => updateElement(selected.id, { formulaLineAngle: Math.max(-45, Math.min(45, Number(e.target.value) || 0)) })}
                   placeholder="0 = gorizontal"
+                />
+              </div>
+            </>
+          ) : selected.type === 'textSplit' ? (
+            <>
+              <div className="prop-group">
+                <label>Tepadagi matn (chiziq ustida)</label>
+                <input
+                  type="text"
+                  value={(selected.content ?? '').split('\n')[0] ?? ''}
+                  onChange={(e) => {
+                    const bottom = (selected.content ?? '').split('\n')[1] ?? ''
+                    updateElement(selected.id, { content: e.target.value + (bottom ? '\n' + bottom : '') })
+                  }}
+                  placeholder="6"
+                />
+              </div>
+              <div className="prop-group">
+                <label>Pastdagi matn (chiziq ostida)</label>
+                <input
+                  type="text"
+                  value={(selected.content ?? '').split('\n')[1] ?? ''}
+                  onChange={(e) => {
+                    const top = (selected.content ?? '').split('\n')[0] ?? ''
+                    updateElement(selected.id, { content: top + (e.target.value ? '\n' + e.target.value : '') })
+                  }}
+                  placeholder="5"
                 />
               </div>
             </>

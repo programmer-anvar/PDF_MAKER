@@ -10,6 +10,7 @@ const setNotDraggingFromSidebar = () => useEditorStore.getState().setDraggingFro
 
 const ELEMENTS: { type: ElementType; label: string; icon: string }[] = [
   { type: 'text', label: 'Text', icon: 'T' },
+  { type: 'textSplit', label: 'Text (o\'rtada chiziq)', icon: '|T' },
   { type: 'root', label: 'Square root', icon: '√' },
   { type: 'fraction', label: 'Fraction', icon: 'a/b' },
   { type: 'formula', label: 'Radical fraction', icon: '√ ⁄' },

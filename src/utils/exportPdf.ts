@@ -10,7 +10,7 @@ function getString(data: Record<string, unknown>, key: string): string {
   return v !== undefined && v !== null ? String(v) : ''
 }
 
-type PageEl = { id: string; type: string; x: number; y: number; gaseousKey?: string; gaseousRowHeight?: number; gaseousRowCount?: number; gaseousBlock2AtRow?: number; gaseousBlock2Only?: boolean; table?: { bodyDataKey?: string; columnKeys?: string[]; firstRow?: string[]; cols: number } }
+type PageEl = { id: string; type: string; x: number; y: number; gaseousKey?: string; gaseousKeyBottom?: string; gaseousRowHeight?: number; gaseousRowCount?: number; gaseousBlock2AtRow?: number; gaseousBlock2Only?: boolean; table?: { bodyDataKey?: string; columnKeys?: string[]; firstRow?: string[]; cols: number } }
 
 function expandGaseousRowsInClone(pageClone: HTMLElement, pageElements: PageEl[], data: Record<string, unknown>): void {
   const list = (data.gaseousList as unknown[] | undefined) ?? []
@@ -31,7 +31,20 @@ function expandGaseousRowsInClone(pageClone: HTMLElement, pageElements: PageEl[]
     if (!hasKey && !hasRowCount) continue
     const rowHeightMm = el.gaseousRowHeight ?? 6
     const rowHeightPx = rowHeightMm * PX_PER_MM
-    const gasKey = (el.gaseousKey ?? '').trim().split(',')[0]?.trim() ?? ''
+    const gasKeys = (el.gaseousKey ?? '').trim().split(',').map((k) => k.trim()).filter(Boolean)
+    const bottomKey = (el.gaseousKeyBottom ?? '').trim() || undefined
+
+    const getGaseousText = (item: Record<string, unknown> | undefined): string => {
+      if (!hasKey || !item) return ''
+      if (bottomKey) {
+        const topKey = gasKeys[0]
+        if (!topKey) return getString(item, bottomKey)
+        return getString(item, topKey) + '\n' + getString(item, bottomKey)
+      }
+      if (gasKeys.length === 0) return ''
+      if (gasKeys.length === 1) return getString(item, gasKeys[0])
+      return gasKeys.map((k) => getString(item, k)).join('\n')
+    }
 
     if (el.gaseousBlock2Only && baseYmm != null) {
       const startIdx = rowsPerColumn
@@ -45,7 +58,7 @@ function expandGaseousRowsInClone(pageClone: HTMLElement, pageElements: PageEl[]
       const baseYpx = baseYmm * PX_PER_MM
       wrapper.style.top = `${baseYpx}px`
       if (hasKey && node) {
-        node.textContent = arr[startIdx] != null ? getString(arr[startIdx] as Record<string, unknown>, gasKey) : ''
+        node.textContent = getGaseousText(arr[startIdx] as Record<string, unknown> | undefined)
       }
       for (let idx = 1; idx < count; idx++) {
         const i = startIdx + idx
@@ -55,7 +68,7 @@ function expandGaseousRowsInClone(pageClone: HTMLElement, pageElements: PageEl[]
         if (cloneInner) {
           const cloneNode = cloneInner.querySelector('[data-gaseous-key]') as HTMLElement | null
           if (cloneNode) {
-            cloneNode.textContent = hasKey && arr[i] != null ? getString(arr[i] as Record<string, unknown>, gasKey) : ''
+            cloneNode.textContent = getGaseousText(arr[i] as Record<string, unknown> | undefined)
             cloneNode.style.borderTop = 'none'
           } else {
             cloneInner.textContent = ''
@@ -81,7 +94,7 @@ function expandGaseousRowsInClone(pageClone: HTMLElement, pageElements: PageEl[]
     const node = wrapperWithId.querySelector('[data-gaseous-key]') as HTMLElement | null
     const baseYpx = (baseYmm != null ? baseYmm : el.y) * PX_PER_MM
     if (hasKey && node) {
-      node.textContent = arr[0] != null ? getString(arr[0] as Record<string, unknown>, gasKey) : ''
+      node.textContent = getGaseousText(arr[0] as Record<string, unknown> | undefined)
     }
     for (let i = 1; i < cappedCount; i++) {
       const cloneWrapper = wrapper.cloneNode(true) as HTMLElement
@@ -90,7 +103,7 @@ function expandGaseousRowsInClone(pageClone: HTMLElement, pageElements: PageEl[]
       if (cloneInner) {
         const cloneNode = cloneInner.querySelector('[data-gaseous-key]') as HTMLElement | null
         if (cloneNode) {
-          cloneNode.textContent = hasKey && arr[i] != null ? getString(arr[i] as Record<string, unknown>, gasKey) : ''
+          cloneNode.textContent = getGaseousText(arr[i] as Record<string, unknown> | undefined)
           cloneNode.style.borderTop = 'none'
         } else {
           cloneInner.textContent = ''
