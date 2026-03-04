@@ -1,7 +1,17 @@
 import { useEditorStore } from '../store/editorStore'
 import type { ElementStyle } from '../types/editor'
 
-const TYPE_LABELS: Record<string, string> = { text: 'Matn', textSplit: 'Matn (o\'rtada chiziq)', root: 'Matematik ildiz', fraction: 'Kasr', formula: 'Ildizli kasr', script: 'Indeks (P_a)', image: 'Rasm', rect: 'To‘rtburchak', line: 'Chiziq', table: 'Jadval' }
+function round1mm(n: number | undefined): number {
+  if (n == null || !Number.isFinite(n)) return 0
+  return Math.round(n * 10) / 10
+}
+
+function parseMmInput(v: string): number {
+  const normalized = String(v).trim().replace(',', '.')
+  return Number(normalized)
+}
+
+const TYPE_LABELS: Record<string, string> = { text: 'Matn', textSplit: 'Matn (o\'rtada chiziq)', parentheses: 'Matn (qavs)', root: 'Matematik ildiz', fraction: 'Kasr', formula: 'Ildizli kasr', script: 'Indeks (P_a)', image: 'Rasm', rect: 'To‘rtburchak', line: 'Chiziq', table: 'Jadval' }
 
 export function RightPanel() {
   const elements = useEditorStore((s) => s.pages[s.activePageIndex]?.elements ?? [])
@@ -32,7 +42,7 @@ export function RightPanel() {
                     onClick={() => setSelected(el.id)}
                   >
                     <span className="el-type">{TYPE_LABELS[el.type] ?? el.type}</span>
-                    <span className="el-preview">{(el.type === 'text' || el.type === 'textSplit' || el.type === 'root' || el.type === 'fraction' || el.type === 'formula' || el.type === 'script') ? (el.type === 'formula' ? `${(el.formulaNum ?? '').slice(0, 12)}…` : el.type === 'script' ? `${el.content ?? 'P'}${(el.scriptSub ?? '').slice(0, 4)}${(el.scriptSuper ?? '').slice(0, 4)}` : (el.dataKey ?? el.content ?? '—').slice(0, 20)) : `#${i + 1}`}</span>
+                    <span className="el-preview">{(el.type === 'text' || el.type === 'textSplit' || el.type === 'parentheses' || el.type === 'root' || el.type === 'fraction' || el.type === 'formula' || el.type === 'script') ? (el.type === 'formula' ? `${(el.formulaNum ?? '').slice(0, 12)}…` : el.type === 'script' ? `${el.content ?? 'P'}${(el.scriptSub ?? '').slice(0, 4)}${(el.scriptSuper ?? '').slice(0, 4)}` : (el.dataKey ?? el.content ?? '—').slice(0, 20)) : `#${i + 1}`}</span>
                   </button>
                 </li>
               ))}
@@ -79,32 +89,32 @@ export function RightPanel() {
         <div className="row two">
           <input
             type="number"
-            step={0.5}
-            value={selected.x}
-            onChange={(e) => updateElement(selected.id, { x: Number(e.target.value) })}
+            step={0.1}
+            value={round1mm(selected.x)}
+            onChange={(e) => updateElement(selected.id, { x: round1mm(parseMmInput(e.target.value)) })}
             title="X, mm"
           />
           <input
             type="number"
-            step={0.5}
-            value={selected.y}
-            onChange={(e) => updateElement(selected.id, { y: Number(e.target.value) })}
+            step={0.1}
+            value={round1mm(selected.y)}
+            onChange={(e) => updateElement(selected.id, { y: round1mm(parseMmInput(e.target.value)) })}
             title="Y, mm"
           />
         </div>
         <div className="row two">
           <input
             type="number"
-            step={0.5}
-            value={selected.w}
-            onChange={(e) => updateElement(selected.id, { w: Number(e.target.value) })}
+            step={0.1}
+            value={round1mm(selected.w)}
+            onChange={(e) => updateElement(selected.id, { w: round1mm(parseMmInput(e.target.value)) })}
             title="Kenglik, mm"
           />
           <input
             type="number"
-            step={0.5}
-            value={selected.h}
-            onChange={(e) => updateElement(selected.id, { h: Number(e.target.value) })}
+            step={0.1}
+            value={round1mm(selected.h)}
+            onChange={(e) => updateElement(selected.id, { h: round1mm(parseMmInput(e.target.value)) })}
             title="Balandlik, mm"
           />
         </div>
@@ -123,7 +133,7 @@ export function RightPanel() {
         />
       </div>
 
-      {(selected.type === 'text' || selected.type === 'textSplit' || selected.type === 'root' || selected.type === 'fraction' || selected.type === 'formula' || selected.type === 'script') && (
+      {(selected.type === 'text' || selected.type === 'textSplit' || selected.type === 'parentheses' || selected.type === 'root' || selected.type === 'fraction' || selected.type === 'formula' || selected.type === 'script') && (
         <>
           <div className="prop-group">
               <label>Data Key (displays “value” in sampling)</label>
@@ -134,7 +144,7 @@ export function RightPanel() {
               placeholder="key nomi yoki bo'sh qoldiring"
             />
           </div>
-          {(selected.type === 'text' || selected.type === 'textSplit') && (
+          {(selected.type === 'text' || selected.type === 'textSplit' || selected.type === 'parentheses') && (
             <>
               <div className="prop-group">
                 <label>Gaseous qator kaliti (data.gaseousList[i] dan key){selected.type === 'textSplit' ? ' (tepa)' : ''}</label>
@@ -226,9 +236,9 @@ export function RightPanel() {
                 <input
                   type="number"
                   min={10}
-                  max={200}
+                  max={500}
                   value={selected.formulaTopLineWidth ?? 100}
-                  onChange={(e) => updateElement(selected.id, { formulaTopLineWidth: Math.max(10, Math.min(200, Number(e.target.value) || 100)) })}
+                  onChange={(e) => updateElement(selected.id, { formulaTopLineWidth: Math.max(10, Math.min(500, Number(e.target.value) || 100)) })}
                 />
               </div>
               <div className="prop-group">
@@ -236,9 +246,9 @@ export function RightPanel() {
                 <input
                   type="number"
                   min={10}
-                  max={200}
+                  max={500}
                   value={selected.fractionLineWidth ?? 100}
-                  onChange={(e) => updateElement(selected.id, { fractionLineWidth: Math.max(10, Math.min(200, Number(e.target.value) || 100)) })}
+                  onChange={(e) => updateElement(selected.id, { fractionLineWidth: Math.max(10, Math.min(500, Number(e.target.value) || 100)) })}
                 />
               </div>
               <div className="prop-group">
@@ -293,7 +303,7 @@ export function RightPanel() {
           ) : selected.type === 'script' ? (
             <>
               <div className="prop-group">
-                <label>Asosiy belgi (masalan: P)</label>
+                <label>Primary symbol (e.g., P)</label>
                 <input
                   type="text"
                   value={selected.content ?? ''}
@@ -322,7 +332,7 @@ export function RightPanel() {
             </>
           ) : (
             <div className="prop-group">
-              <label>{selected.type === 'fraction' ? 'Kasr (masalan: a/b)' : selected.type === 'root' ? 'Ildiz ostidagi ifoda' : 'Text'}</label>
+              <label>{selected.type === 'fraction' ? 'Kasr (masalan: a/b)' : selected.type === 'root' ? 'Ildiz ostidagi ifoda' : selected.type === 'parentheses' ? 'Matn (qavs ichida)' : 'Text'}</label>
               <textarea
                 value={selected.content ?? ''}
                 onChange={(e) => updateElement(selected.id, { content: e.target.value })}
@@ -337,9 +347,9 @@ export function RightPanel() {
                 <input
                   type="number"
                   min={10}
-                  max={200}
+                  max={500}
                   value={selected.fractionLineWidth ?? 100}
-                  onChange={(e) => updateElement(selected.id, { fractionLineWidth: Math.max(10, Math.min(200, Number(e.target.value) || 100)) })}
+                  onChange={(e) => updateElement(selected.id, { fractionLineWidth: Math.max(10, Math.min(500, Number(e.target.value) || 100)) })}
                 />
               </div>
               <div className="prop-group">

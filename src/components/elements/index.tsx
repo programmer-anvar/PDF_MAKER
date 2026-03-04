@@ -1,5 +1,6 @@
 import { TextElement } from './TextElement'
 import { TextSplitElement } from './TextSplitElement'
+import { ParenthesesElement } from './ParenthesesElement'
 import { ImageElement } from './ImageElement'
 import { RectElement } from './RectElement'
 import { LineElement } from './LineElement'
@@ -19,6 +20,8 @@ export function ElementRenderer({ element, isSelected }: Props) {
   switch (element.type) {
     case 'text':
       return <TextElement element={element} isSelected={isSelected} />
+    case 'parentheses':
+      return <ParenthesesElement element={element} isSelected={isSelected} />
     case 'textSplit':
       return <TextSplitElement element={element} isSelected={isSelected} />
     case 'image':

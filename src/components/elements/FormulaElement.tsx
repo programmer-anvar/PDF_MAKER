@@ -9,8 +9,8 @@ export function FormulaElement({ element, isSelected }: Props) {
   const style = element.style ?? {}
   const num = element.formulaNum ?? '2 × 9.81 × (-)'
   const den = element.formulaDen ?? '(-)'
-  const topLineWidth = Math.max(10, Math.min(200, element.formulaTopLineWidth ?? 100))
-  const fractionLineWidth = Math.max(10, Math.min(200, element.fractionLineWidth ?? 100))
+  const topLineWidth = Math.max(10, Math.min(500, element.formulaTopLineWidth ?? 100))
+  const fractionLineWidth = Math.max(10, Math.min(500, element.fractionLineWidth ?? 100))
   const lineThickness = Math.max(1, Math.min(20, element.fractionLineThickness ?? 2))
   const lineAngle = Math.max(-45, Math.min(45, element.formulaLineAngle ?? 0))
   const lineTransform = lineAngle !== 0 ? `rotate(${lineAngle}deg)` : undefined
