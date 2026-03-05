@@ -46,6 +46,30 @@ export function Canvas() {
     addElement('text', xMm, yMm, text, undefined, dataKey)
   }
 
+  function handleElementMouseDown(e: React.MouseEvent, pageIndex: number, page: (typeof pages)[0], elements: (typeof pages)[0]['elements']) {
+    setActivePageIndex(pageIndex)
+    const pageEl = document.getElementById(`a4-page-${page.id}`)
+    if (!pageEl) return
+    const rect = pageEl.getBoundingClientRect()
+    const xMm = ((e.clientX - rect.left) / rect.width) * page.pageWidth
+    const yMm = ((e.clientY - rect.top) / rect.height) * page.pageHeight
+    const atPoint = elements.filter(
+      (el) => xMm >= el.x && xMm <= el.x + el.w && yMm >= el.y && yMm <= el.y + el.h
+    )
+    if (atPoint.length === 0) return
+    const sorted = [...atPoint].sort(
+      (a, b) =>
+        (a.isContainer ? 0 : 1) - (b.isContainer ? 0 : 1) ||
+        elements.indexOf(a) - elements.indexOf(b)
+    )
+    const topmost = sorted[sorted.length - 1]
+    if (selectedId === topmost.id && sorted.length > 1) {
+      setSelected(sorted[sorted.length - 2].id)
+    } else {
+      setSelected(topmost.id)
+    }
+  }
+
   return (
     <div className="canvas-wrap" style={{ transform: `scale(${canvasScale})`, transformOrigin: 'top center' }}>
       {pages.map((page, index) => {
@@ -71,7 +95,6 @@ export function Canvas() {
                 }
               }}
             >
-              {/* Drop zone: faqat aktiv sahifada */}
               {isActive && (
                 <>
                   <div
@@ -96,7 +119,7 @@ export function Canvas() {
                 .sort((a, b) => (a.isContainer ? 0 : 1) - (b.isContainer ? 0 : 1))
                 .map((el) => (
                   <Rnd
-                    key={`${el.id}-${el.w}-${el.h}`}
+                    key={el.id}
                     size={{ width: el.w * PX_PER_MM, height: el.h * PX_PER_MM }}
                     position={{ x: el.x * PX_PER_MM, y: el.y * PX_PER_MM }}
                     scale={canvasScale}
@@ -130,10 +153,7 @@ export function Canvas() {
                     <div
                       data-element-id={el.id}
                       style={{ width: '100%', height: '100%', minHeight: 0, overflow: 'visible', transform: el.rotate ? `rotate(${el.rotate}deg)` : undefined }}
-                      onMouseDown={() => {
-                        setActivePageIndex(index)
-                        setSelected(el.id)
-                      }}
+                      onMouseDown={(e) => handleElementMouseDown(e, index, page, elements)}
                       role="button"
                       tabIndex={-1}
                     >
@@ -147,7 +167,7 @@ export function Canvas() {
       })}
       <div className="canvas-add-page-wrap">
         <button type="button" className="btn canvas-add-page-btn" onClick={() => addPage()}>
-          + Yangi sahifa (A4)
+          + New Page (A4)
         </button>
       </div>
     </div>

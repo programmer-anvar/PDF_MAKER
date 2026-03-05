@@ -11,15 +11,18 @@ const PLACEHOLDER_LABELS: Record<string, string> = {
   __shapeImage__: 'Shape',
 }
 
+const SHAPE_IMAGE_FALLBACK = '/shapeImg.png'
+
 export function ImageElement({ element, isSelected }: Props) {
-  const placeholder = !element.src && element.dataKey ? PLACEHOLDER_LABELS[element.dataKey] : null
+  const displaySrc = element.src || (element.dataKey === '__shapeImage__' ? SHAPE_IMAGE_FALLBACK : null)
+  const placeholder = !displaySrc && element.dataKey ? PLACEHOLDER_LABELS[element.dataKey] : null
   return (
     <div
       className={`element-image ${isSelected ? 'selected' : ''}`}
       style={{ overflow: 'hidden', width: '100%', height: '100%', minHeight: 0, boxSizing: 'border-box' }}
     >
-      {element.src ? (
-        <img src={element.src} alt="" style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }} />
+      {displaySrc ? (
+        <img src={displaySrc} alt="" style={{ objectFit: 'contain', width: '100%', height: '100%', display: 'block' }} />
       ) : (
         <div style={{  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666', fontSize: 11, width: '100%', height: '100%', minHeight: 0 }}>
           {placeholder ?? 'Rasm'}
