@@ -38,6 +38,7 @@ export function FormulaElement({ element, isSelected }: Props) {
         borderRight: style.borderRight,
         borderTop: style.borderTop,
         borderBottom: style.borderBottom,
+        pointerEvents: 'none',
       }}
     >
       <span

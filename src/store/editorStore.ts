@@ -10,7 +10,6 @@ function snap(v: number): number {
   return Math.round(v / GRID_SNAP_MM) * GRID_SNAP_MM
 }
 
-/** Ikki to'rtburchak ustma-ust (intersect) qiladimi – yonma-yon/yopishiq bo‘lishi mumkin, faqat ustiga chiqmasin */
 function overlaps(
   a: { x: number; y: number; w: number; h: number },
   b: { x: number; y: number; w: number; h: number }
@@ -85,7 +84,6 @@ function getActivePage(get: () => EditorStore): EditorPage | null {
   return s.pages[s.activePageIndex] ?? null
 }
 
-/** Element default o'lchamlari, mm */
 const defaultElementSize: Record<ElementType, { w: number; h: number }> = {
   text: { w: 53, h: 8 },
   textSplit: { w: 53, h: 8 },
@@ -103,8 +101,6 @@ const defaultElementSize: Record<ElementType, { w: number; h: number }> = {
 function cloneElements(el: EditorElement[]): EditorElement[] {
   return el.map((e) => ({ ...e, style: e.style ? { ...e.style } : undefined, table: e.table ? { ...e.table, data: e.table.data?.map((r) => [...r]) } : undefined }))
 }
-
-const emptyElements: EditorElement[] = []
 
 export const useEditorStore = create<EditorStore>((set, get) => ({
   pages: [createEmptyPage('1')],
@@ -373,7 +369,17 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   },
 
   setSelected(id) {
-    set({ selectedId: id })
+    if (id == null) {
+      set({ selectedId: null })
+      return
+    }
+    const { pages } = get()
+    const pageIndex = pages.findIndex((p) => p.elements.some((e) => e.id === id))
+    if (pageIndex >= 0) {
+      set({ selectedId: id, activePageIndex: pageIndex })
+    } else {
+      set({ selectedId: id })
+    }
   },
 
   setContainer(elementId) {
@@ -395,9 +401,13 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   },
 
   getSelected() {
-    const page = getActivePage(get)
-    const { selectedId } = get()
-    return page && selectedId ? page.elements.find((e) => e.id === selectedId) ?? null : null
+    const { pages, selectedId } = get()
+    if (!selectedId) return null
+    for (const page of pages) {
+      const el = page.elements.find((e) => e.id === selectedId)
+      if (el) return el
+    }
+    return null
   },
 
   setElements(elements: EditorElement[]) {

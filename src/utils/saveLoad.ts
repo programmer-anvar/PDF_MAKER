@@ -20,12 +20,20 @@ export async function loadFromServer(): Promise<boolean> {
     const data = await fetchLayout()
     const store = useEditorStore.getState()
     if (data && 'layout' in data && Array.isArray(data.layout) && data.layout.length > 0) {
-      const pages: EditorPage[] = data.layout.map((p, i) => ({
-        id: String(p.id ?? i + 1),
-        elements: (p.elements ?? []) as EditorElement[],
-        pageWidth: Number(p.pageWidth) || 210,
-        pageHeight: Number(p.pageHeight) || 297,
-      }))
+      const seenIds = new Set<string>()
+      const pages: EditorPage[] = data.layout.map((p, i) => {
+        let id = String(p.id ?? i + 1)
+        while (seenIds.has(id)) {
+          id = `${id}-${i}`
+        }
+        seenIds.add(id)
+        return {
+          id,
+          elements: (p.elements ?? []) as EditorElement[],
+          pageWidth: Number(p.pageWidth) || 210,
+          pageHeight: Number(p.pageHeight) || 297,
+        }
+      })
       store.loadLayoutPages(pages)
     } else {
       const record = data as { elements?: EditorElement[]; pageWidth?: number; pageHeight?: number }

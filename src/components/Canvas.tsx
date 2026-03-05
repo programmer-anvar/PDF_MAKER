@@ -76,7 +76,7 @@ export function Canvas() {
         const isActive = index === activePageIndex
         const elements = page.elements
         return (
-          <div key={page.id} className="canvas-page-block" style={{ marginBottom: index < pages.length - 1 ? 24 : 0 }}>
+          <div key={`page-${index}-${page.id}`} className="canvas-page-block" style={{ marginBottom: index < pages.length - 1 ? 24 : 0 }}>
             <div
               id={`a4-page-${page.id}`}
               className={`a4-page ${isActive ? 'a4-page-active' : ''}`}
