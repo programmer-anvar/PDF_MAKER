@@ -54,7 +54,7 @@ export async function fetchSamplingDefineKeys(): Promise<SamplingDefineItem[] | 
   try {
     const searchRes = await request(`${SAMPLING_DEFINE_BASE}/search`, {
       method: 'POST',
-      body: JSON.stringify({ page: 1, size: 100 }),
+      body: JSON.stringify({ page: 1}),
     })
     if (searchRes.ok) {
       const json = (await searchRes.json()) as {

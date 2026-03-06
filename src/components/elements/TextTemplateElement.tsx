@@ -5,10 +5,9 @@ interface Props {
   isSelected: boolean
 }
 
-/** Matn va Data Key birlashmasi: content da 123${index} kabi yoziladi, PDF da ${key} → data[key] almashtiriladi */
 export function TextTemplateElement({ element, isSelected }: Props) {
   const style = element.style ?? {}
-  const content = element.content ?? '123${index}'
+  const content = element.content ?? 'text${key}'
 
   return (
     <div

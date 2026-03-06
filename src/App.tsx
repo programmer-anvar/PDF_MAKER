@@ -170,7 +170,7 @@ function App() {
   if (loading) {
     return (
       <div className="app editor-app app-loading">
-        <div className="loading-message">Yuklanmoqda…</div>
+        <div className="loading-message">불러오는 중…</div>
         <Toast />
       </div>
     )
@@ -180,7 +180,7 @@ function App() {
     <div className="app editor-app">
       <Toast />
       <header className="editor-header">
-        <h1>PDF Designer</h1>
+        <h1>PDF 디자이너</h1>
         {/* <p>Elementlarni sahifaga qo‘shing, joylashtiring. <span className="kbd-hint">Ctrl+Z</span> bekor qilish, <span className="kbd-hint">Delete</span> o‘chirish.</p> */}
         <div className="toolbar">
           {!hasToken || showTokenInput ? (
@@ -194,30 +194,30 @@ function App() {
                 onKeyDown={(e) => e.key === 'Enter' && handleSaveToken()}
               />
               <button type="button" className="btn primary small" onClick={handleSaveToken}>
-                Save Token
+                토큰 저장
               </button>
               {hasToken && (
                 <button type="button" className="btn small" onClick={() => setShowTokenInput(false)}>
-                  Close
+                  닫기
                 </button>
               )}
             </span>
           ) : (
             <>
               <button type="button" className="btn small" onClick={() => setShowTokenInput(true)} title="Token yangilash">
-                Token ✓
+                토큰 ✓
               </button>
               <button type="button" className="btn small danger" onClick={onLogout} title="Chiqish">
-                Log Out
+                로그아웃
               </button>
             </>
           )}
           <span className="toolbar-sep" />
           <button type="button" className="btn" onClick={undo} disabled={!canUndo} title="Bekor qilish (Ctrl+Z)">
-            ↩ Cancel
+            ↩ 취소
           </button>
           <button type="button" className="btn" onClick={redo} disabled={!canRedo} title="Qayta (Ctrl+Y)">
-            ↪ Again
+            ↪ 다시
           </button>
           <span className="toolbar-sep" />
           <button type="button" className="btn primary" onClick={handleExportPdf}>
@@ -227,7 +227,7 @@ function App() {
             PDF (value’lar / sampling)
           </button> */}
           <button type="button" className="btn" onClick={handleSave}>
-            Save
+            저장
           </button>
           {/* <button type="button" className="btn" onClick={handleLoad}>
             Serverdan yuklash

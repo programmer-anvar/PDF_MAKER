@@ -34,10 +34,6 @@ function getElementContent(el, data) {
 }
 
 /**
- * Layout ni qayta ishlaydi: gaseousKey li elementlarni data.gaseousList
- * bo'yicha loop qilib, har qator uchun alohida element qiladi (border bilan).
- * Qatorlar soni layout dan olinadi: sahifa elementlarida gaseousRowCount
- * berilgan bo'lsa, shuncha qator chiqadi (ortiqchasi bo'sh); berilmagan bo'lsa list uzunligi.
  *
  * @param {Object} layout - Backend dan kelgan layout: { layout: [ { id, elements: [...] } ] }
  * @param {Object} data   - { gaseousList: [...], companyName, ... }

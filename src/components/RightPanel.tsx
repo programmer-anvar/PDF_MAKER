@@ -11,7 +11,7 @@ function parseMmInput(v: string): number {
   return Number(normalized)
 }
 
-const TYPE_LABELS: Record<string, string> = { text: 'Matn', textTemplate: 'Text + Key (123${index})', textSplit: 'Matn (o\'rtada chiziq)', parentheses: 'Matn (qavs)', root: 'Matematik ildiz', fraction: 'Kasr', formula: 'Ildizli kasr', script: 'Indeks (P_a)', image: 'Rasm', rect: 'To‘rtburchak', line: 'Chiziq', table: 'Jadval' }
+const TYPE_LABELS: Record<string, string> = { text: '텍스트', textTemplate: '텍스트 + 키 (Text${key})', textSplit: '취소선 텍스트', parentheses: '괄호 (…)', root: '수학 루트', fraction: '분수', formula: '루트 분수', script: '첨자 (P_a)', image: '이미지', rect: '사각형', line: '선', table: '표' }
 
 export function RightPanel() {
   const elements = useEditorStore((s) => s.pages[s.activePageIndex]?.elements ?? [])
@@ -27,7 +27,7 @@ export function RightPanel() {
   if (!selected) {
     return (
       <aside className="panel right-panel">
-        <h3>Properties</h3>
+        <h3>속성</h3>
         <p className="panel-hint">Select an element from the page or click it from the list.</p>
         <p className="panel-hint kbd-hint-inline"><kbd>Delete</kbd> <kbd>Esc</kbd> tanlovni bekor</p>
         {elements.length > 0 && (
@@ -71,21 +71,21 @@ export function RightPanel() {
       <h3>Properties</h3>
       <div className="props-actions">
         <button type="button" className="btn small" onClick={() => duplicateElement(selected.id)} title="Nusxa (Ctrl+D ni keyinroq qo‘shamiz)">
-          📋 Copy
+          📋 복사
         </button>
         <button type="button" className="btn small" onClick={() => bringForward(selected.id)}>
-          Forward
+          전달
         </button>
         <button type="button" className="btn small" onClick={() => sendBackward(selected.id)}>
-          Back
+          뒤로
         </button>
         <button type="button" className="btn small danger" onClick={() => { deleteElement(selected.id); setSelected(null) }} title="Delete">
-          Delete
+          삭제
         </button>
       </div>
 
       <div className="prop-group">
-        <label>Position / Size (mm)</label>
+        <label>위치 / 크기 (mm)</label>
         <div className="row two">
           <input
             type="number"
@@ -108,20 +108,20 @@ export function RightPanel() {
             step={0.1}
             value={round1mm(selected.w)}
             onChange={(e) => updateElement(selected.id, { w: round1mm(parseMmInput(e.target.value)) })}
-            title="Kenglik, mm"
+            title="Width, mm"
           />
           <input
             type="number"
             step={0.1}
             value={round1mm(selected.h)}
             onChange={(e) => updateElement(selected.id, { h: round1mm(parseMmInput(e.target.value)) })}
-            title="Balandlik, mm"
+            title="Height, mm"
           />
         </div>
       </div>
 
       <div className="prop-group">
-        <label>Angle (degrees)</label>
+        <label>각도 (도)</label>
         <input
           type="number"
           step={5}
@@ -129,7 +129,7 @@ export function RightPanel() {
           max={360}
           value={selected.rotate ?? 0}
           onChange={(e) => updateElement(selected.id, { rotate: Number(e.target.value) || 0 })}
-          title="Elementni qiyshaytirish"
+          title="Skew the element"
         />
       </div>
 
@@ -137,31 +137,31 @@ export function RightPanel() {
         <>
           {selected.type !== 'textTemplate' && (
           <div className="prop-group">
-              <label>Data Key</label>
+              <label>데이터 키</label>
               <input
               type="text"
               value={selected.dataKey ?? ''}
               onChange={(e) => updateElement(selected.id, { dataKey: e.target.value || undefined })}
-              placeholder="Key name or leave empty"
+              placeholder="키 이름 또는 비워 두세요"
             />
           </div>
           )}
           {selected.type === 'textTemplate' && (
             <div className="prop-group">
-              <label>Text + Key (Text{'{'}${'{key}'}{'}'})</label>
+              <label>텍스트 + 키 (Text{'{'}${'{key}'}{'}'})</label>
               <input
                 type="text"
                 value={selected.content ?? ''}
-                onChange={(e) => updateElement(selected.id, { content: e.target.value || '123${index}' })}
+                onChange={(e) => updateElement(selected.id, { content: e.target.value || 'text${key}' })}
                 placeholder="text${key}"
               />
-              <p className="panel-hint">PDF da {`\${key}`} data[key] bilan almashtiriladi.</p>
+              <p className="panel-hint">PDF에서 {`\${key}`} 로 대체됩니다.</p>
             </div>
           )}
           {(selected.type === 'text' || selected.type === 'textSplit' || selected.type === 'parentheses') && (
             <>
               <div className="prop-group">
-                <label>Gaseous key{selected.type === 'textSplit' ? ' (Top)' : ''}</label>
+                <label>가스 키{selected.type === 'textSplit' ? ' (Top)' : ''}</label>
                 <input
                   type="text"
                   value={selected.gaseousKey ?? ''}
@@ -170,19 +170,19 @@ export function RightPanel() {
                 />
                 {selected.type === 'textSplit' && (
                   <div className="prop-group">
-                    <label>Gaseous key (Bottom)</label>
+                    <label>가스 키 (하단)</label>
                     <input
                       type="text"
                       value={selected.gaseousKeyBottom ?? ''}
                       onChange={(e) => updateElement(selected.id, { gaseousKeyBottom: e.target.value || undefined })}
-                      placeholder="gasVolumeEnd"
+                      placeholder="가스 부피 종료"
                     />
                   </div>
                 )}
                 {/* <p className="panel-hint">To'ldirsangiz sampling PDF da loop: har qator uchun Y += qator balandligi. Katak ramkasi uchun matn elementiga style (border) bering.</p> */}
               </div>
               <div className="prop-group">
-                <label>Line Height (mm) – for each new line, Y += this value</label>
+                <label>줄 높이 (mm) – 새 줄마다 Y 값이 이만큼 증가합니다</label>
                 <input
                   type="number"
                   min={1}
@@ -192,14 +192,14 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>Number of Rows – generates this many cells (filled from data.gaseousList, extra cells remain empty).</label>
+                <label>행 수 – 지정한 만큼의 셀이 생성됩니다 (data.gaseousList에서 채워지며, 남는 셀은 비어 있습니다).</label>
                 <input
                   type="number"
                   min={0}
                   max={100}
                   value={selected.gaseousRowCount ?? ''}
                   onChange={(e) => updateElement(selected.id, { gaseousRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
-                  placeholder="bo'sh = list uzunligi"
+                  placeholder="비어 있음 = 목록 길이"
                 />
               </div>
               {/* <div className="prop-group">
@@ -228,7 +228,7 @@ export function RightPanel() {
           {selected.type === 'formula' ? (
             <>
               <div className="prop-group">
-                <label>Numerator (under the radical)</label>
+                <label>분자 (루트 아래)</label>
                 <input
                   type="text"
                   value={selected.formulaNum ?? ''}
@@ -237,7 +237,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>Denominator (bottom part)</label>
+                <label>분모 (아래 부분)</label>
                 <input
                   type="text"
                   value={selected.formulaDen ?? ''}
@@ -276,7 +276,7 @@ export function RightPanel() {
                 />
               </div> */}
               <div className="prop-group">
-                <label>Chiziq burchagi (gradus)</label>
+                <label>선 각도 (도)</label>
                 <input
                   type="number"
                   min={-45}
@@ -290,7 +290,7 @@ export function RightPanel() {
           ) : selected.type === 'textSplit' ? (
             <>
               <div className="prop-group">
-                <label>Text Above the Line</label>
+                <label>위쪽 선</label>
                 <input
                   type="text"
                   value={(selected.content ?? '').split('\n')[0] ?? ''}
@@ -302,7 +302,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>Text Below the Line</label>
+                <label>선 아래 텍스트</label>
                 <input
                   type="text"
                   value={(selected.content ?? '').split('\n')[1] ?? ''}
@@ -317,7 +317,7 @@ export function RightPanel() {
           ) : selected.type === 'script' ? (
             <>
               <div className="prop-group">
-                <label>Primary symbol (e.g., P)</label>
+                <label>기본 기호 (예: P)</label>
                 <input
                   type="text"
                   value={selected.content ?? ''}
@@ -326,7 +326,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>Subscript (P_a)</label>
+                <label>아래 첨자 (Pₐ)</label>
                 <input
                   type="text"
                   value={selected.scriptSub ?? ''}
@@ -335,7 +335,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>Superscript (x^2)</label>
+                <label>위 첨자 (x²)</label>
                 <input
                   type="text"
                   value={selected.scriptSuper ?? ''}
@@ -346,7 +346,7 @@ export function RightPanel() {
             </>
           ) : (
             <div className="prop-group">
-              <label>{selected.type === 'fraction' ? 'Fraction (e.g., a/b)' : selected.type === 'root' ? 'Expression under the root' : selected.type === 'parentheses' ? 'Text (inside parentheses)' : 'Text'}</label>
+              <label>{selected.type === 'fraction' ? 'Fraction (e.g., a/b)' : selected.type === 'root' ? 'Expression under the root' : selected.type === 'parentheses' ? '텍스트 (괄호 안)' : 'Text'}</label>
               <textarea
                 value={selected.content ?? ''}
                 onChange={(e) => updateElement(selected.id, { content: e.target.value })}
@@ -357,7 +357,7 @@ export function RightPanel() {
           {selected.type === 'fraction' && (
             <>
               <div className="prop-group">
-                <label>Fraction Line Length (%)</label>
+                <label>분수선 길이 (%)</label>
                 <input
                   type="number"
                   min={10}
@@ -367,7 +367,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>Fraction Line Thickness (px)</label>
+                <label>분수선 두께 (px)</label>
                 <input
                   type="number"
                   min={1}
@@ -379,7 +379,7 @@ export function RightPanel() {
             </>
           )}
           <div className="prop-group">
-            <label>Font Size</label>
+            <label>글자 크기</label>
             <input
               type="number"
               value={selected.style?.fontSize ?? 8}
@@ -387,7 +387,7 @@ export function RightPanel() {
             />
           </div>
           <div className="prop-group">
-            <label>Color</label>
+            <label>색상</label>
             <input
               type="color"
               value={selected.style?.color ?? '#000000'}
@@ -395,50 +395,50 @@ export function RightPanel() {
             />
           </div>
           <div className="prop-group">
-            <label>Align (X)</label>
+            <label>정렬 (X)</label>
             <select
               value={selected.style?.textAlign ?? 'left'}
               onChange={(e) => updateStyle({ textAlign: e.target.value as 'left' | 'center' | 'right' })}
             >
-              <option value="left">Left</option>
-              <option value="center">Center</option>
-              <option value="right">Right</option>
+              <option value="left">왼쪽</option>
+              <option value="center">가운데</option>
+              <option value="right">오른쪽</option>
             </select>
           </div>
           <div className="prop-group">
-            <label>Align (Y)</label>
+            <label>정렬 (Y)</label>
             <select
               value={selected.style?.verticalAlign ?? 'middle'}
               onChange={(e) => updateStyle({ verticalAlign: e.target.value as 'top' | 'middle' | 'bottom' })}
             >
-              <option value="top">Top</option>
-              <option value="middle">Middle</option>
-              <option value="bottom">Bottom</option>
+              <option value="top">위쪽</option>
+              <option value="middle">가운데</option>
+              <option value="bottom">아래쪽</option>
             </select>
           </div>
           <div className="prop-group">
-            <label>Border (left, right, top, bottom)</label>
+            <label>테두리 (왼쪽, 오른쪽, 위, 아래)</label>
             <input
               type="text"
-              placeholder="Left: 1px solid #999"
+              placeholder="왼쪽: 1px solid #999"
               value={selected.style?.borderLeft ?? ''}
               onChange={(e) => updateStyle({ borderLeft: e.target.value || undefined })}
             />
             <input
               type="text"
-              placeholder="Right: 1px solid #999"
+              placeholder="오른쪽: 1px solid #999"
               value={selected.style?.borderRight ?? ''}
               onChange={(e) => updateStyle({ borderRight: e.target.value || undefined })}
             />
             <input
               type="text"
-              placeholder="Top: 1px solid #999"
+              placeholder="위쪽: 1px solid #999"
               value={selected.style?.borderTop ?? ''}
               onChange={(e) => updateStyle({ borderTop: e.target.value || undefined })}
             />
             <input
               type="text"
-              placeholder="Bottom: 1px solid #999"
+              placeholder="아래쪽: 1px solid #999"
               value={selected.style?.borderBottom ?? ''}
               onChange={(e) => updateStyle({ borderBottom: e.target.value || undefined })}
             />
@@ -485,11 +485,11 @@ export function RightPanel() {
                   setContainer(e.target.checked ? selected.id : null)
                 }}
               />
-              <span>Frame (all elements must stay inside it)</span>
+              <span>프레임 (모든 요소는 이 안에 있어야 합니다)</span>
             </label>
           </div>
           <div className="prop-group">
-            <label>Backround</label>
+            <label>배경색</label>
             <input
               type="color"
               value={selected.style?.backgroundColor ?? '#f0f0f0'}
@@ -497,7 +497,7 @@ export function RightPanel() {
             />
           </div>
           <div className="prop-group">
-            <label>border (left, right, top, bottom)</label>
+            <label>테두리 (왼쪽, 오른쪽, 위쪽, 아래쪽)</label>
             <input
               type="text"
               placeholder="Chap: 1px solid #999"
@@ -528,7 +528,7 @@ export function RightPanel() {
 
       {selected.type === 'line' && (
         <div className="prop-group">
-          <label>Color / Width</label>
+          <label>색상 / 두께</label>
           <input
             type="color"
             value={selected.style?.color ?? '#000000'}
@@ -547,7 +547,7 @@ export function RightPanel() {
       {selected.type === 'table' && selected.table && (
         <>
           <div className="prop-group">
-            <label>Rows / Columns</label>
+            <label>행 / 열</label>
             <div className="row two">
               <input
                 type="number"
@@ -576,7 +576,7 @@ export function RightPanel() {
             </div>
           </div>
           <div className="prop-group">
-            <label>Table Text (CSV: rows ; columns separated by commas)</label>
+            <label>테이블 텍스트 (CSV: 행은 ; 로, 열은 쉼표로 구분)</label>
             <textarea
               placeholder="1,2,3;4,5,6"
               rows={4}

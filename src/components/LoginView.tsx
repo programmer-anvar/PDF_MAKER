@@ -45,11 +45,11 @@ export function LoginView({ onSuccess }: Props) {
   return (
     <div className="login-view">
       <div className="login-card">
-        <h1>PDF Maker</h1>
-        <p className="login-hint">Kefa-dev API ga kirish</p>
+        <h1>PDF 생성기</h1>
+        <p className="login-hint">Kefa-dev API 접근</p>
         <form onSubmit={handleSubmit} className="login-form">
           <label>
-            <span>Username</span>
+            <span>사용자 이름</span>
             <input
               type="text"
               value={username}
@@ -59,7 +59,7 @@ export function LoginView({ onSuccess }: Props) {
             />
           </label>
           <label>
-            <span>Password</span>
+            <span>비밀번호</span>
             <input
               type="password"
               value={password}
@@ -69,7 +69,7 @@ export function LoginView({ onSuccess }: Props) {
             />
           </label>
           <label>
-            <span>Code</span>
+            <span>코드</span>
             <input
               type="text"
               value={code}
@@ -84,11 +84,11 @@ export function LoginView({ onSuccess }: Props) {
               onChange={(e) => setRememberMe(e.target.checked)}
               disabled={loading}
             />
-            <span>Remember me</span>
+            <span>로그인 상태 유지</span>
           </label>
           {error && <p className="login-error">{error}</p>}
           <button type="submit" className="btn primary login-btn" disabled={loading}>
-            {loading ? 'Kirilmoqda…' : 'Kirish'}
+            {loading ? '로그인 중…' : '로그인'}
           </button>
         </form>
       </div>

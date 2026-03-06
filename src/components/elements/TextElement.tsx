@@ -43,7 +43,7 @@ export function TextElement({ element, isSelected }: Props) {
         borderBottom: style.borderBottom,
       }}
     >
-      {element.gaseousKey ? `[${element.gaseousKey}]` : (element.dataKey ?? element.content ?? 'Text')}
+      {element.gaseousKey ? `[${element.gaseousKey}]` : (element.dataKey ?? element.content ?? '텍스트')}
     </div>
   )
 }

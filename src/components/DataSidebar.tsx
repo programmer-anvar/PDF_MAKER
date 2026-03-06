@@ -9,17 +9,17 @@ const setDraggingFromSidebar = () => useEditorStore.getState().setDraggingFromSi
 const setNotDraggingFromSidebar = () => useEditorStore.getState().setDraggingFromSidebar(false)
 
 const ELEMENTS: { type: ElementType; label: string; icon: string }[] = [
-  { type: 'text', label: 'Text', icon: 'T' },
-  { type: 'textTemplate', label: 'Text + Key (Text${key})', icon: 'T$' },
-  { type: 'parentheses', label: 'Parentheses (…)', icon: '( )' },
+  { type: 'text', label: '텍스트', icon: 'T' },
+  { type: 'textTemplate', label: '텍스트 + 키 (Text${key})', icon: 'T$' },
+  { type: 'parentheses', label: '괄호 (…)', icon: '( )' },
   { type: 'textSplit', label: "Strikethrough Text", icon: '|T' },
   // { type: 'root', label: 'Square root', icon: '√' },
   { type: 'fraction', label: 'Fraction', icon: 'a/b' },
   // { type: 'formula', label: 'Radical fraction', icon: '√ ⁄' },
   { type: 'script', label: 'Indeks (P_a)', icon: 'Pₐ' },
   // { type: 'image', label: 'Rasm', icon: '🖼' },
-  { type: 'rect', label: 'Rectangle', icon: '▢' },
-  { type: 'line', label: 'Line', icon: '—' },
+  { type: 'rect', label: '사각형', icon: '▢' },
+  { type: 'line', label: '선', icon: '—' },
   // { type: 'table', label: 'Table', icon: '▦' },
 ]
 
@@ -54,8 +54,8 @@ export function DataSidebar() {
   return (
     <aside className="panel left-panel data-sidebar">
       <section className="sidebar-section">
-        <p className="panel-hint">Sampling define</p>
-        {loading && <p className="panel-hint">Loading… ✅</p>}
+        <p className="panel-hint">샘플링 정의</p>
+        {loading && <p className="panel-hint">로딩 중…✅</p>}
         <div className="data-blocks">
           {Object.entries(fieldsByTitle).map(([title, items]) => (
             <div key={title} className="data-block">
@@ -85,18 +85,18 @@ export function DataSidebar() {
         </div>
       </section>
       <section className="sidebar-section element-section">
-        <h3>Elements</h3>
-        <p className="panel-hint">Add it to the page. First put a frame, then put the elements inside.</p>
+        <h3>요소</h3>
+        <p className="panel-hint">페이지에 추가하세요. 먼저 프레임을 넣고, 그다음 그 안에 요소를 넣으세요.</p>
         <ul className="element-list">
           <li>
             <button
               type="button"
               className="element-btn element-btn-ramka"
               onClick={() => useEditorStore.getState().addFrame()}
-              title="Ramka – elementlar shu ichida qoladi"
+              title="프레임 – 요소들이 이 안에 유지됩니다"
             >
               <span className="element-icon">▣</span>
-              <span>Outline</span>
+              <span>윤곽선</span>
             </button>
           </li>
           {ELEMENTS.map(({ type, label, icon }) => (
@@ -112,7 +112,7 @@ export function DataSidebar() {
               title="PDF da meaSignature1 (o‘lcham 20×10 mm)"
             >
               <span className="element-icon">✍</span>
-              <span>Signature 1</span>
+              <span>서명 1</span>
             </button>
           </li>
           <li>
@@ -124,7 +124,7 @@ export function DataSidebar() {
               title="PDF da meaSignature2 (o‘lcham 20×10 mm)"
             >
               <span className="element-icon">✍</span>
-              <span>Signature 2</span>
+              <span>서명 2</span>
             </button>
           </li>
           <li>
@@ -135,7 +135,7 @@ export function DataSidebar() {
               title="PDF da shapeImage (o‘lchamni boshqarish mumkin)"
             >
               <span className="element-icon">▢</span>
-              <span>Shape</span>
+              <span>도형</span>
             </button>
           </li>
         </ul>

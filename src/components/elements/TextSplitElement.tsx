@@ -5,7 +5,6 @@ interface Props {
   isSelected: boolean
 }
 
-/** Matn kabi; x o'qi bo'yicha chiziq o'rtada, tepada va pastida matn markazda (rasmdagidek). */
 export function TextSplitElement({ element, isSelected }: Props) {
   const style = element.style ?? {}
   const hasContent = element.content != null && String(element.content).trim() !== ''
@@ -37,7 +36,7 @@ export function TextSplitElement({ element, isSelected }: Props) {
         overflow: 'hidden',
       }}
     >
-      {/* Tepada matn – markazda */}
+
       <div
         style={{
           flex: 1,
@@ -57,7 +56,7 @@ export function TextSplitElement({ element, isSelected }: Props) {
       >
         {textTop}
       </div>
-      {/* X o'qi bo'yicha chiziq – to'liq kenglik */}
+
       <span
         aria-hidden
         style={{
@@ -68,7 +67,6 @@ export function TextSplitElement({ element, isSelected }: Props) {
           opacity: 0.6,
         }}
       />
-      {/* Pastda matn – markazda */}
       <div
         style={{
           flex: 1,
