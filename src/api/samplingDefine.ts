@@ -33,7 +33,6 @@ export interface SamplingDefineItem {
   label: string
 }
 
-/** responseList elementida dbName / showName bo‘lishi mumkin */
 function parseResponseList(list: unknown[]): SamplingDefineItem[] {
   return list
     .map((item) => {
@@ -44,8 +43,7 @@ function parseResponseList(list: unknown[]): SamplingDefineItem[] {
       return {
         dataKey: dbName,
         title: '데이터',
-        // label: typeof showName === 'string' && showName ? showName : dbName,
-        label: dbName,
+        label: showName,
       }
     })
     .filter((x): x is SamplingDefineItem => x != null)
@@ -56,7 +54,7 @@ export async function fetchSamplingDefineKeys(): Promise<SamplingDefineItem[] | 
   try {
     const searchRes = await request(`${SAMPLING_DEFINE_BASE}/search`, {
       method: 'POST',
-      body: JSON.stringify({ page: 1, size: 20 }),
+      body: JSON.stringify({ page: 1, size: 100 }),
     })
     if (searchRes.ok) {
       const json = (await searchRes.json()) as {

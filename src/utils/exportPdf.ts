@@ -197,6 +197,12 @@ export async function exportPageToPdf(
           const key = elNode.getAttribute('data-data-key')
           if (key) elNode.textContent = getString(data, key)
         })
+        clone.querySelectorAll('[data-template-content]').forEach((node) => {
+          const elNode = node as HTMLElement
+          const template = elNode.getAttribute('data-template-content') ?? ''
+          const resolved = template.replace(/\$\{(\w+)\}/g, (_, key) => getString(data, key))
+          elNode.textContent = resolved
+        })
         if (pages[i]?.elements) {
           expandGaseousRowsInClone(clone, pages[i].elements, data)
           fillTableBodiesInClone(clone, pages[i].elements, data)

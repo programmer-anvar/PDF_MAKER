@@ -208,7 +208,7 @@ function App() {
                 Token ✓
               </button>
               <button type="button" className="btn small danger" onClick={onLogout} title="Chiqish">
-                Chiqish
+                Log Out
               </button>
             </>
           )}

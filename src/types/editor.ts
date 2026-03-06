@@ -1,5 +1,5 @@
 /** Element types in the designer */
-export type ElementType = 'text' | 'textSplit' | 'parentheses' | 'image' | 'rect' | 'line' | 'table' | 'root' | 'fraction' | 'formula' | 'script'
+export type ElementType = 'text' | 'textSplit' | 'parentheses' | 'textTemplate' | 'image' | 'rect' | 'line' | 'table' | 'root' | 'fraction' | 'formula' | 'script'
 
 export interface ElementStyle {
   fontSize?: number

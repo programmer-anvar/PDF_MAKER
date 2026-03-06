@@ -3,12 +3,13 @@ import type { ElementType } from '../types/editor'
 
 const ELEMENTS: { type: ElementType; label: string; icon: string }[] = [
   { type: 'text', label: 'Text', icon: 'T' },
+  { type: 'textTemplate', label: 'Text + Key (123${index})', icon: 'T$' },
   { type: 'parentheses', label: 'Qavs (…)', icon: '( )' },
   { type: 'textSplit', label: 'Text (o\'rtada chiziq)', icon: '|T' },
   { type: 'image', label: 'Image', icon: '🖼' },
   { type: 'rect', label: 'Rect', icon: '▢' },
   { type: 'line', label: 'Line', icon: '—' },
-  { type: 'table', label: 'Table', icon: '▦' },
+  // { type: 'table', label: 'Table', icon: '▦' },
 ]
 
 export function LeftPanel() {
@@ -16,8 +17,8 @@ export function LeftPanel() {
 
   return (
     <aside className="panel left-panel">
-      <h3>Elementlar</h3>
-      <p className="panel-hint">Qo‘shish uchun bosing</p>
+      <h3>Elements List</h3>
+      <p className="panel-hint">Click to add</p>
       <ul className="element-list">
         {ELEMENTS.map(({ type, label, icon }) => (
           <li key={type}>

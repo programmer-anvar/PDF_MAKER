@@ -88,6 +88,7 @@ const defaultElementSize: Record<ElementType, { w: number; h: number }> = {
   text: { w: 53, h: 8 },
   textSplit: { w: 53, h: 8 },
   parentheses: { w: 53, h: 8 },
+  textTemplate: { w: 53, h: 8 },
   image: { w: 40, h: 26 },
   rect: { w: 32, h: 21 },
   line: { w: 53, h: 1 },
@@ -141,7 +142,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     let { w, h } = defaultElementSize[type]
     if (size?.w != null) w = Math.max(2, size.w)
     if (size?.h != null) h = Math.max(2, size.h)
-    if ((type === 'text' || type === 'textSplit' || type === 'parentheses' || type === 'root' || type === 'fraction' || type === 'script') && initialContent != null && size?.w == null) {
+    if ((type === 'text' || type === 'textSplit' || type === 'parentheses' || type === 'textTemplate' || type === 'root' || type === 'fraction' || type === 'script') && initialContent != null && size?.w == null) {
       const minW = Math.min(185, Math.max(53, initialContent.length * 3.7))
       w = Math.max(w, minW)
       if (size?.h == null) h = Math.max(h, 8)
@@ -210,7 +211,9 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     const el: EditorElement =
       type === 'text'
         ? { ...base, content: textContent ?? (dataKey ?? 'Text'), dataKey: dataKey ?? base.dataKey }
-        : type === 'textSplit'
+        : type === 'textTemplate'
+          ? { ...base, content: textContent ?? '123${index}' }
+          : type === 'textSplit'
           ? { ...base, content: textContent ?? (dataKey ?? 'Text'), dataKey: dataKey ?? base.dataKey }
           : type === 'parentheses'
             ? { ...base, content: textContent ?? (dataKey ?? ''), dataKey: dataKey ?? base.dataKey }

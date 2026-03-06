@@ -9,6 +9,7 @@ import { RootElement } from './RootElement'
 import { FractionElement } from './FractionElement'
 import { FormulaElement } from './FormulaElement'
 import { ScriptElement } from './ScriptElement'
+import { TextTemplateElement } from './TextTemplateElement'
 import type { EditorElement } from '../../types/editor'
 
 interface Props {
@@ -20,6 +21,8 @@ export function ElementRenderer({ element, isSelected }: Props) {
   switch (element.type) {
     case 'text':
       return <TextElement element={element} isSelected={isSelected} />
+    case 'textTemplate':
+      return <TextTemplateElement element={element} isSelected={isSelected} />
     case 'parentheses':
       return <ParenthesesElement element={element} isSelected={isSelected} />
     case 'textSplit':

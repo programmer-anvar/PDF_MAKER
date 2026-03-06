@@ -11,7 +11,7 @@ function parseMmInput(v: string): number {
   return Number(normalized)
 }
 
-const TYPE_LABELS: Record<string, string> = { text: 'Matn', textSplit: 'Matn (o\'rtada chiziq)', parentheses: 'Matn (qavs)', root: 'Matematik ildiz', fraction: 'Kasr', formula: 'Ildizli kasr', script: 'Indeks (P_a)', image: 'Rasm', rect: 'To‘rtburchak', line: 'Chiziq', table: 'Jadval' }
+const TYPE_LABELS: Record<string, string> = { text: 'Matn', textTemplate: 'Text + Key (123${index})', textSplit: 'Matn (o\'rtada chiziq)', parentheses: 'Matn (qavs)', root: 'Matematik ildiz', fraction: 'Kasr', formula: 'Ildizli kasr', script: 'Indeks (P_a)', image: 'Rasm', rect: 'To‘rtburchak', line: 'Chiziq', table: 'Jadval' }
 
 export function RightPanel() {
   const elements = useEditorStore((s) => s.pages[s.activePageIndex]?.elements ?? [])
@@ -42,7 +42,7 @@ export function RightPanel() {
                     onClick={() => setSelected(el.id)}
                   >
                     <span className="el-type">{TYPE_LABELS[el.type] ?? el.type}</span>
-                    <span className="el-preview">{(el.type === 'text' || el.type === 'textSplit' || el.type === 'parentheses' || el.type === 'root' || el.type === 'fraction' || el.type === 'formula' || el.type === 'script') ? (el.type === 'formula' ? `${(el.formulaNum ?? '').slice(0, 12)}…` : el.type === 'script' ? `${el.content ?? 'P'}${(el.scriptSub ?? '').slice(0, 4)}${(el.scriptSuper ?? '').slice(0, 4)}` : (el.dataKey ?? el.content ?? '—').slice(0, 20)) : `#${i + 1}`}</span>
+                    <span className="el-preview">{(el.type === 'text' || el.type === 'textTemplate' || el.type === 'textSplit' || el.type === 'parentheses' || el.type === 'root' || el.type === 'fraction' || el.type === 'formula' || el.type === 'script') ? (el.type === 'formula' ? `${(el.formulaNum ?? '').slice(0, 12)}…` : el.type === 'script' ? `${el.content ?? 'P'}${(el.scriptSub ?? '').slice(0, 4)}${(el.scriptSuper ?? '').slice(0, 4)}` : (el.type === 'textTemplate' ? (el.content ?? '—') : (el.dataKey ?? el.content ?? '—')).slice(0, 20)) : `#${i + 1}`}</span>
                   </button>
                 </li>
               ))}
@@ -133,21 +133,35 @@ export function RightPanel() {
         />
       </div>
 
-      {(selected.type === 'text' || selected.type === 'textSplit' || selected.type === 'parentheses' || selected.type === 'root' || selected.type === 'fraction' || selected.type === 'formula' || selected.type === 'script') && (
+      {(selected.type === 'text' || selected.type === 'textTemplate' || selected.type === 'textSplit' || selected.type === 'parentheses' || selected.type === 'root' || selected.type === 'fraction' || selected.type === 'formula' || selected.type === 'script') && (
         <>
+          {selected.type !== 'textTemplate' && (
           <div className="prop-group">
-              <label>Data Key (displays “value” in sampling)</label>
+              <label>Data Key</label>
               <input
               type="text"
               value={selected.dataKey ?? ''}
               onChange={(e) => updateElement(selected.id, { dataKey: e.target.value || undefined })}
-              placeholder="key nomi yoki bo'sh qoldiring"
+              placeholder="Key name or leave empty"
             />
           </div>
+          )}
+          {selected.type === 'textTemplate' && (
+            <div className="prop-group">
+              <label>Text + Key (Text{'{'}${'{key}'}{'}'})</label>
+              <input
+                type="text"
+                value={selected.content ?? ''}
+                onChange={(e) => updateElement(selected.id, { content: e.target.value || '123${index}' })}
+                placeholder="text${key}"
+              />
+              <p className="panel-hint">PDF da {`\${key}`} data[key] bilan almashtiriladi.</p>
+            </div>
+          )}
           {(selected.type === 'text' || selected.type === 'textSplit' || selected.type === 'parentheses') && (
             <>
               <div className="prop-group">
-                <label>Gaseous qator kaliti (data.gaseousList[i] dan key){selected.type === 'textSplit' ? ' (tepa)' : ''}</label>
+                <label>Gaseous key{selected.type === 'textSplit' ? ' (Top)' : ''}</label>
                 <input
                   type="text"
                   value={selected.gaseousKey ?? ''}
@@ -156,7 +170,7 @@ export function RightPanel() {
                 />
                 {selected.type === 'textSplit' && (
                   <div className="prop-group">
-                    <label>Gaseous qator kaliti (past)</label>
+                    <label>Gaseous key (Bottom)</label>
                     <input
                       type="text"
                       value={selected.gaseousKeyBottom ?? ''}
@@ -165,10 +179,10 @@ export function RightPanel() {
                     />
                   </div>
                 )}
-                <p className="panel-hint">To'ldirsangiz sampling PDF da loop: har qator uchun Y += qator balandligi. Katak ramkasi uchun matn elementiga style (border) bering.</p>
+                {/* <p className="panel-hint">To'ldirsangiz sampling PDF da loop: har qator uchun Y += qator balandligi. Katak ramkasi uchun matn elementiga style (border) bering.</p> */}
               </div>
               <div className="prop-group">
-                <label>Qator balandligi (mm) – har yangi qator uchun Y += shu qiymat</label>
+                <label>Line Height (mm) – for each new line, Y += this value</label>
                 <input
                   type="number"
                   min={1}
@@ -178,7 +192,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>Qatorlar soni – shuncha katak chiqadi (data.gaseousList dan to'ldiriladi, ortiqchasi bo'sh)</label>
+                <label>Number of Rows – generates this many cells (filled from data.gaseousList, extra cells remain empty).</label>
                 <input
                   type="number"
                   min={0}
@@ -188,7 +202,7 @@ export function RightPanel() {
                   placeholder="bo'sh = list uzunligi"
                 />
               </div>
-              <div className="prop-group">
+              {/* <div className="prop-group">
                 <label>Ustun boshiga qatorlar (X o'qi: 6 = birinchi 6 chapda, keyingi 6 o'ngda)</label>
                 <input
                   type="number"
@@ -208,7 +222,7 @@ export function RightPanel() {
                   />
                   {' '}Faqat 2-ustun (o'ng): list[6].. chiqadi, Y bir xil
                 </label>
-              </div>
+              </div> */}
             </>
           )}
           {selected.type === 'formula' ? (
@@ -223,7 +237,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>Maxraj (pastki qismi)</label>
+                <label>Denominator (bottom part)</label>
                 <input
                   type="text"
                   value={selected.formulaDen ?? ''}
@@ -231,7 +245,7 @@ export function RightPanel() {
                   placeholder="(-)"
                 />
               </div>
-              <div className="prop-group">
+              {/* <div className="prop-group">
                 <label>Tepadagi chiziq uzunligi (%)</label>
                 <input
                   type="number"
@@ -260,7 +274,7 @@ export function RightPanel() {
                   value={selected.fractionLineThickness ?? 2}
                   onChange={(e) => updateElement(selected.id, { fractionLineThickness: Math.max(1, Math.min(20, Number(e.target.value) || 2)) })}
                 />
-              </div>
+              </div> */}
               <div className="prop-group">
                 <label>Chiziq burchagi (gradus)</label>
                 <input
@@ -276,7 +290,7 @@ export function RightPanel() {
           ) : selected.type === 'textSplit' ? (
             <>
               <div className="prop-group">
-                <label>Tepadagi matn (chiziq ustida)</label>
+                <label>Text Above the Line</label>
                 <input
                   type="text"
                   value={(selected.content ?? '').split('\n')[0] ?? ''}
@@ -288,7 +302,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>Pastdagi matn (chiziq ostida)</label>
+                <label>Text Below the Line</label>
                 <input
                   type="text"
                   value={(selected.content ?? '').split('\n')[1] ?? ''}
@@ -312,7 +326,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>Pastki indeks (P_a)</label>
+                <label>Subscript (P_a)</label>
                 <input
                   type="text"
                   value={selected.scriptSub ?? ''}
@@ -321,7 +335,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>Yuqori indeks (x^2)</label>
+                <label>Superscript (x^2)</label>
                 <input
                   type="text"
                   value={selected.scriptSuper ?? ''}
@@ -332,7 +346,7 @@ export function RightPanel() {
             </>
           ) : (
             <div className="prop-group">
-              <label>{selected.type === 'fraction' ? 'Kasr (masalan: a/b)' : selected.type === 'root' ? 'Ildiz ostidagi ifoda' : selected.type === 'parentheses' ? 'Matn (qavs ichida)' : 'Text'}</label>
+              <label>{selected.type === 'fraction' ? 'Fraction (e.g., a/b)' : selected.type === 'root' ? 'Expression under the root' : selected.type === 'parentheses' ? 'Text (inside parentheses)' : 'Text'}</label>
               <textarea
                 value={selected.content ?? ''}
                 onChange={(e) => updateElement(selected.id, { content: e.target.value })}
@@ -343,7 +357,7 @@ export function RightPanel() {
           {selected.type === 'fraction' && (
             <>
               <div className="prop-group">
-                <label>Kasr chizig'i uzunligi (%)</label>
+                <label>Fraction Line Length (%)</label>
                 <input
                   type="number"
                   min={10}
@@ -353,7 +367,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>Kasr chizig'i qalinligi (px)</label>
+                <label>Fraction Line Thickness (px)</label>
                 <input
                   type="number"
                   min={1}
@@ -365,7 +379,7 @@ export function RightPanel() {
             </>
           )}
           <div className="prop-group">
-            <label>Shrift o‘lchami</label>
+            <label>Font Size</label>
             <input
               type="number"
               value={selected.style?.fontSize ?? 8}
@@ -373,7 +387,7 @@ export function RightPanel() {
             />
           </div>
           <div className="prop-group">
-            <label>Rang</label>
+            <label>Color</label>
             <input
               type="color"
               value={selected.style?.color ?? '#000000'}
@@ -381,50 +395,50 @@ export function RightPanel() {
             />
           </div>
           <div className="prop-group">
-            <label>Hizalash (X)</label>
+            <label>Align (X)</label>
             <select
               value={selected.style?.textAlign ?? 'left'}
               onChange={(e) => updateStyle({ textAlign: e.target.value as 'left' | 'center' | 'right' })}
             >
-              <option value="left">Chap</option>
-              <option value="center">Markaz</option>
-              <option value="right">O‘ng</option>
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
             </select>
           </div>
           <div className="prop-group">
-            <label>Hizalash (Y)</label>
+            <label>Align (Y)</label>
             <select
               value={selected.style?.verticalAlign ?? 'middle'}
               onChange={(e) => updateStyle({ verticalAlign: e.target.value as 'top' | 'middle' | 'bottom' })}
             >
-              <option value="top">Yuqori</option>
-              <option value="middle">O‘rta</option>
-              <option value="bottom">Past</option>
+              <option value="top">Top</option>
+              <option value="middle">Middle</option>
+              <option value="bottom">Bottom</option>
             </select>
           </div>
           <div className="prop-group">
-            <label>Chegara (chap, o‘ng, yuqori, past)</label>
+            <label>Border (left, right, top, bottom)</label>
             <input
               type="text"
-              placeholder="Chap: 1px solid #999"
+              placeholder="Left: 1px solid #999"
               value={selected.style?.borderLeft ?? ''}
               onChange={(e) => updateStyle({ borderLeft: e.target.value || undefined })}
             />
             <input
               type="text"
-              placeholder="O‘ng"
+              placeholder="Right: 1px solid #999"
               value={selected.style?.borderRight ?? ''}
               onChange={(e) => updateStyle({ borderRight: e.target.value || undefined })}
             />
             <input
               type="text"
-              placeholder="Yuqori"
+              placeholder="Top: 1px solid #999"
               value={selected.style?.borderTop ?? ''}
               onChange={(e) => updateStyle({ borderTop: e.target.value || undefined })}
             />
             <input
               type="text"
-              placeholder="Past"
+              placeholder="Bottom: 1px solid #999"
               value={selected.style?.borderBottom ?? ''}
               onChange={(e) => updateStyle({ borderBottom: e.target.value || undefined })}
             />
@@ -432,7 +446,7 @@ export function RightPanel() {
         </>
       )}
 
-      {selected.type === 'image' && (
+      {/* {selected.type === 'image' && (
         <>
           <div className="prop-group">
             <label>Rasm turi (PDF da)</label>
@@ -457,7 +471,7 @@ export function RightPanel() {
             </div>
           )}
         </>
-      )}
+      )} */}
 
       {selected.type === 'rect' && (
         <>
@@ -514,7 +528,7 @@ export function RightPanel() {
 
       {selected.type === 'line' && (
         <div className="prop-group">
-          <label>Rang / qalinlik</label>
+          <label>Color / Width</label>
           <input
             type="color"
             value={selected.style?.color ?? '#000000'}
@@ -533,7 +547,7 @@ export function RightPanel() {
       {selected.type === 'table' && selected.table && (
         <>
           <div className="prop-group">
-            <label>Qatorlar / Ustunlar</label>
+            <label>Rows / Columns</label>
             <div className="row two">
               <input
                 type="number"
@@ -562,7 +576,7 @@ export function RightPanel() {
             </div>
           </div>
           <div className="prop-group">
-            <label>Jadval matni (CSV: qatorlar ; ustunlar vergul)</label>
+            <label>Table Text (CSV: rows ; columns separated by commas)</label>
             <textarea
               placeholder="1,2,3;4,5,6"
               rows={4}
