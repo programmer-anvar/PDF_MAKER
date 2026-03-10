@@ -151,11 +151,6 @@ function fillTableBodiesInClone(pageClone: HTMLElement, pageElements: PageEl[], 
   }
 }
 
-/**
- * A4 page element'ni html2canvas bilan rasmga aylantiradi va jsPDF orqali PDF yuklab oladi (WYSIWYG).
- * selector string[] bo'lsa barcha sahifalar bitta PDF ga qo'shiladi.
- * data berilsa (sampling): layout bir xil, lekin data-data-key li elementlarda key o'rniga data[key] value ko'rsatiladi.
- */
 export async function exportPageToPdf(
   selector: string | string[] = '#a4-page',
   filename = 'document.pdf',

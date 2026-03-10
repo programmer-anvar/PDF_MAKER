@@ -6,10 +6,7 @@ import { DataSidebar } from './components/DataSidebar'
 import { RightPanel } from './components/RightPanel'
 import { Toast } from './components/Toast'
 import { exportPageToPdf } from './utils/exportPdf'
-import { saveToServer, loadFromServer, exportLayoutJson, importLayoutJson } from './utils/saveLoad'
-import { getMockDataWithGaseousList } from './data/mockSidebarData'
-import { fetchSamplingDataAsRecord } from './api/sampling'
-import { normalizeSamplingDataForPdf } from './utils/pdfDataNormalizer'
+import { saveToServer, loadFromServer } from './utils/saveLoad'
 import { getAccessToken, setAccessToken, initAuth, handleLogout } from './api/auth'
 import { LoginView } from './components/LoginView'
 import './App.css'
@@ -33,12 +30,11 @@ function App() {
     }
   }, [])
 
-  // Token bor bo‘lganda avval pdf-template API dan layout yuklanadi (serverdan)
   useEffect(() => {
     if (!hasToken) return
     setLoading(true)
     const load = () => {
-      loadFromServer() // pdf-template dan ovol
+      loadFromServer() 
         .then((ok) => {
           if (!ok) toast('Serverdan yuklash mumkin emas.', 'error')
         })
@@ -90,16 +86,6 @@ function App() {
     toast('PDF yuklandi', 'success')
   }, [toast])
 
-  const handleExportPdfSampling = useCallback(async () => {
-    const flat = await fetchSamplingDataAsRecord()
-    const data = flat ? normalizeSamplingDataForPdf(flat) : getMockDataWithGaseousList()
-    if (!flat) toast('Serverdan ma’lumot kelmadi, namuna ishlatildi', 'info')
-    const pages = useEditorStore.getState().pages
-    const selectors = pages.map((p) => `#a4-page-${p.id}`)
-    exportPageToPdf(selectors, `sampling-${Date.now()}.pdf`, data)
-    toast('PDF (value / gaseousList loop) yuklandi', 'success')
-  }, [toast])
-
   const handleSave = useCallback(async () => {
     const result = await saveToServer()
     if (result.ok) toast('Serverga saqlandi', 'success')
@@ -122,35 +108,6 @@ function App() {
     setShowTokenInput(true)
     setAuthVersion((v) => v + 1)
     toast('Chiqildi', 'info')
-  }, [toast])
-
-  const handleLoad = useCallback(async () => {
-    const ok = await loadFromServer()
-    if (ok) toast('Serverdan yuklandi', 'success')
-    else toast('Serverdan yuklash mumkin emas', 'error')
-  }, [toast])
-
-  const handleExportJson = useCallback(() => {
-    const json = exportLayoutJson()
-    const blob = new Blob([json], { type: 'application/json' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = 'layout.json'
-    a.click()
-    URL.revokeObjectURL(a.href)
-    toast('JSON yuklandi', 'success')
-  }, [toast])
-
-  const handleImportJson = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      if (importLayoutJson(reader.result as string)) toast('Import qilindi', 'success')
-      else toast('JSON formati noto‘g‘ri', 'error')
-    }
-    reader.readAsText(file)
-    e.target.value = ''
   }, [toast])
 
   const canUndo = useEditorStore((s) => s.historyIndex > 0)
@@ -181,9 +138,8 @@ function App() {
       <Toast />
       <header className="editor-header">
         <h1>PDF 디자이너</h1>
-        {/* <p>Elementlarni sahifaga qo‘shing, joylashtiring. <span className="kbd-hint">Ctrl+Z</span> bekor qilish, <span className="kbd-hint">Delete</span> o‘chirish.</p> */}
         <div className="toolbar">
-          {!hasToken || showTokenInput ? (
+          {/* {!hasToken || showTokenInput ? (
             <span className="toolbar-token-wrap">
               <input
                 type="password"
@@ -202,7 +158,7 @@ function App() {
                 </button>
               )}
             </span>
-          ) : (
+          ) : ( */}
             <>
               <button type="button" className="btn small" onClick={() => setShowTokenInput(true)} title="Token yangilash">
                 토큰 ✓
@@ -211,7 +167,7 @@ function App() {
                 로그아웃
               </button>
             </>
-          )}
+          {/* )} */}
           <span className="toolbar-sep" />
           <button type="button" className="btn" onClick={undo} disabled={!canUndo} title="Bekor qilish (Ctrl+Z)">
             ↩ 취소
@@ -223,22 +179,9 @@ function App() {
           <button type="button" className="btn primary" onClick={handleExportPdf}>
             PDF 
           </button>
-          {/* <button type="button" className="btn primary" onClick={handleExportPdfSampling} title="Xuddi shu layout, lekin dataKey o‘rniga value">
-            PDF (value’lar / sampling)
-          </button> */}
           <button type="button" className="btn" onClick={handleSave}>
             저장
           </button>
-          {/* <button type="button" className="btn" onClick={handleLoad}>
-            Serverdan yuklash
-          </button>
-          <button type="button" className="btn" onClick={handleExportJson}>
-            JSON
-          </button>
-          <label className="btn">
-            Import
-            <input type="file" accept=".json" onChange={handleImportJson} hidden />
-          </label> */}
           <span className="toolbar-sep" />
           <span className="zoom-label">Zoom</span>
           {[0.5, 0.65, 0.8, 1].map((s) => (

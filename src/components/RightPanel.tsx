@@ -57,15 +57,6 @@ export function RightPanel() {
     updateElement(selected.id, { style: { ...selected.style, ...patch } })
   }
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => updateElement(selected.id, { src: reader.result as string })
-    reader.readAsDataURL(file)
-    e.target.value = ''
-  }
-
   return (
     <aside className="panel right-panel">
       <h3>Properties</h3>
@@ -179,7 +170,6 @@ export function RightPanel() {
                     />
                   </div>
                 )}
-                {/* <p className="panel-hint">To'ldirsangiz sampling PDF da loop: har qator uchun Y += qator balandligi. Katak ramkasi uchun matn elementiga style (border) bering.</p> */}
               </div>
               <div className="prop-group">
                 <label>줄 높이 (mm) – 새 줄마다 Y 값이 이만큼 증가합니다</label>
@@ -202,27 +192,6 @@ export function RightPanel() {
                   placeholder="비어 있음 = 목록 길이"
                 />
               </div>
-              {/* <div className="prop-group">
-                <label>Ustun boshiga qatorlar (X o'qi: 6 = birinchi 6 chapda, keyingi 6 o'ngda)</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={30}
-                  value={selected.gaseousBlock2AtRow ?? ''}
-                  onChange={(e) => updateElement(selected.id, { gaseousBlock2AtRow: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
-                  placeholder="6"
-                />
-              </div>
-              <div className="prop-group">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={!!selected.gaseousBlock2Only}
-                    onChange={(e) => updateElement(selected.id, { gaseousBlock2Only: e.target.checked || undefined })}
-                  />
-                  {' '}Faqat 2-ustun (o'ng): list[6].. chiqadi, Y bir xil
-                </label>
-              </div> */}
             </>
           )}
           {selected.type === 'formula' ? (
@@ -245,36 +214,7 @@ export function RightPanel() {
                   placeholder="(-)"
                 />
               </div>
-              {/* <div className="prop-group">
-                <label>Tepadagi chiziq uzunligi (%)</label>
-                <input
-                  type="number"
-                  min={10}
-                  max={500}
-                  value={selected.formulaTopLineWidth ?? 100}
-                  onChange={(e) => updateElement(selected.id, { formulaTopLineWidth: Math.max(10, Math.min(500, Number(e.target.value) || 100)) })}
-                />
-              </div>
-              <div className="prop-group">
-                <label>Kasr chizig'i uzunligi (%)</label>
-                <input
-                  type="number"
-                  min={10}
-                  max={500}
-                  value={selected.fractionLineWidth ?? 100}
-                  onChange={(e) => updateElement(selected.id, { fractionLineWidth: Math.max(10, Math.min(500, Number(e.target.value) || 100)) })}
-                />
-              </div>
-              <div className="prop-group">
-                <label>Kasr chizig'i qalinligi (px)</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={selected.fractionLineThickness ?? 2}
-                  onChange={(e) => updateElement(selected.id, { fractionLineThickness: Math.max(1, Math.min(20, Number(e.target.value) || 2)) })}
-                />
-              </div> */}
+           
               <div className="prop-group">
                 <label>선 각도 (도)</label>
                 <input
@@ -445,33 +385,6 @@ export function RightPanel() {
           </div>
         </>
       )}
-
-      {/* {selected.type === 'image' && (
-        <>
-          <div className="prop-group">
-            <label>Rasm turi (PDF da)</label>
-            <select
-              value={selected.dataKey ?? ''}
-              onChange={(e) => updateElement(selected.id, { dataKey: e.target.value || undefined })}
-            >
-              <option value="">Rasm (o‘zingiz yuklaysiz)</option>
-              <option value="__sign1Img__"> 1 (meaSignature1)</option>
-              <option value="__sign2Img__">2 (meaSignature2)</option>
-              <option value="__shapeImage__">Shape (shapeImage)</option>
-            </select>
-          </div>
-          {(selected.dataKey === '__sign1Img__' || selected.dataKey === '__sign2Img__') ? (
-            <p className="panel-hint">Kefa-dev da PDF exportda sampling imzosi avtomatik chiqadi. Backend ga saqlang.</p>
-          ) : selected.dataKey === '__shapeImage__' ? (
-            <p className="panel-hint">Kefa-dev da PDF da shapeImage avtomatik chiqadi. Eni va balandlikni yuqoridagi Kenglik/Balandlik (mm) orqali boshqaring.</p>
-          ) : (
-            <div className="prop-group">
-              <label>Rasm</label>
-              <input type="file" accept="image/*" onChange={handleImageUpload} />
-            </div>
-          )}
-        </>
-      )} */}
 
       {selected.type === 'rect' && (
         <>

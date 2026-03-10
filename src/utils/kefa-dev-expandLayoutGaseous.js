@@ -1,30 +1,10 @@
-/**
- * kefa-dev: Backend layout + data dan "Text" o'rniga data.gaseousList bo'yicha
- * loop qilingan elementlar ro'yxati. Bu faylni kefa-dev ga copy qilib, render
- * qilishdan OLDIN chaqiring.
- *
- * Ishlatish (kefa-dev da):
- *   import { expandLayoutWithGaseous } from './utils/kefa-dev-expandLayoutGaseous';
- *   const layoutToRender = expandLayoutWithGaseous(layoutFromBackend, data);
- *   // Keyin layoutToRender.layout[].elements ni odatdagidek render qiling.
- */
-
 const DEFAULT_ROW_HEIGHT_MM = 6;
-
-/**
- * Sahifa elementlari ichidan "Qatorlar soni" (gaseousRowCount) ni oladi.
- * Birinchi topilgan gaseousRowCount > 0 qiymatini qaytaradi, yo'q bo'lsa 0.
- * Kefa-dev da o'ng blok uchun for (r < N) da N o'rniga ishlatish: getMaxRowsFromElements(page.elements)
- */
 export function getMaxRowsFromElements(elements) {
   if (!Array.isArray(elements)) return 0;
   const el = elements.find((e) => e.gaseousRowCount != null && e.gaseousRowCount > 0);
   return el ? Math.max(0, Number(el.gaseousRowCount)) : 0;
 }
 
-/**
- * Bitta elementni data bo'yicha content bilan yangilaydi (dataKey bo'lsa).
- */
 function getElementContent(el, data) {
   if (el.dataKey && data && typeof data[el.dataKey] !== 'undefined') {
     const v = data[el.dataKey];
@@ -35,10 +15,10 @@ function getElementContent(el, data) {
 
 /**
  *
- * @param {Object} layout - Backend dan kelgan layout: { layout: [ { id, elements: [...] } ] }
- * @param {Object} data   - { gaseousList: [...], companyName, ... }
- * @returns {Object}      - Xuddi shu struktura, lekin elements ichida gaseous
- *                         elementlar expand qilingan (har qator = alohida element)
+ * @param {Object} layout 
+ * @param {Object} data   
+ * @returns {Object}      
+ *                         
  */
 export function expandLayoutWithGaseous(layout, data = {}) {
   const list = data.gaseousList || [];
