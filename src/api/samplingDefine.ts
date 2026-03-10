@@ -1,12 +1,5 @@
-/**
- * Sampling define API – sidebar uchun dbName va showName olish.
- * GET /kefa/lab/v1/sampling-define/fetch-fields yoki POST .../search.
- * kefa-dev da ishlashi o'zgarmasligi uchun dataKey = dbName saqlanadi.
- */
 import { getAccessToken, ensureValidToken } from './auth'
 
-const BASE = import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'comhttps://kefa-dev.'
-const baseClean = BASE.replace(/\/$/, '')
 const SAMPLING_DEFINE_BASE = `https://kefa-dev.com/kefa/lab/v1/sampling-define`
 
 function getHeaders(): Record<string, string> {

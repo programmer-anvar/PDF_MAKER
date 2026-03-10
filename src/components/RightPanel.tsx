@@ -64,12 +64,6 @@ export function RightPanel() {
         <button type="button" className="btn small" onClick={() => duplicateElement(selected.id)} title="Nusxa (Ctrl+D ni keyinroq qo‘shamiz)">
           📋 복사
         </button>
-        <button type="button" className="btn small" onClick={() => bringForward(selected.id)}>
-          전달
-        </button>
-        <button type="button" className="btn small" onClick={() => sendBackward(selected.id)}>
-          뒤로
-        </button>
         <button type="button" className="btn small danger" onClick={() => { deleteElement(selected.id); setSelected(null) }} title="Delete">
           삭제
         </button>

@@ -15,7 +15,6 @@ function App() {
   const toast = useToastStore((s) => s.show)
   const { undo, redo, deleteElement, setSelected, getSelected } = useEditorStore()
   const [loading, setLoading] = useState(true)
-  const [tokenInput, setTokenInput] = useState('')
   const [showTokenInput, setShowTokenInput] = useState(false)
   const [, setAuthVersion] = useState(0)
   const hasToken = !!getAccessToken()
@@ -92,17 +91,6 @@ function App() {
     else toast(result.error ?? 'Serverga saqlashda xatolik', 'error')
   }, [toast])
 
-  const handleSaveToken = useCallback(() => {
-    const t = tokenInput.trim()
-    if (t) {
-      setAccessToken(t)
-      setTokenInput('')
-      setShowTokenInput(false)
-      toast('Token saqlandi', 'success')
-      setAuthVersion((v) => v + 1)
-    }
-  }, [tokenInput, toast])
-
   const onLogout = useCallback(() => {
     handleLogout()
     setShowTokenInput(true)
@@ -160,9 +148,6 @@ function App() {
             </span>
           ) : ( */}
             <>
-              <button type="button" className="btn small" onClick={() => setShowTokenInput(true)} title="Token yangilash">
-                토큰 ✓
-              </button>
               <button type="button" className="btn small danger" onClick={onLogout} title="Chiqish">
                 로그아웃
               </button>
