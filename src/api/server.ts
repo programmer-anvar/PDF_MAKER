@@ -1,4 +1,4 @@
-import { getAccessToken, ensureValidToken } from './auth'
+import { getAccessToken, ensureValidToken, refreshAccessToken } from './auth'
 
 const BASE_URL = import.meta.env.VITE_LAYOUT_API_URL ?? 'https://kefa-dev.com/kefa/v1/pdf-template'
 const LAYOUT_ID = 1
@@ -117,7 +117,6 @@ async function requestWithAuthRetry(url: string, init?: RequestInit): Promise<Re
   await ensureValidToken()
   let res = await fetch(url, { ...init, headers: getHeaders() })
   if (res.status === 401) {
-    const { refreshAccessToken } = await import('./auth')
     await refreshAccessToken()
     res = await fetch(url, { ...init, headers: getHeaders() })
   }

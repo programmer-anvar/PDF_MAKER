@@ -20,8 +20,6 @@ export function RightPanel() {
   const updateElement = useEditorStore((s) => s.updateElement)
   const deleteElement = useEditorStore((s) => s.deleteElement)
   const setSelected = useEditorStore((s) => s.setSelected)
-  const bringForward = useEditorStore((s) => s.bringForward)
-  const sendBackward = useEditorStore((s) => s.sendBackward)
   const duplicateElement = useEditorStore((s) => s.duplicateElement)
 
   if (!selected) {

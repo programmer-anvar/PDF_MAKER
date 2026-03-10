@@ -7,7 +7,7 @@ import { RightPanel } from './components/RightPanel'
 import { Toast } from './components/Toast'
 import { exportPageToPdf } from './utils/exportPdf'
 import { saveToServer, loadFromServer } from './utils/saveLoad'
-import { getAccessToken, setAccessToken, initAuth, handleLogout } from './api/auth'
+import { getAccessToken, initAuth, handleLogout } from './api/auth'
 import { LoginView } from './components/LoginView'
 import './App.css'
 
@@ -15,7 +15,7 @@ function App() {
   const toast = useToastStore((s) => s.show)
   const { undo, redo, deleteElement, setSelected, getSelected } = useEditorStore()
   const [loading, setLoading] = useState(true)
-  const [showTokenInput, setShowTokenInput] = useState(false)
+  const [, setShowTokenInput] = useState(false)
   const [, setAuthVersion] = useState(0)
   const hasToken = !!getAccessToken()
 

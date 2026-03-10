@@ -3,7 +3,7 @@
  * PDF uchun Record<string, string> (dbName → value) yig‘ish.
  * kefa-dev-front dagi /lab/v1/sampling bilan bir xil.
  */
-import { getAccessToken, ensureValidToken } from './auth'
+import { getAccessToken, ensureValidToken, refreshAccessToken } from './auth'
 
 const BASE = import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://kefa-dev.com'
 const SAMPLING_BASE = `${BASE.replace(/\/$/, '')}/lab/v1/sampling`
@@ -19,7 +19,6 @@ async function request(url: string, init?: RequestInit): Promise<Response> {
   await ensureValidToken()
   let res = await fetch(url, { ...init, headers: getHeaders() })
   if (res.status === 401) {
-    const { refreshAccessToken } = await import('./auth')
     await refreshAccessToken()
     res = await fetch(url, { ...init, headers: getHeaders() })
   }

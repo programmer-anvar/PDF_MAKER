@@ -1,4 +1,4 @@
-import { getAccessToken, ensureValidToken } from './auth'
+import { getAccessToken, ensureValidToken, refreshAccessToken } from './auth'
 
 const SAMPLING_DEFINE_BASE = `https://kefa-dev.com/kefa/lab/v1/sampling-define`
 
@@ -13,7 +13,6 @@ async function request(url: string, init?: RequestInit): Promise<Response> {
   await ensureValidToken()
   let res = await fetch(url, { ...init, headers: getHeaders() })
   if (res.status === 401) {
-    const { refreshAccessToken } = await import('./auth')
     await refreshAccessToken()
     res = await fetch(url, { ...init, headers: getHeaders() })
   }
