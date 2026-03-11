@@ -59,7 +59,7 @@ export function RightPanel() {
     <aside className="panel right-panel">
       <h3>Properties</h3>
       <div className="props-actions">
-        <button type="button" className="btn small" onClick={() => duplicateElement(selected.id)} title="Nusxa (Ctrl+D ni keyinroq qo‘shamiz)">
+        <button type="button" className="btn small" onClick={() => duplicateElement(selected.id)} title="Copy (we'll add Ctrl+D later)">
           📋 복사
         </button>
         <button type="button" className="btn small danger" onClick={() => { deleteElement(selected.id); setSelected(null) }} title="Delete">
@@ -215,7 +215,7 @@ export function RightPanel() {
                   max={45}
                   value={selected.formulaLineAngle ?? 0}
                   onChange={(e) => updateElement(selected.id, { formulaLineAngle: Math.max(-45, Math.min(45, Number(e.target.value) || 0)) })}
-                  placeholder="0 = gorizontal"
+                  placeholder="0 = horizontal"
                 />
               </div>
             </>
