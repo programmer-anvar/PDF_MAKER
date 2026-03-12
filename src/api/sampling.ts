@@ -1,6 +1,6 @@
-import { getAccessToken, ensureValidToken, refreshAccessToken } from './auth'
+import { getAccessToken, ensureValidToken, refreshAccessToken, handleLogout } from './auth'
 
-const BASE = import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://kefa-dev.com'
+const BASE = import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://nexinsight.kr'
 const SAMPLING_BASE = `${BASE.replace(/\/$/, '')}/lab/v1/sampling`
 
 function getHeaders(): Record<string, string> {
@@ -14,8 +14,17 @@ async function request(url: string, init?: RequestInit): Promise<Response> {
   await ensureValidToken()
   let res = await fetch(url, { ...init, headers: getHeaders() })
   if (res.status === 401) {
-    await refreshAccessToken()
-    res = await fetch(url, { ...init, headers: getHeaders() })
+    try {
+      await refreshAccessToken()
+      res = await fetch(url, { ...init, headers: getHeaders() })
+    } catch {
+      handleLogout()
+      throw new Error('Your token is expired')
+    }
+    if (res.status === 401) {
+      handleLogout()
+      throw new Error('Your token is expired')
+    }
   }
   return res
 }

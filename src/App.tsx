@@ -23,9 +23,11 @@ function App() {
     const onAuthChange = () => setAuthVersion((v) => v + 1)
     window.addEventListener('authLogout', onAuthChange)
     window.addEventListener('storage', onAuthChange)
+    window.addEventListener('authUpdateEvent', onAuthChange)
     return () => {
       window.removeEventListener('authLogout', onAuthChange)
       window.removeEventListener('storage', onAuthChange)
+      window.removeEventListener('authUpdateEvent', onAuthChange)
     }
   }, [])
 

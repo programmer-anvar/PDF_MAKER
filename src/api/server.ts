@@ -1,5 +1,8 @@
-import { getAccessToken, ensureValidToken, refreshAccessToken } from './auth'
-const BASE_URL = import.meta.env.VITE_LAYOUT_API_URL ?? 'https://kefa-dev.com/kefa/v1/pdf-template'
+import { getAccessToken, ensureValidToken, refreshAccessToken, handleLogout } from './auth'
+
+const AUTH_BASE = import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://nexinsight.kr'
+const BASE_URL =
+  import.meta.env.VITE_LAYOUT_API_URL ?? `${AUTH_BASE.replace(/\/$/, '')}/kefa/v1/pdf-template`
 const LAYOUT_ID = 1
 let currentTemplateId: string | null = null
 
@@ -114,8 +117,19 @@ async function requestWithAuthRetry(url: string, init?: RequestInit): Promise<Re
   await ensureValidToken()
   let res = await fetch(url, { ...init, headers: getHeaders() })
   if (res.status === 401) {
-    await refreshAccessToken()
-    res = await fetch(url, { ...init, headers: getHeaders() })
+    try {
+      await refreshAccessToken()
+      res = await fetch(url, { ...init, headers: getHeaders() })
+    } catch {
+      handleLogout()
+      const body = await res.clone().json().catch(() => ({})) as { message?: string }
+      throw new Error(body?.message ?? 'Your token is expired')
+    }
+    if (res.status === 401) {
+      handleLogout()
+      const body = await res.clone().json().catch(() => ({})) as { message?: string }
+      throw new Error(body?.message ?? 'Your token is expired')
+    }
   }
   return res
 }

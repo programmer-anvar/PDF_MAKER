@@ -1,5 +1,5 @@
-import { getAccessToken, ensureValidToken, refreshAccessToken } from './auth'
-const SAMPLING_DEFINE_BASE = `https://kefa-dev.com/kefa/lab/v1/sampling-define`
+import { getAccessToken, ensureValidToken, refreshAccessToken, handleLogout } from './auth'
+const SAMPLING_DEFINE_BASE = `https://nexinsight.kr/kefa/lab/v1/sampling-define`
 
 function getHeaders(): Record<string, string> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
@@ -12,8 +12,17 @@ async function request(url: string, init?: RequestInit): Promise<Response> {
   await ensureValidToken()
   let res = await fetch(url, { ...init, headers: getHeaders() })
   if (res.status === 401) {
-    await refreshAccessToken()
-    res = await fetch(url, { ...init, headers: getHeaders() })
+    try {
+      await refreshAccessToken()
+      res = await fetch(url, { ...init, headers: getHeaders() })
+    } catch {
+      handleLogout()
+      throw new Error('Your token is expired')
+    }
+    if (res.status === 401) {
+      handleLogout()
+      throw new Error('Your token is expired')
+    }
   }
   return res
 }

@@ -60,7 +60,19 @@ export function isTokenExpired(): boolean {
   return isJwtExpired(getAccessToken())
 }
 
-const AUTH_BASE = import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://kefa-dev.com'
+const AUTH_BASE = import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://nexinsight.kr'
+
+function getTokenFromObj(obj: Record<string, unknown> | undefined, accessKey: 'accessToken' | 'access_token'): string | undefined {
+  if (!obj) return undefined
+  const v = obj[accessKey] ?? obj[accessKey === 'accessToken' ? 'access_token' : 'accessToken']
+  return typeof v === 'string' ? v : undefined
+}
+
+function getRefreshFromObj(obj: Record<string, unknown> | undefined): string | undefined {
+  if (!obj) return undefined
+  const v = obj.refreshToken ?? obj.refresh_token
+  return typeof v === 'string' ? v : undefined
+}
 
 export async function refreshAccessToken(): Promise<{ accessToken: string; refreshToken: string }> {
   const refreshToken = getRefreshToken()
@@ -70,7 +82,7 @@ export async function refreshAccessToken(): Promise<{ accessToken: string; refre
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refreshToken }),
+    body: JSON.stringify({ refreshToken, refresh_token: refreshToken }),
   })
 
   if (!res.ok) {
@@ -78,22 +90,23 @@ export async function refreshAccessToken(): Promise<{ accessToken: string; refre
     throw new Error(`Refresh failed: ${res.status}`)
   }
 
-  const data = (await res.json()) as {
-    success?: boolean
-    dataSource?: { accessToken?: string; refreshToken?: string }
-  }
-  if (!data?.success || !data?.dataSource?.accessToken || !data?.dataSource?.refreshToken) {
+  const data = (await res.json()) as Record<string, unknown>
+  const source = (data?.dataSource ?? data?.data ?? data) as Record<string, unknown> | undefined
+  const newAccessToken = getTokenFromObj(source, 'accessToken') ?? getTokenFromObj(data as Record<string, unknown>, 'accessToken')
+  const newRefreshToken = getRefreshFromObj(source) ?? getRefreshFromObj(data as Record<string, unknown>)
+  if (!newAccessToken) {
     throw new Error('Invalid refresh response')
   }
-
-  const newAccessToken = data.dataSource.accessToken
-  const newRefreshToken = data.dataSource.refreshToken
   const current = readUserFromStorage() || {}
   setAuthState(
-    { ...current, accessToken: newAccessToken, refreshToken: newRefreshToken },
+    {
+      ...current,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken ?? current.refreshToken ?? refreshToken,
+    },
     { allowTokenOverwrite: true }
   )
-  return { accessToken: newAccessToken, refreshToken: newRefreshToken }
+  return { accessToken: newAccessToken, refreshToken: newRefreshToken ?? current.refreshToken ?? refreshToken }
 }
 
 export async function ensureValidToken(): Promise<void> {
@@ -115,6 +128,7 @@ export async function initAuth(): Promise<void> {
     await refreshAccessToken()
   } catch {
     console.warn('Failed to refresh token on init, clearing auth state')
+    handleLogout()
   }
 }
 
@@ -142,14 +156,23 @@ export async function login(credentials: LoginCredentials): Promise<{ success: b
       rememberMe: credentials.rememberMe ?? true,
     }),
   })
-  const data = (await res.json()) as { success?: boolean; dataSource?: UserState; message?: string }
-  if (data?.success && data?.dataSource) {
-    setAuthState(data.dataSource, { allowTokenOverwrite: true })
-    window.dispatchEvent(new CustomEvent(AUTH_UPDATE_EVENT, { detail: data.dataSource }))
+  const data = (await res.json()) as Record<string, unknown>
+  const source = (data?.dataSource ?? data?.data ?? data) as Record<string, unknown> | undefined
+  const accessToken = getTokenFromObj(source, 'accessToken') ?? getTokenFromObj(data, 'accessToken')
+  // const refreshToken = getRefreshFromObj(source) ?? getRefreshFromObj(data)
+  if (res.ok && accessToken) {
+    const userState: UserState = {
+      ...(source ?? {}),
+      accessToken,
+      // refreshToken: refreshToken ?? source?.refreshToken ?? source?.refresh_token,
+    }
+    setAuthState(userState, { allowTokenOverwrite: true })
+    window.dispatchEvent(new CustomEvent(AUTH_UPDATE_EVENT, { detail: userState }))
     return { success: true }
   }
+  const message = (data?.message ?? data?.error) as string | undefined
   return {
     success: false,
-    error: data?.message ?? (res.ok ? 'Login failed' : `Server: ${res.status}`),
+    error: message ?? (res.ok ? 'Login failed' : `Server: ${res.status}`),
   }
 }
