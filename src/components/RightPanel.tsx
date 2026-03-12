@@ -40,7 +40,7 @@ export function RightPanel() {
                     onClick={() => setSelected(el.id)}
                   >
                     <span className="el-type">{TYPE_LABELS[el.type] ?? el.type}</span>
-                    <span className="el-preview">{(el.type === 'text' || el.type === 'textTemplate' || el.type === 'textSplit' || el.type === 'parentheses' || el.type === 'root' || el.type === 'fraction' || el.type === 'formula' || el.type === 'script') ? (el.type === 'formula' ? `${(el.formulaNum ?? '').slice(0, 12)}…` : el.type === 'script' ? `${el.content ?? 'P'}${(el.scriptSub ?? '').slice(0, 4)}${(el.scriptSuper ?? '').slice(0, 4)}` : (el.type === 'textTemplate' ? (el.content ?? '—') : (el.dataKey ?? el.content ?? '—')).slice(0, 20)) : `#${i + 1}`}</span>
+                    <span className="el-preview">{(el.type === 'text' || el.type === 'textTemplate' || el.type === 'textSplit' || el.type === 'parentheses' || el.type === 'root' || el.type === 'fraction' || el.type === 'formula' || el.type === 'script') ? (el.type === 'formula' ? `${(el.formulaNum ?? '').slice(0, 12)}…` : el.type === 'script' ? `${el.content ?? 'P'}${(el.scriptSub ?? '').slice(0, 4)}${(el.scriptSuper ?? '').slice(0, 4)}` : (el.type === 'textTemplate' ? (el.displayContent || (el.content ?? '—')) : (el.dataKey ?? el.content ?? '—')).slice(0, 20)) : `#${i + 1}`}</span>
                   </button>
                 </li>
               ))}
@@ -280,10 +280,13 @@ export function RightPanel() {
             <div className="prop-group">
               <label>{selected.type === 'fraction' ? 'Fraction (e.g., a/b)' : selected.type === 'root' ? 'Expression under the root' : selected.type === 'parentheses' ? '텍스트 (괄호 안)' : 'Text'}</label>
               <textarea
-                value={selected.content ?? ''}
-                onChange={(e) => updateElement(selected.id, { content: e.target.value })}
+                value={selected.type === 'textTemplate' ? (selected.displayContent ?? '') : (selected.content ?? '')}
+                onChange={(e) => updateElement(selected.id, selected.type === 'textTemplate' ? { displayContent: e.target.value } : { content: e.target.value })}
                 rows={3}
               />
+              {selected.type === 'textTemplate' && (
+                <p className="panel-hint">PDF va editorda shu matn ko‘rinadi. Backendda «텍스트 + 키» saqlanadi.</p>
+              )}
             </div>
           )}
           {selected.type === 'fraction' && (

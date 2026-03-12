@@ -194,9 +194,13 @@ export async function exportPageToPdf(
         })
         clone.querySelectorAll('[data-template-content]').forEach((node) => {
           const elNode = node as HTMLElement
-          const template = elNode.getAttribute('data-template-content') ?? ''
-          const resolved = template.replace(/\$\{(\w+)\}/g, (_, key) => getString(data, key))
-          elNode.textContent = resolved
+          const displayContent = elNode.getAttribute('data-display-content') ?? ''
+          if (displayContent.trim() !== '') {
+            elNode.textContent = displayContent
+          } else {
+            const template = elNode.getAttribute('data-template-content') ?? ''
+            elNode.textContent = template.replace(/\$\{(\w+)\}/g, (_, key) => getString(data, key))
+          }
         })
         if (pages[i]?.elements) {
           expandGaseousRowsInClone(clone, pages[i].elements, data)

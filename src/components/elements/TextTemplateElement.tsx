@@ -8,11 +8,13 @@ interface Props {
 export function TextTemplateElement({ element, isSelected }: Props) {
   const style = element.style ?? {}
   const content = element.content ?? 'text${key}'
+  const displayContent = element.displayContent ?? content
 
   return (
     <div
       className={`element-text element-text-template ${isSelected ? 'selected' : ''}`}
       data-template-content={content}
+      data-display-content={element.displayContent ?? ''}
       style={{
         width: '100%',
         height: '100%',
@@ -37,7 +39,7 @@ export function TextTemplateElement({ element, isSelected }: Props) {
         borderBottom: style.borderBottom,
       }}
     >
-      {content}
+      {displayContent}
     </div>
   )
 }

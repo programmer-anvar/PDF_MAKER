@@ -87,8 +87,8 @@ function App() {
 
   const handleSave = useCallback(async () => {
     const result = await saveToServer()
-    if (result.ok) toast('Serverga saqlandi', 'success')
-    else toast(result.error ?? 'Serverga saqlashda xatolik', 'error')
+    if (result.ok) toast('서버에 저장되었습니다 ✅', 'success')
+    else toast(result.error ?? '서버에 저장하는 중 오류가 발생했습니다 ❌', 'error')
   }, [toast])
 
   const onLogout = useCallback(() => {

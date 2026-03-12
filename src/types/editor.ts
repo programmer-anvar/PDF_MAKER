@@ -34,6 +34,8 @@ export interface EditorElement {
   rotate?: number
   style?: ElementStyle
   content?: string
+  /** For textTemplate: shown in editor and PDF. Backend saves `content` (template). */
+  displayContent?: string
   dataKey?: string
   src?: string
   table?: TableData
