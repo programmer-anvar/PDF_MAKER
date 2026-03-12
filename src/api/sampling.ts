@@ -1,8 +1,3 @@
-/**
- * Sampling API – backenddan bitta sampling olish va valueList dan
- * PDF uchun Record<string, string> (dbName → value) yig‘ish.
- * kefa-dev-front dagi /lab/v1/sampling bilan bir xil.
- */
 import { getAccessToken, ensureValidToken, refreshAccessToken } from './auth'
 
 const BASE = import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://kefa-dev.com'
@@ -44,10 +39,6 @@ function valueListToRecord(valueList: ValueListItem[] | undefined): Record<strin
   return out
 }
 
-/**
- * Ro‘yxatdan bitta sampling olish (search), keyin getById bilan valueList olish.
- * Muvaffaqiyatda PDF da ishlatish uchun Record<string, string> qaytaradi.
- */
 export async function fetchSamplingDataAsRecord(): Promise<Record<string, string> | null> {
   try {
     const searchRes = await request(`${SAMPLING_BASE}/search`, {

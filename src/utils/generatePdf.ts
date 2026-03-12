@@ -62,7 +62,6 @@ export function generatePdf(data: SampleCollectionForm): void {
   })
   y += LINE_HEIGHT + 6
 
-  // 2. 연도
   addText(doc, '2. 연도', MARGIN, y, 10)
   y += 6
   doc.text('수분측정 가스미터 시작 m³', MARGIN, y)
@@ -99,7 +98,6 @@ export function generatePdf(data: SampleCollectionForm): void {
   doc.text(data.distanceFromPoint1, 195, y)
   y += 8
 
-  // 3. 입자상물질
   addText(doc, '3. 입자상물질 측정', MARGIN, y, 10)
   y += 6
   const headers = [
@@ -139,7 +137,6 @@ export function generatePdf(data: SampleCollectionForm): void {
   doc.text('0', MARGIN + colW * 7, y)
   y += 8
 
-  // 4. 가스상물질 / 의견
   addText(doc, '4. 가스상물질 측정', MARGIN, y, 10)
   y += 6
   doc.text('측정장비 누출확인시험', MARGIN, y)
@@ -149,7 +146,6 @@ export function generatePdf(data: SampleCollectionForm): void {
   doc.text(data.collectorOpinion, 35, y)
   y += 8
 
-  // 5. 시료의 접수
   addText(doc, '5. 시료의 접수', MARGIN, y, 10)
   y += 6
   doc.text(

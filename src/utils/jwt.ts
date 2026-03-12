@@ -1,6 +1,3 @@
-/**
- * JWT – kefa-dev-front bilan bir xil: exp tekshirish.
- */
 function decodeBase64Url(value: string): string {
   const normalized = value.replace(/-/g, '+').replace(/_/g, '/')
   const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=')

@@ -1,5 +1,4 @@
 import { getAccessToken, ensureValidToken, refreshAccessToken } from './auth'
-
 const SAMPLING_DEFINE_BASE = `https://kefa-dev.com/kefa/lab/v1/sampling-define`
 
 function getHeaders(): Record<string, string> {

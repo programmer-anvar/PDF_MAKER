@@ -1,6 +1,3 @@
-/**
- * Flat keylardan list yig'adi (masalan gaseousList[0].pollutantName → gaseousList massiv).
- */
 export function buildListFromFlatKeys(
   flat: Record<string, string>,
   listKey: string

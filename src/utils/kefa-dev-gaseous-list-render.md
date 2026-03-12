@@ -14,7 +14,7 @@ Backend layout ni xohlagan shaklda saqlaydi (`responseList[].pdf` → `layout[].
 
 ```js
 const list = data.gaseousList || [];
-const rowHeight = 6; // mm, yoki element.gaseousRowHeight
+const rowHeight = 6; 
 
 layout.elements.forEach((el) => {
   if (!el.gaseousKey) {

@@ -1,12 +1,7 @@
-/**
- * Auth – kefa-dev-front bilan bir xil: localStorage "user", refresh-token, logout.
- * Bir domain da bo'lsa kefa-dev login dan token avtomatik; standalone da token qo'lda yoki login.
- */
 import { isJwtExpired } from '../utils/jwt'
 
 const USER_KEY = 'user'
 const AUTH_UPDATE_EVENT = 'authUpdateEvent'
-
 export interface UserState {
   accessToken?: string
   refreshToken?: string
@@ -42,16 +37,11 @@ export function getUser(): UserState | null {
   return readUserFromStorage()
 }
 
-/** Token qo'lda qo'yish (faqat accessToken) */
 export function setAccessToken(token: string): void {
   const current = readUserFromStorage() || {}
   writeUserToStorage({ ...current, accessToken: token })
 }
 
-/**
- * Kefa-dev bilan bir xil: login/refresh dan keyin chaqiriladi.
- * allowTokenOverwrite: true bo'lsa accessToken va refreshToken yangilanadi.
- */
 export function setAuthState(patch: UserState | null, options?: { allowTokenOverwrite?: boolean }): void {
   if (!patch) {
     writeUserToStorage(null)
@@ -66,16 +56,12 @@ export function setAuthState(patch: UserState | null, options?: { allowTokenOver
   window.dispatchEvent(new CustomEvent(AUTH_UPDATE_EVENT, { detail: merged }))
 }
 
-/** JWT muddati o'tgan bo'lsa true */
 export function isTokenExpired(): boolean {
   return isJwtExpired(getAccessToken())
 }
 
 const AUTH_BASE = import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://kefa-dev.com'
 
-/**
- * Refresh token – POST .../kefa/v1/auth/refresh-token
- */
 export async function refreshAccessToken(): Promise<{ accessToken: string; refreshToken: string }> {
   const refreshToken = getRefreshToken()
   if (!refreshToken) throw new Error('No refresh token available')
@@ -110,10 +96,6 @@ export async function refreshAccessToken(): Promise<{ accessToken: string; refre
   return { accessToken: newAccessToken, refreshToken: newRefreshToken }
 }
 
-/**
- * API chaqirishdan oldin: token muddati o'tgan bo'lsa refresh qiladi.
- * So'rovda 401 bo'lmasligi uchun chaqiriladi.
- */
 export async function ensureValidToken(): Promise<void> {
   const token = getAccessToken()
   if (!token) return
@@ -123,10 +105,6 @@ export async function ensureValidToken(): Promise<void> {
   await refreshAccessToken()
 }
 
-/**
- * Ilova ishga tushganda: token bor bo'lsa va muddati o'tgan bo'lsa refresh qilish.
- * Kefa-dev initAuth ga o'xshash.
- */
 export async function initAuth(): Promise<void> {
   const user = readUserFromStorage()
   if (!user?.accessToken) return
@@ -136,13 +114,10 @@ export async function initAuth(): Promise<void> {
   try {
     await refreshAccessToken()
   } catch {
-    // Refresh muvaffaqiyatsiz – token ni o'chirish shart emas, foydalanuvchi qayta login qiladi
+    console.warn('Failed to refresh token on init, clearing auth state')
   }
 }
 
-/**
- * Logout – kefa-dev handleLogout ga o'xshash: localStorage dan user o'chiriladi.
- */
 export function handleLogout(): void {
   writeUserToStorage(null)
   window.dispatchEvent(new Event('authLogout'))
@@ -155,9 +130,6 @@ export interface LoginCredentials {
   rememberMe?: boolean
 }
 
-/**
- * Login – POST https://kefa-dev.com/kefa/v1/auth/log-in
- */
 export async function login(credentials: LoginCredentials): Promise<{ success: boolean; error?: string }> {
   const url = `${AUTH_BASE.replace(/\/$/, '')}/kefa/v1/auth/log-in`
   const res = await fetch(url, {

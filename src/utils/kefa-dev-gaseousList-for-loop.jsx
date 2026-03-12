@@ -1,7 +1,3 @@
-/**
- * kefa-dev-front SamplingReport da: data.gaseousList ni for orqali chiqarish.
- * generateAllRows o'rniga shu funksiyani ishlating.
- */
 
 const KEYS = ['pollutantName', 'gasVolumeStart', 'gasVolumeEnd', 'collectionTime', 'gasMeterTemp', 'gaugePressureHg', 'gasVolumeResult'];
 const startX = 155;
@@ -27,8 +23,3 @@ export function getGaseousRows(gaseousList = []) {
   }
   return rows.flat();
 }
-
-// SamplingReport.jsx da:
-// import { getGaseousRows } from '@/utils/kefa-dev-gaseousList-for-loop';  // yoki to'g'ri path
-// const allRows = getGaseousRows(data.gaseousList);
-// {allRows.map((field, index) => <TextViewField key={index} {...field} />)}

@@ -1,9 +1,6 @@
 import { getAccessToken, ensureValidToken, refreshAccessToken } from './auth'
-
 const BASE_URL = import.meta.env.VITE_LAYOUT_API_URL ?? 'https://kefa-dev.com/kefa/v1/pdf-template'
 const LAYOUT_ID = 1
-
-/** Joriy template id – GET dan keyin saqlanadi, PUT/DELETE da ishlatiladi */
 let currentTemplateId: string | null = null
 
 export function getCurrentTemplateId(): string | null {
@@ -107,7 +104,7 @@ function parseLayoutResponse(json: unknown): LayoutRecord | { layout: LayoutReco
       if (parsed?.elements && Array.isArray(parsed.elements))
         return { id: LAYOUT_ID, elements: parsed.elements, pageWidth: parsed.pageWidth ?? 210, pageHeight: parsed.pageHeight ?? 297 }
     } catch {
-      /* ignore */
+      console.warn('Failed to parse layout from jsonStr', { jsonStr })
     }
   }
   return getEmptyLayout()
@@ -123,7 +120,6 @@ async function requestWithAuthRetry(url: string, init?: RequestInit): Promise<Re
   return res
 }
 
-/** GET /kefa/v1/pdf-template – dataSource.dataSource.responseList dan type=sampling2 ni tanlab layout qaytaradi */
 export async function fetchLayout(): Promise<LayoutRecord | { layout: LayoutRecord[] }> {
   const res = await requestWithAuthRetry(BASE_URL)
   if (!res.ok) {
@@ -157,7 +153,6 @@ function buildSaveBody(id: string | null, data: LayoutPayload): string {
 
 const TEMPLATE_ALREADY_EXISTS = 'TEMPLATE_ALREADY_EXISTS'
 
-/** POST /kefa/v1/pdf-template – yangi template yaratish (id bo‘lmaganda) */
 async function createLayout(data: LayoutPayload): Promise<LayoutRecord | { layout: LayoutRecord[] }> {
   const body = buildSaveBody(null, data)
   const res = await requestWithAuthRetry(BASE_URL, {
@@ -177,7 +172,6 @@ async function createLayout(data: LayoutPayload): Promise<LayoutRecord | { layou
   return parseLayoutResponse(json)
 }
 
-/** PUT /kefa/v1/pdf-template/:id – body: imgId, name, type, pdf (db.json format stringified) */
 export async function saveLayout(data: LayoutPayload): Promise<LayoutRecord | { layout: LayoutRecord[] }> {
   let id = currentTemplateId
   if (!id) {
@@ -214,7 +208,6 @@ export async function saveLayout(data: LayoutPayload): Promise<LayoutRecord | { 
   return parseLayoutResponse(json)
 }
 
-/** DELETE /kefa/v1/pdf-template/:id */
 export async function deleteLayout(templateId: string): Promise<void> {
   const res = await requestWithAuthRetry(`${BASE_URL}/${templateId}`, { method: 'DELETE' })
   if (!res.ok) throw new Error(`O‘chirish: ${res.status}`)
