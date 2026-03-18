@@ -1,7 +1,7 @@
+import { BACKEND_BASE } from '../config/env'
 import { getAccessToken, ensureValidToken, refreshAccessToken, handleLogout } from './auth'
 
-const BASE = import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://nexinsight.kr'
-const SAMPLING_BASE = `${BASE.replace(/\/$/, '')}/lab/v1/sampling`
+const SAMPLING_BASE = `${BACKEND_BASE}/lab/v1/sampling`
 
 function getHeaders(): Record<string, string> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }

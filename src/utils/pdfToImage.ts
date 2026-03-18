@@ -1,4 +1,5 @@
 
+import { PDF_CMAP_URL } from '../config/env'
 import * as pdfjsLib from 'pdfjs-dist'
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url'
 
@@ -23,7 +24,7 @@ export async function pdfFirstPageToDataUrl(pdfBlob: Blob): Promise<PdfPageImage
   const pdf = await pdfjsLib.getDocument({
     data,
     useSystemFonts: true,
-    cMapUrl: 'https://unpkg.com/pdfjs-dist@5.4.624/cmaps/',
+    cMapUrl: PDF_CMAP_URL,
     cMapPacked: true,
   }).promise
   const numPages = pdf.numPages
@@ -81,7 +82,7 @@ export async function getPdfFirstPageAsEditable(
   const pdf = await pdfjsLib.getDocument({
     data,
     useSystemFonts: true,
-    cMapUrl: 'https://unpkg.com/pdfjs-dist@5.4.624/cmaps/',
+    cMapUrl: PDF_CMAP_URL,
     cMapPacked: true,
   }).promise
   if (pdf.numPages < 1) throw new Error('No page in the PDF.')

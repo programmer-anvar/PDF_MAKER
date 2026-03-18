@@ -1,5 +1,7 @@
+import { SAMPLING_DEFINE_URL } from '../config/env'
 import { getAccessToken, ensureValidToken, refreshAccessToken, handleLogout } from './auth'
-const SAMPLING_DEFINE_BASE = `https://nexinsight.kr/kefa/lab/v1/sampling-define`
+
+const SAMPLING_DEFINE_BASE = SAMPLING_DEFINE_URL
 
 function getHeaders(): Record<string, string> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }

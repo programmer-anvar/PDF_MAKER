@@ -1,8 +1,7 @@
+import { LAYOUT_API_URL } from '../config/env'
 import { getAccessToken, ensureValidToken, refreshAccessToken, handleLogout } from './auth'
 
-const AUTH_BASE = import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://nexinsight.kr'
-const BASE_URL =
-  import.meta.env.VITE_LAYOUT_API_URL ?? `${AUTH_BASE.replace(/\/$/, '')}/kefa/v1/pdf-template`
+const BASE_URL = LAYOUT_API_URL
 const LAYOUT_ID = 1
 let currentTemplateId: string | null = null
 

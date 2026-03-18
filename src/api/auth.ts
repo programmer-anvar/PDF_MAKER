@@ -1,3 +1,4 @@
+import { BACKEND_BASE } from '../config/env'
 import { isJwtExpired } from '../utils/jwt'
 
 const USER_KEY = 'user'
@@ -60,8 +61,6 @@ export function isTokenExpired(): boolean {
   return isJwtExpired(getAccessToken())
 }
 
-const AUTH_BASE = import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://nexinsight.kr'
-
 function getTokenFromObj(obj: Record<string, unknown> | undefined, accessKey: 'accessToken' | 'access_token'): string | undefined {
   if (!obj) return undefined
   const v = obj[accessKey] ?? obj[accessKey === 'accessToken' ? 'access_token' : 'accessToken']
@@ -78,7 +77,7 @@ export async function refreshAccessToken(): Promise<{ accessToken: string; refre
   const refreshToken = getRefreshToken()
   if (!refreshToken) throw new Error('No refresh token available')
 
-  const url = `${AUTH_BASE.replace(/\/$/, '')}/kefa/v1/auth/refresh-token`
+  const url = `${BACKEND_BASE}/kefa/v1/auth/refresh-token`
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -145,7 +144,7 @@ export interface LoginCredentials {
 }
 
 export async function login(credentials: LoginCredentials): Promise<{ success: boolean; error?: string }> {
-  const url = `${AUTH_BASE.replace(/\/$/, '')}/kefa/v1/auth/log-in`
+  const url = `${BACKEND_BASE}/kefa/v1/auth/log-in`
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
