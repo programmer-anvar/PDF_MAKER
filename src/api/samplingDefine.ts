@@ -58,17 +58,17 @@ export async function fetchSamplingDefineKeys(): Promise<SamplingDefineItem[] | 
     //   method: 'POST',
     //   body: JSON.stringify({ page: 1}),
     // })
-    if (searchRes.ok) {
-      const json = (await searchRes.json()) as {
-        success?: boolean
-        dataSource?: { responseList?: unknown[] }
-      }
-      const list = json?.dataSource?.responseList
-      if (Array.isArray(list) && list.length > 0) {
-        const items = parseResponseList(list)
-        if (items.length > 0) return items
-      }
-    }
+    // if (searchRes.ok) {
+    //   const json = (await searchRes.json()) as {
+    //     success?: boolean
+    //     dataSource?: { responseList?: unknown[] }
+    //   }
+    //   const list = json?.dataSource?.responseList
+    //   if (Array.isArray(list) && list.length > 0) {
+    //     const items = parseResponseList(list)
+    //     if (items.length > 0) return items
+    //   }
+    // }
 
     const fetchRes = await request(`${SAMPLING_DEFINE_BASE}/fetch-fields`)
     if (fetchRes.ok) {
