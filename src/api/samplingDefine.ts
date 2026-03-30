@@ -54,10 +54,10 @@ function parseResponseList(list: unknown[]): SamplingDefineItem[] {
 
 export async function fetchSamplingDefineKeys(): Promise<SamplingDefineItem[] | null> {
   try {
-    const searchRes = await request(`${SAMPLING_DEFINE_BASE}/search`, {
-      method: 'POST',
-      body: JSON.stringify({ page: 1}),
-    })
+    // const searchRes = await request(`${SAMPLING_DEFINE_BASE}/search`, {
+    //   method: 'POST',
+    //   body: JSON.stringify({ page: 1}),
+    // })
     if (searchRes.ok) {
       const json = (await searchRes.json()) as {
         success?: boolean
