@@ -7,9 +7,9 @@ interface Props {
 }
 
 const DEFAULT = {
-  username: 'musokhon',
-  password: 'Musokhon@2025',
-  code: 'kefa',
+  username: '',
+  password: '',
+  code: '',
   rememberMe: true,
 }
 
@@ -48,6 +48,15 @@ export function LoginView({ onSuccess }: Props) {
         <h1>PDF 생성기</h1>
         <p className="login-hint">Kefa-dev API 접근</p>
         <form onSubmit={handleSubmit} className="login-form">
+            <label>
+            <span>코드</span>
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              disabled={loading}
+            />
+          </label>
           <label>
             <span>사용자 이름</span>
             <input
@@ -68,15 +77,7 @@ export function LoginView({ onSuccess }: Props) {
               disabled={loading}
             />
           </label>
-          <label>
-            <span>코드</span>
-            <input
-              type="text"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              disabled={loading}
-            />
-          </label>
+        
           <label className="login-remember">
             <input
               type="checkbox"
