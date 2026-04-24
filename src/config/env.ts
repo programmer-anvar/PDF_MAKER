@@ -4,8 +4,8 @@
  */
 
 const rawBackend =
-  import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://nexinsight.kr'
-  // import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://kefa-dev.com'
+  // import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://nexinsight.kr'
+  import.meta.env.VITE_BACKEND_URL ?? import.meta.env.VITE_AUTH_URL ?? 'https://kefa-dev.com'
 
 export const BACKEND_BASE = rawBackend.replace(/\/$/, '')
 

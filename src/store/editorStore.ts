@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { EditorElement, ElementType, TableData } from '../types/editor'
 import { A4_WIDTH_MM, A4_HEIGHT_MM, GRID_SNAP_MM, PX_PER_MM } from '../types/editor'
+import type { TemplateType } from '../api/server'
 
 function generateId(): string {
   return 'el-' + Math.random().toString(36).slice(2, 11)
@@ -55,6 +56,7 @@ interface EditorStore {
   canvasScale: number
   history: EditorPage[][]
   historyIndex: number
+  templateType: TemplateType
 
   addElement: (type: ElementType, x?: number, y?: number, initialContent?: string, size?: { w?: number; h?: number }, dataKey?: string) => void
   addFrame: () => void
@@ -68,6 +70,7 @@ interface EditorStore {
   setContainer: (elementId: string | null) => void
   setDraggingFromSidebar: (v: boolean) => void
   setCanvasScale: (scale: number) => void
+  setTemplateType: (type: TemplateType) => void
   getSelected: () => EditorElement | null
   setElements: (elements: EditorElement[]) => void
   loadLayoutFromServer: (elements: EditorElement[], pageWidth?: number, pageHeight?: number) => void
@@ -111,6 +114,17 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   canvasScale: 0.65,
   history: [[createEmptyPage('1')]],
   historyIndex: 0,
+  templateType: 'sampling2',
+
+  setTemplateType: (type) => {
+    const isLandscape = type === 'operation' || type === 'safetyInspection'
+    const pw = isLandscape ? 297 : 210
+    const ph = isLandscape ? 210 : 297
+    set((s) => ({
+      templateType: type,
+      pages: s.pages.map((p) => ({ ...p, pageWidth: pw, pageHeight: ph })),
+    }))
+  },
 
   pushHistory() {
     const { pages, history, historyIndex } = get()
@@ -123,8 +137,14 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
   addPage() {
     get().pushHistory()
-    const { pages } = get()
-    const newPage = createEmptyPage(String(pages.length + 1))
+    const { pages, templateType } = get()
+    const isLandscape = templateType === 'operation' || templateType === 'safetyInspection'
+    const newPage: EditorPage = {
+      id: String(pages.length + 1),
+      elements: [],
+      pageWidth: isLandscape ? 297 : A4_WIDTH_MM,
+      pageHeight: isLandscape ? 210 : A4_HEIGHT_MM,
+    }
     set({ pages: [...pages, newPage], activePageIndex: pages.length, selectedId: null })
   },
 
@@ -435,8 +455,9 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
           }))
         : elements
     )
-    const pw = pageWidth != null ? (isOldPx ? A4_WIDTH_MM : pageWidth) : A4_WIDTH_MM
-    const ph = pageHeight != null ? (isOldPx ? A4_HEIGHT_MM : pageHeight) : A4_HEIGHT_MM
+    const isLandscape = get().templateType === 'operation' || get().templateType === 'safetyInspection'
+    const pw = isLandscape ? 297 : (pageWidth != null ? (isOldPx ? A4_WIDTH_MM : pageWidth) : A4_WIDTH_MM)
+    const ph = isLandscape ? 210 : (pageHeight != null ? (isOldPx ? A4_HEIGHT_MM : pageHeight) : A4_HEIGHT_MM)
     const singlePage: EditorPage = { id: '1', elements: next, pageWidth: pw, pageHeight: ph }
     set({
       pages: [singlePage],
@@ -449,7 +470,13 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
   loadLayoutPages(pages: EditorPage[]) {
     if (!pages.length) return
-    const cloned = pages.map((p) => ({ ...p, elements: cloneElements(p.elements) }))
+    const isLandscape = get().templateType === 'operation' || get().templateType === 'safetyInspection'
+    const cloned = pages.map((p) => ({
+      ...p,
+      elements: cloneElements(p.elements),
+      pageWidth: isLandscape ? 297 : p.pageWidth,
+      pageHeight: isLandscape ? 210 : p.pageHeight,
+    }))
     set({ pages: cloned, activePageIndex: 0, selectedId: null, history: [cloned], historyIndex: 0 })
   },
 

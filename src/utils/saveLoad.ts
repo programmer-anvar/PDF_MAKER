@@ -2,6 +2,7 @@ import type { EditorElement } from '../types/editor'
 import type { EditorPage } from '../store/editorStore'
 import { useEditorStore } from '../store/editorStore'
 import { fetchLayout, saveLayout } from '../api/server'
+import type { TemplateType } from '../api/server'
 
 export interface SavedLayout {
   version?: number
@@ -15,31 +16,36 @@ export interface SavedLayoutMulti {
   layout: Array<{ id: string; elements: EditorElement[]; pageWidth: number; pageHeight: number }>
 }
 
-export async function loadFromServer(): Promise<boolean> {
+function applyLayoutToStore(data: Awaited<ReturnType<typeof fetchLayout>>) {
+  const store = useEditorStore.getState()
+  if (data && 'layout' in data && Array.isArray(data.layout) && data.layout.length > 0) {
+    const seenIds = new Set<string>()
+    const pages: EditorPage[] = data.layout.map((p, i) => {
+      let id = String(p.id ?? i + 1)
+      while (seenIds.has(id)) {
+        id = `${id}-${i}`
+      }
+      seenIds.add(id)
+      return {
+        id,
+        elements: (p.elements ?? []) as EditorElement[],
+        pageWidth: Number(p.pageWidth) || 210,
+        pageHeight: Number(p.pageHeight) || 297,
+      }
+    })
+    store.loadLayoutPages(pages)
+  } else {
+    const record = data as { elements?: EditorElement[]; pageWidth?: number; pageHeight?: number }
+    const elements = (record.elements ?? []) as EditorElement[]
+    store.loadLayoutFromServer(elements, record.pageWidth, record.pageHeight)
+  }
+}
+
+export async function loadFromServer(type?: TemplateType): Promise<boolean> {
   try {
-    const data = await fetchLayout()
-    const store = useEditorStore.getState()
-    if (data && 'layout' in data && Array.isArray(data.layout) && data.layout.length > 0) {
-      const seenIds = new Set<string>()
-      const pages: EditorPage[] = data.layout.map((p, i) => {
-        let id = String(p.id ?? i + 1)
-        while (seenIds.has(id)) {
-          id = `${id}-${i}`
-        }
-        seenIds.add(id)
-        return {
-          id,
-          elements: (p.elements ?? []) as EditorElement[],
-          pageWidth: Number(p.pageWidth) || 210,
-          pageHeight: Number(p.pageHeight) || 297,
-        }
-      })
-      store.loadLayoutPages(pages)
-    } else {
-      const record = data as { elements?: EditorElement[]; pageWidth?: number; pageHeight?: number }
-      const elements = (record.elements ?? []) as EditorElement[]
-      store.loadLayoutFromServer(elements, record.pageWidth, record.pageHeight)
-    }
+    const activeType = type ?? useEditorStore.getState().templateType
+    const data = await fetchLayout(activeType)
+    applyLayoutToStore(data)
     return true
   } catch {
     return false
@@ -55,7 +61,7 @@ export async function saveToServer(): Promise<{ ok: boolean; error?: string }> {
       pageWidth: p.pageWidth,
       pageHeight: p.pageHeight,
     }))
-    await saveLayout({ layout })
+    await saveLayout({ layout }, state.templateType)
     return { ok: true }
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Saqlash xatosi'

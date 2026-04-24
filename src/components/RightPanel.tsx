@@ -184,6 +184,187 @@ export function RightPanel() {
                   placeholder="비어 있음 = 목록 길이"
                 />
               </div>
+              <div className="prop-group">
+                <label>THC 키</label>
+                <input
+                  type="text"
+                  value={selected.thcKey ?? ''}
+                  onChange={(e) => updateElement(selected.id, { thcKey: e.target.value || undefined })}
+                  placeholder="eqRegObjId, calibrationDate, …"
+                />
+              </div>
+              <div className="prop-group">
+                <label>THC 줄 높이 (mm)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={selected.thcRowHeight ?? 8}
+                  onChange={(e) => updateElement(selected.id, { thcRowHeight: Number(e.target.value) || undefined })}
+                />
+              </div>
+              <div className="prop-group">
+                <label>THC 행 수</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={selected.thcRowCount ?? ''}
+                  onChange={(e) => updateElement(selected.id, { thcRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                  placeholder="비어 있음 = 목록 길이"
+                />
+              </div>
+              <div className="prop-group">
+                <label>이동식 저울 키 (가로 확장)</label>
+                <input
+                  type="text"
+                  value={selected.mobileScaleKey ?? ''}
+                  onChange={(e) => updateElement(selected.id, { mobileScaleKey: e.target.value || undefined })}
+                  placeholder="companyName, testMeaValue, …"
+                />
+              </div>
+              <div className="prop-group">
+                <label>이동식 저울 줄 높이 (mm)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={selected.mobileScaleRowHeight ?? 8}
+                  onChange={(e) => updateElement(selected.id, { mobileScaleRowHeight: Number(e.target.value) || undefined })}
+                />
+              </div>
+              <div className="prop-group">
+                <label>이동식 저울 행 수</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={selected.mobileScaleRowCount ?? ''}
+                  onChange={(e) => updateElement(selected.id, { mobileScaleRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                  placeholder="비어 있음 = 목록 길이"
+                />
+              </div>
+              <div className="prop-group">
+                <label>운행일지 키</label>
+                <input
+                  type="text"
+                  value={selected.operationKey ?? ''}
+                  onChange={(e) => updateElement(selected.id, { operationKey: e.target.value || undefined })}
+                  placeholder="departureTime, arrivalTime, …"
+                />
+              </div>
+              <div className="prop-group">
+                <label>운행일지 줄 높이 (mm)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={selected.operationRowHeight ?? 8}
+                  onChange={(e) => updateElement(selected.id, { operationRowHeight: Number(e.target.value) || undefined })}
+                />
+              </div>
+              <div className="prop-group">
+                <label>운행일지 행 수</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={selected.operationRowCount ?? ''}
+                  onChange={(e) => updateElement(selected.id, { operationRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                  placeholder="비어 있음 = 목록 길이"
+                />
+              </div>
+              <div className="prop-group">
+                <label>환경측정 키</label>
+                <input
+                  type="text"
+                  value={selected.envMeasurementKey ?? ''}
+                  onChange={(e) => updateElement(selected.id, { envMeasurementKey: e.target.value || undefined })}
+                  placeholder="zone, temperature, humidity, …"
+                />
+              </div>
+              <div className="prop-group">
+                <label>환경측정 줄 높이 (mm)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={selected.envMeasurementRowHeight ?? 8}
+                  onChange={(e) => updateElement(selected.id, { envMeasurementRowHeight: Number(e.target.value) || undefined })}
+                />
+              </div>
+              <div className="prop-group">
+                <label>환경측정 행 수</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={selected.envMeasurementRowCount ?? ''}
+                  onChange={(e) => updateElement(selected.id, { envMeasurementRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                  placeholder="비어 있음 = 목록 길이"
+                />
+              </div>
+              <div className="prop-group">
+                <label>폐수 키</label>
+                <input
+                  type="text"
+                  value={selected.wasteWaterKey ?? ''}
+                  onChange={(e) => updateElement(selected.id, { wasteWaterKey: e.target.value || undefined })}
+                  placeholder="receiptDate, generationVolume, …"
+                />
+              </div>
+              <div className="prop-group">
+                <label>폐수 줄 높이 (mm)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={selected.wasteWaterRowHeight ?? 8}
+                  onChange={(e) => updateElement(selected.id, { wasteWaterRowHeight: Number(e.target.value) || undefined })}
+                />
+              </div>
+              <div className="prop-group">
+                <label>폐수 행 수</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={selected.wasteWaterRowCount ?? ''}
+                  onChange={(e) => updateElement(selected.id, { wasteWaterRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                  placeholder="비어 있음 = 목록 길이"
+                />
+              </div>
+              <div className="prop-group">
+                <label>안전점검 키</label>
+                <input
+                  type="text"
+                  value={selected.safetyInspectionKey ?? ''}
+                  onChange={(e) => updateElement(selected.id, { safetyInspectionKey: e.target.value || undefined })}
+                  placeholder="type, item, result, createdBy, …"
+                />
+              </div>
+              <div className="prop-group">
+                <label>안전점검 열 너비 (mm)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={selected.safetyInspectionColWidth ?? ''}
+                  onChange={(e) => updateElement(selected.id, { safetyInspectionColWidth: Number(e.target.value) || undefined })}
+                  placeholder="기본값 = 요소 너비"
+                />
+              </div>
+              <div className="prop-group">
+                <label>안전점검 열 수</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={50}
+                  value={selected.safetyInspectionColCount ?? ''}
+                  onChange={(e) => updateElement(selected.id, { safetyInspectionColCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                  placeholder="비어 있음 = 목록 길이"
+                />
+              </div>
             </>
           )}
           {selected.type === 'formula' ? (

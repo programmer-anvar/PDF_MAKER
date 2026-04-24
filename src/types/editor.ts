@@ -53,6 +53,24 @@ export interface EditorElement {
   gaseousRowCount?: number
   gaseousBlock2AtRow?: number
   gaseousBlock2Only?: boolean
+  thcKey?: string
+  thcRowHeight?: number
+  thcRowCount?: number
+  mobileScaleKey?: string
+  mobileScaleRowHeight?: number
+  mobileScaleRowCount?: number
+  operationKey?: string
+  operationRowHeight?: number
+  operationRowCount?: number
+  envMeasurementKey?: string
+  envMeasurementRowHeight?: number
+  envMeasurementRowCount?: number
+  wasteWaterKey?: string
+  wasteWaterRowHeight?: number
+  wasteWaterRowCount?: number
+  safetyInspectionKey?: string
+  safetyInspectionColWidth?: number
+  safetyInspectionColCount?: number
 }
 
 export interface EditorState {

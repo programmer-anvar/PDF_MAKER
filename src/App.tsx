@@ -31,11 +31,13 @@ function App() {
     }
   }, [])
 
+  const templateType = useEditorStore((s) => s.templateType)
+
   useEffect(() => {
     if (!hasToken) return
     setLoading(true)
     const load = () => {
-      loadFromServer() 
+      loadFromServer()
         .then((ok) => {
           if (!ok) toast('Serverdan yuklash mumkin emas.', 'error')
         })
@@ -48,6 +50,17 @@ function App() {
         load()
       })
   }, [hasToken])
+
+  // Reload layout when template type changes
+  useEffect(() => {
+    if (!hasToken) return
+    setLoading(true)
+    loadFromServer(templateType)
+      .then((ok) => {
+        if (!ok) toast('Serverdan yuklash mumkin emas.', 'error')
+      })
+      .finally(() => setLoading(false))
+  }, [templateType])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

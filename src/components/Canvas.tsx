@@ -1,7 +1,8 @@
 import { Rnd } from 'react-rnd'
 import { useEditorStore } from '../store/editorStore'
 import { ElementRenderer } from './elements'
-import { PX_PER_MM, GRID_SNAP_MM, A4_WIDTH_MM, A4_HEIGHT_MM } from '../types/editor'
+import { PX_PER_MM, GRID_SNAP_MM } from '../types/editor'
+import { getGhostRows } from '../utils/expandPreview'
 
 export function Canvas() {
   const pages = useEditorStore((s) => s.pages)
@@ -15,6 +16,7 @@ export function Canvas() {
   const isDraggingFromSidebar = useEditorStore((s) => s.isDraggingFromSidebar)
   const setDraggingFromSidebar = useEditorStore((s) => s.setDraggingFromSidebar)
   const canvasScale = useEditorStore((s) => s.canvasScale)
+  const templateType = useEditorStore((s) => s.templateType)
 
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault()
@@ -82,8 +84,8 @@ export function Canvas() {
               className={`a4-page ${isActive ? 'a4-page-active' : ''}`}
               role="presentation"
               style={{
-                width: `${A4_WIDTH_MM}mm`,
-                height: `${A4_HEIGHT_MM}mm`,
+                width: `${page.pageWidth}mm`,
+                height: `${page.pageHeight}mm`,
                 position: 'relative',
                 background: '#fff',
                 boxShadow: '0 2px 20px rgba(0,0,0,0.15)',
@@ -115,6 +117,24 @@ export function Canvas() {
                   )}
                 </>
               )}
+              {getGhostRows(elements, templateType, templateType === 'envMeasurement' ? 31 : templateType === 'wasteWater' ? 50 : templateType === 'safetyInspection' ? 31 : 20).map((ghost) => (
+                <div
+                  key={ghost.id}
+                  style={{
+                    position: 'absolute',
+                    left: ghost.x * PX_PER_MM,
+                    top: ghost.y * PX_PER_MM,
+                    width: ghost.w * PX_PER_MM,
+                    height: ghost.h * PX_PER_MM,
+                    pointerEvents: 'none',
+                    zIndex: 0,
+                    opacity: 0.45,
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  <ElementRenderer element={{ ...ghost, content: '' }} isSelected={false} />
+                </div>
+              ))}
               {[...elements]
                 .sort((a, b) => (a.isContainer ? 0 : 1) - (b.isContainer ? 0 : 1))
                 .map((el) => (
