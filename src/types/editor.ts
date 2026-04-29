@@ -71,6 +71,7 @@ export interface EditorElement {
   safetyInspectionKey?: string
   safetyInspectionColWidth?: number
   safetyInspectionColCount?: number
+  safetyInspectionRowCount?: number
 }
 
 export interface EditorState {

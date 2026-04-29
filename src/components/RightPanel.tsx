@@ -340,7 +340,7 @@ export function RightPanel() {
                   type="text"
                   value={selected.safetyInspectionKey ?? ''}
                   onChange={(e) => updateElement(selected.id, { safetyInspectionKey: e.target.value || undefined })}
-                  placeholder="type, item, result, createdBy, …"
+                  placeholder="type1, item1, result1, type2, …, createdBy, createdAt"
                 />
               </div>
               <div className="prop-group">
@@ -363,6 +363,17 @@ export function RightPanel() {
                   value={selected.safetyInspectionColCount ?? ''}
                   onChange={(e) => updateElement(selected.id, { safetyInspectionColCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
                   placeholder="비어 있음 = 목록 길이"
+                />
+              </div>
+              <div className="prop-group">
+                <label>안전점검 최소 행 수 (데이터 없을 때 빈 행)</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={selected.safetyInspectionRowCount ?? ''}
+                  onChange={(e) => updateElement(selected.id, { safetyInspectionRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                  placeholder="기본값 = 5"
                 />
               </div>
             </>
