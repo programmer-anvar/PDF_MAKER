@@ -88,8 +88,11 @@ export function getGhostRows(
     const SI_NUMBERED_ITEM_RE = /^item\d+$/
     const SI_NUMBERED_TYPE_RE = /^type\d+$/
     const PREVIEW_GROUPS = 3
+    // Per-group min rows: 잠금상태=4, 전원상태 및 소등상태=11, 정리=5
+    const GROUP_MIN_ROWS = [4, 11, 5]
+    const totalGroupRows = GROUP_MIN_ROWS.reduce((s, n) => s + n, 0)
 
-    // Row height and minRows from item or dailyResults element
+    // Row height and fallback minRows from item or dailyResults element
     const refEl =
       elements.find(el => getKey(el) === 'item') ??
       elements.find(el => getKey(el) === SI_DAILY_RESULTS_KEY) ??
@@ -97,7 +100,7 @@ export function getGhostRows(
       elements.find(el => SI_RESULT_RE.test(getKey(el))) ??
       null
     const rowH = refEl?.h ?? 6
-    const minRows = refEl?.safetyInspectionRowCount ?? 5
+    const fallbackMinRows = refEl?.safetyInspectionRowCount ?? 5
 
     // baseX / colW / colCount from the first result-type element
     let baseX: number | null = null
@@ -125,32 +128,32 @@ export function getGhostRows(
         SI_NUMBERED_ITEM_RE.test(k) || SI_NUMBERED_TYPE_RE.test(k) || k === 'type' || k === 'item'
       const isCompanion = !isDataKey && !isXKey && baseX !== null && el.x === baseX
 
-      // Alias 'type' → ghost cells for groups 2..PREVIEW_GROUPS, each spanning minRows rows
+      // Alias 'type' → ghost cells for each group (2..N) at their cumulative Y offset
       if (k === 'type') {
-        const groupH = minRows * rowH
+        let yOffset = GROUP_MIN_ROWS[0] * rowH
         for (let g = 1; g < PREVIEW_GROUPS; g++) {
+          const groupMinRows = GROUP_MIN_ROWS[g] ?? fallbackMinRows
           ghosts.push({ ...el, id: `${el.id}-ghost-tg${g}`, _ghostRow: g, _sourceId: el.id,
-            y: el.y + g * groupH, content: '-' })
+            y: el.y + yOffset, h: groupMinRows * rowH, content: '-' })
+          yOffset += groupMinRows * rowH
         }
         continue
       }
 
-      // Alias 'item' → PREVIEW_GROUPS × minRows rows total
+      // Alias 'item' → totalGroupRows rows total
       if (k === 'item') {
-        const total = PREVIEW_GROUPS * minRows
-        for (let i = 1; i < total; i++) {
+        for (let i = 1; i < totalGroupRows; i++) {
           ghosts.push({ ...el, id: `${el.id}-ghost-iy${i}`, _ghostRow: i, _sourceId: el.id,
             y: el.y + i * rowH, content: '-' })
         }
         continue
       }
 
-      // Alias 'dailyResults' → PREVIEW_GROUPS × minRows rows × colCount cols
+      // Alias 'dailyResults' → totalGroupRows rows × colCount cols
       if (k === SI_DAILY_RESULTS_KEY) {
         const rColW = getColWidth(el)
         const rCount = getColCount(el, previewCount)
-        const total = PREVIEW_GROUPS * minRows
-        for (let rowIdx = 0; rowIdx < total; rowIdx++) {
+        for (let rowIdx = 0; rowIdx < totalGroupRows; rowIdx++) {
           for (let j = rowIdx === 0 ? 1 : 0; j < rCount; j++) {
             ghosts.push({ ...el, id: `${el.id}-ghost-dr${rowIdx}-x${j}`, _ghostRow: rowIdx * rCount + j,
               _sourceId: el.id, y: el.y + rowIdx * rowH, x: el.x + j * rColW, content: '-' })
@@ -159,11 +162,13 @@ export function getGhostRows(
         continue
       }
 
-      // Numbered resultN → minRows rows × colCount cols
+      // Numbered resultN → group-specific rows × colCount cols
       if (SI_RESULT_RE.test(k)) {
         const rColW = getColWidth(el)
         const rCount = getColCount(el, previewCount)
-        for (let rowIdx = 0; rowIdx < minRows; rowIdx++) {
+        const groupIdx = parseInt(k.replace('result', ''), 10) - 1
+        const groupMinRows = GROUP_MIN_ROWS[groupIdx] ?? fallbackMinRows
+        for (let rowIdx = 0; rowIdx < groupMinRows; rowIdx++) {
           for (let j = rowIdx === 0 ? 1 : 0; j < rCount; j++) {
             ghosts.push({ ...el, id: `${el.id}-ghost-nr${rowIdx}-x${j}`, _ghostRow: rowIdx * rCount + j,
               _sourceId: el.id, y: el.y + rowIdx * rowH, x: el.x + j * rColW, content: '-' })
@@ -172,9 +177,11 @@ export function getGhostRows(
         continue
       }
 
-      // Numbered itemN → minRows rows (Y-loop only)
+      // Numbered itemN → group-specific rows (Y-loop only)
       if (SI_NUMBERED_ITEM_RE.test(k)) {
-        for (let i = 1; i < minRows; i++) {
+        const groupIdx = parseInt(k.replace('item', ''), 10) - 1
+        const groupMinRows = GROUP_MIN_ROWS[groupIdx] ?? fallbackMinRows
+        for (let i = 1; i < groupMinRows; i++) {
           ghosts.push({ ...el, id: `${el.id}-ghost-ni${i}`, _ghostRow: i, _sourceId: el.id,
             y: el.y + i * rowH, content: '-' })
         }
