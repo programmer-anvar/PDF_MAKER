@@ -11,7 +11,7 @@ function parseMmInput(v: string): number {
   return Number(normalized)
 }
 
-const TYPE_LABELS: Record<string, string> = { text: '텍스트', textTemplate: '텍스트 + 키 (Text${key})', textSplit: '취소선 텍스트', parentheses: '괄호 (…)', root: '수학 루트', fraction: '분수', formula: '루트 분수', script: '첨자 (P_a)', image: '이미지', rect: '사각형', line: '선', table: '표' }
+const TYPE_LABELS: Record<string, string> = { text: 'Text', textTemplate: 'Text + Key (Text${key})', textSplit: 'Split Text', parentheses: 'Parentheses (…)', root: 'Root (√)', fraction: 'Fraction', formula: 'Formula', script: 'Script (P_a)', image: 'Image', rect: 'Rectangle', line: 'Line', table: 'Table' }
 
 export function RightPanel() {
   const elements = useEditorStore((s) => s.pages[s.activePageIndex]?.elements ?? [])
@@ -21,16 +21,16 @@ export function RightPanel() {
   const deleteElement = useEditorStore((s) => s.deleteElement)
   const setSelected = useEditorStore((s) => s.setSelected)
   const duplicateElement = useEditorStore((s) => s.duplicateElement)
+  const templateType = useEditorStore((s) => s.templateType)
 
   if (!selected) {
     return (
       <aside className="panel right-panel">
-        <h3>속성</h3>
-        <p className="panel-hint">Select an element from the page or click it from the list.</p>
-        <p className="panel-hint kbd-hint-inline"><kbd>Delete</kbd> <kbd>Esc</kbd> tanlovni bekor</p>
+        <h3>Properties</h3>
+        <p className="panel-hint">Select an element.</p>
         {elements.length > 0 && (
           <div className="element-list-panel">
-            <label className="prop-group label">Sahifadagi elementlar ({elements.length})</label>
+            <label className="prop-group label">Elements on page ({elements.length})</label>
             <ul className="element-list-compact">
               {elements.map((el, i) => (
                 <li key={el.id}>
@@ -59,16 +59,16 @@ export function RightPanel() {
     <aside className="panel right-panel">
       <h3>Properties</h3>
       <div className="props-actions">
-        <button type="button" className="btn small" onClick={() => duplicateElement(selected.id)} title="Copy (we'll add Ctrl+D later)">
-          📋 복사
+        <button type="button" className="btn small" onClick={() => duplicateElement(selected.id)} title="Copy">
+          📋 Copy
         </button>
         <button type="button" className="btn small danger" onClick={() => { deleteElement(selected.id); setSelected(null) }} title="Delete">
-          삭제
+          Delete
         </button>
       </div>
 
       <div className="prop-group">
-        <label>위치 / 크기 (mm)</label>
+        <label>Position / Size (mm)</label>
         <div className="row two">
           <input
             type="number"
@@ -104,7 +104,7 @@ export function RightPanel() {
       </div>
 
       <div className="prop-group">
-        <label>각도 (도)</label>
+        <label>Rotation (°)</label>
         <input
           type="number"
           step={5}
@@ -112,276 +112,243 @@ export function RightPanel() {
           max={360}
           value={selected.rotate ?? 0}
           onChange={(e) => updateElement(selected.id, { rotate: Number(e.target.value) || 0 })}
-          title="Skew the element"
         />
       </div>
 
       {(selected.type === 'text' || selected.type === 'textTemplate' || selected.type === 'textSplit' || selected.type === 'parentheses' || selected.type === 'root' || selected.type === 'fraction' || selected.type === 'formula' || selected.type === 'script') && (
         <>
           {selected.type !== 'textTemplate' && (
-          <div className="prop-group">
-              <label>데이터 키</label>
+            <div className="prop-group">
+              <label>Data Key</label>
               <input
-              type="text"
-              value={selected.dataKey ?? ''}
-              onChange={(e) => updateElement(selected.id, { dataKey: e.target.value || undefined })}
-              placeholder="키 이름 또는 비워 두세요"
-            />
-          </div>
+                type="text"
+                value={selected.dataKey ?? ''}
+                onChange={(e) => updateElement(selected.id, { dataKey: e.target.value || undefined })}
+                placeholder="key name or leave empty"
+              />
+            </div>
           )}
           {selected.type === 'textTemplate' && (
             <div className="prop-group">
-              <label>텍스트 + 키 (Text{'{'}${'{key}'}{'}'})</label>
+              <label>Text + Key (Text{'{'}${'{key}'}{'}'})</label>
               <input
                 type="text"
                 value={selected.content ?? ''}
                 onChange={(e) => updateElement(selected.id, { content: e.target.value || 'text${key}' })}
                 placeholder="text${key}"
               />
-              <p className="panel-hint">PDF에서 {`\${key}`} 로 대체됩니다.</p>
+              <p className="panel-hint">{`\${key}`} will be replaced in PDF.</p>
             </div>
           )}
           {(selected.type === 'text' || selected.type === 'textSplit' || selected.type === 'parentheses') && (
             <>
-              <div className="prop-group">
-                <label>가스 키{selected.type === 'textSplit' ? ' (Top)' : ''}</label>
-                <input
-                  type="text"
-                  value={selected.gaseousKey ?? ''}
-                  onChange={(e) => updateElement(selected.id, { gaseousKey: e.target.value || undefined })}
-                  placeholder={selected.type === 'textSplit' ? 'gasVolumeStart' : 'pollutantName, gasVolumeStart, gasVolumeEnd, …'}
-                />
-                {selected.type === 'textSplit' && (
+              {templateType === 'sampling2' && (
+                <>
                   <div className="prop-group">
-                    <label>가스 키 (하단)</label>
+                    <label>Gaseous Key{selected.type === 'textSplit' ? ' (top)' : ''}</label>
                     <input
                       type="text"
-                      value={selected.gaseousKeyBottom ?? ''}
-                      onChange={(e) => updateElement(selected.id, { gaseousKeyBottom: e.target.value || undefined })}
-                      placeholder="가스 부피 종료"
+                      value={selected.gaseousKey ?? ''}
+                      onChange={(e) => updateElement(selected.id, { gaseousKey: e.target.value || undefined })}
+                      placeholder={selected.type === 'textSplit' ? 'gasVolumeStart' : 'pollutantName, gasVolumeStart, …'}
+                    />
+                    {selected.type === 'textSplit' && (
+                      <div className="prop-group">
+                        <label>Gaseous Key (bottom)</label>
+                        <input
+                          type="text"
+                          value={selected.gaseousKeyBottom ?? ''}
+                          onChange={(e) => updateElement(selected.id, { gaseousKeyBottom: e.target.value || undefined })}
+                          placeholder="gasVolumeEnd"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div className="prop-group">
+                    <label>Gaseous row count</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={selected.gaseousRowCount ?? ''}
+                      onChange={(e) => updateElement(selected.id, { gaseousRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                      placeholder="empty = list length"
                     />
                   </div>
-                )}
-              </div>
-              <div className="prop-group">
-                <label>줄 높이 (mm) – 새 줄마다 Y 값이 이만큼 증가합니다</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={50}
-                  value={selected.gaseousRowHeight ?? 6}
-                  onChange={(e) => updateElement(selected.id, { gaseousRowHeight: Number(e.target.value) || undefined })}
-                />
-              </div>
-              <div className="prop-group">
-                <label>행 수 – 지정한 만큼의 셀이 생성됩니다 (data.gaseousList에서 채워지며, 남는 셀은 비어 있습니다).</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={selected.gaseousRowCount ?? ''}
-                  onChange={(e) => updateElement(selected.id, { gaseousRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
-                  placeholder="비어 있음 = 목록 길이"
-                />
-              </div>
-              <div className="prop-group">
-                <label>THC 키</label>
-                <input
-                  type="text"
-                  value={selected.thcKey ?? ''}
-                  onChange={(e) => updateElement(selected.id, { thcKey: e.target.value || undefined })}
-                  placeholder="eqRegObjId, calibrationDate, …"
-                />
-              </div>
-              <div className="prop-group">
-                <label>THC 줄 높이 (mm)</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={50}
-                  value={selected.thcRowHeight ?? 8}
-                  onChange={(e) => updateElement(selected.id, { thcRowHeight: Number(e.target.value) || undefined })}
-                />
-              </div>
-              <div className="prop-group">
-                <label>THC 행 수</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={selected.thcRowCount ?? ''}
-                  onChange={(e) => updateElement(selected.id, { thcRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
-                  placeholder="비어 있음 = 목록 길이"
-                />
-              </div>
-              <div className="prop-group">
-                <label>이동식 저울 키 (가로 확장)</label>
-                <input
-                  type="text"
-                  value={selected.mobileScaleKey ?? ''}
-                  onChange={(e) => updateElement(selected.id, { mobileScaleKey: e.target.value || undefined })}
-                  placeholder="companyName, testMeaValue, …"
-                />
-              </div>
-              <div className="prop-group">
-                <label>이동식 저울 줄 높이 (mm)</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={50}
-                  value={selected.mobileScaleRowHeight ?? 8}
-                  onChange={(e) => updateElement(selected.id, { mobileScaleRowHeight: Number(e.target.value) || undefined })}
-                />
-              </div>
-              <div className="prop-group">
-                <label>이동식 저울 행 수</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={selected.mobileScaleRowCount ?? ''}
-                  onChange={(e) => updateElement(selected.id, { mobileScaleRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
-                  placeholder="비어 있음 = 목록 길이"
-                />
-              </div>
-              <div className="prop-group">
-                <label>운행일지 키</label>
-                <input
-                  type="text"
-                  value={selected.operationKey ?? ''}
-                  onChange={(e) => updateElement(selected.id, { operationKey: e.target.value || undefined })}
-                  placeholder="departureTime, arrivalTime, …"
-                />
-              </div>
-              <div className="prop-group">
-                <label>운행일지 줄 높이 (mm)</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={50}
-                  value={selected.operationRowHeight ?? 8}
-                  onChange={(e) => updateElement(selected.id, { operationRowHeight: Number(e.target.value) || undefined })}
-                />
-              </div>
-              <div className="prop-group">
-                <label>운행일지 행 수</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={selected.operationRowCount ?? ''}
-                  onChange={(e) => updateElement(selected.id, { operationRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
-                  placeholder="비어 있음 = 목록 길이"
-                />
-              </div>
-              <div className="prop-group">
-                <label>환경측정 키</label>
-                <input
-                  type="text"
-                  value={selected.envMeasurementKey ?? ''}
-                  onChange={(e) => updateElement(selected.id, { envMeasurementKey: e.target.value || undefined })}
-                  placeholder="zone, temperature, humidity, …"
-                />
-              </div>
-              <div className="prop-group">
-                <label>환경측정 줄 높이 (mm)</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={50}
-                  value={selected.envMeasurementRowHeight ?? 8}
-                  onChange={(e) => updateElement(selected.id, { envMeasurementRowHeight: Number(e.target.value) || undefined })}
-                />
-              </div>
-              <div className="prop-group">
-                <label>환경측정 행 수</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={selected.envMeasurementRowCount ?? ''}
-                  onChange={(e) => updateElement(selected.id, { envMeasurementRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
-                  placeholder="비어 있음 = 목록 길이"
-                />
-              </div>
-              <div className="prop-group">
-                <label>폐수 키</label>
-                <input
-                  type="text"
-                  value={selected.wasteWaterKey ?? ''}
-                  onChange={(e) => updateElement(selected.id, { wasteWaterKey: e.target.value || undefined })}
-                  placeholder="receiptDate, generationVolume, …"
-                />
-              </div>
-              <div className="prop-group">
-                <label>폐수 줄 높이 (mm)</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={50}
-                  value={selected.wasteWaterRowHeight ?? 8}
-                  onChange={(e) => updateElement(selected.id, { wasteWaterRowHeight: Number(e.target.value) || undefined })}
-                />
-              </div>
-              <div className="prop-group">
-                <label>폐수 행 수</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={selected.wasteWaterRowCount ?? ''}
-                  onChange={(e) => updateElement(selected.id, { wasteWaterRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
-                  placeholder="비어 있음 = 목록 길이"
-                />
-              </div>
-              <div className="prop-group">
-                <label>안전점검 키</label>
-                <input
-                  type="text"
-                  value={selected.safetyInspectionKey ?? ''}
-                  onChange={(e) => updateElement(selected.id, { safetyInspectionKey: e.target.value || undefined })}
-                  placeholder="type1, item1, result1, type2, …, createdBy, createdAt"
-                />
-              </div>
-              <div className="prop-group">
-                <label>안전점검 열 너비 (mm)</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={100}
-                  value={selected.safetyInspectionColWidth ?? ''}
-                  onChange={(e) => updateElement(selected.id, { safetyInspectionColWidth: Number(e.target.value) || undefined })}
-                  placeholder="기본값 = 요소 너비"
-                />
-              </div>
-              <div className="prop-group">
-                <label>안전점검 열 수</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={50}
-                  value={selected.safetyInspectionColCount ?? ''}
-                  onChange={(e) => updateElement(selected.id, { safetyInspectionColCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
-                  placeholder="비어 있음 = 목록 길이"
-                />
-              </div>
-              <div className="prop-group">
-                <label>안전점검 최소 행 수 (데이터 없을 때 빈 행)</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={selected.safetyInspectionRowCount ?? ''}
-                  onChange={(e) => updateElement(selected.id, { safetyInspectionRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
-                  placeholder="기본값 = 5"
-                />
-              </div>
+                </>
+              )}
+              {templateType === 'thc' && (
+                <>
+                  <div className="prop-group">
+                    <label>THC Key</label>
+                    <input
+                      type="text"
+                      value={selected.thcKey ?? ''}
+                      onChange={(e) => updateElement(selected.id, { thcKey: e.target.value || undefined })}
+                      placeholder="eqRegObjId, calibrationDate, …"
+                    />
+                  </div>
+                  <div className="prop-group">
+                    <label>THC row count</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={selected.thcRowCount ?? ''}
+                      onChange={(e) => updateElement(selected.id, { thcRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                      placeholder="empty = list length"
+                    />
+                  </div>
+                </>
+              )}
+              {templateType === 'mobileScale' && (
+                <>
+                  <div className="prop-group">
+                    <label>Mobile Scale Key</label>
+                    <input
+                      type="text"
+                      value={selected.mobileScaleKey ?? ''}
+                      onChange={(e) => updateElement(selected.id, { mobileScaleKey: e.target.value || undefined })}
+                      placeholder="companyName, testMeaValue, …"
+                    />
+                  </div>
+                  <div className="prop-group">
+                    <label>Mobile Scale row count</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={selected.mobileScaleRowCount ?? ''}
+                      onChange={(e) => updateElement(selected.id, { mobileScaleRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                      placeholder="empty = list length"
+                    />
+                  </div>
+                </>
+              )}
+              {templateType === 'operation' && (
+                <>
+                  <div className="prop-group">
+                    <label>Operation Key</label>
+                    <input
+                      type="text"
+                      value={selected.operationKey ?? ''}
+                      onChange={(e) => updateElement(selected.id, { operationKey: e.target.value || undefined })}
+                      placeholder="departureTime, arrivalTime, …"
+                    />
+                  </div>
+                  <div className="prop-group">
+                    <label>Operation row count</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={selected.operationRowCount ?? ''}
+                      onChange={(e) => updateElement(selected.id, { operationRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                      placeholder="empty = list length"
+                    />
+                  </div>
+                </>
+              )}
+              {templateType === 'envMeasurement' && (
+                <>
+                  <div className="prop-group">
+                    <label>Env Measurement Key</label>
+                    <input
+                      type="text"
+                      value={selected.envMeasurementKey ?? ''}
+                      onChange={(e) => updateElement(selected.id, { envMeasurementKey: e.target.value || undefined })}
+                      placeholder="zone, temperature, humidity, …"
+                    />
+                  </div>
+                  <div className="prop-group">
+                    <label>Env Measurement row count</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={selected.envMeasurementRowCount ?? ''}
+                      onChange={(e) => updateElement(selected.id, { envMeasurementRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                      placeholder="empty = list length"
+                    />
+                  </div>
+                </>
+              )}
+              {templateType === 'wasteWater' && (
+                <>
+                  <div className="prop-group">
+                    <label>Waste Water Key</label>
+                    <input
+                      type="text"
+                      value={selected.wasteWaterKey ?? ''}
+                      onChange={(e) => updateElement(selected.id, { wasteWaterKey: e.target.value || undefined })}
+                      placeholder="receiptDate, generationVolume, …"
+                    />
+                  </div>
+                  <div className="prop-group">
+                    <label>Waste Water row count</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={selected.wasteWaterRowCount ?? ''}
+                      onChange={(e) => updateElement(selected.id, { wasteWaterRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                      placeholder="empty = list length"
+                    />
+                  </div>
+                </>
+              )}
+              {templateType === 'safetyInspection' && (
+                <>
+                  <div className="prop-group">
+                    <label>Safety Inspection Key</label>
+                    <input
+                      type="text"
+                      value={selected.safetyInspectionKey ?? ''}
+                      onChange={(e) => updateElement(selected.id, { safetyInspectionKey: e.target.value || undefined })}
+                      placeholder="type1, item1, result1, …, createdBy, createdAt"
+                    />
+                  </div>
+                  <div className="prop-group">
+                    <label>Safety Inspection col width (mm)</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={selected.safetyInspectionColWidth ?? ''}
+                      onChange={(e) => updateElement(selected.id, { safetyInspectionColWidth: Number(e.target.value) || undefined })}
+                      placeholder="default = element width"
+                    />
+                  </div>
+                  <div className="prop-group">
+                    <label>Safety Inspection col count</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={50}
+                      value={selected.safetyInspectionColCount ?? ''}
+                      onChange={(e) => updateElement(selected.id, { safetyInspectionColCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                      placeholder="empty = list length"
+                    />
+                  </div>
+                  <div className="prop-group">
+                    <label>Safety Inspection min rows</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={selected.safetyInspectionRowCount ?? ''}
+                      onChange={(e) => updateElement(selected.id, { safetyInspectionRowCount: e.target.value === '' ? undefined : Number(e.target.value) || 0 })}
+                      placeholder="default = 5"
+                    />
+                  </div>
+                </>
+              )}
             </>
           )}
           {selected.type === 'formula' ? (
             <>
               <div className="prop-group">
-                <label>분자 (루트 아래)</label>
+                <label>Numerator (under root)</label>
                 <input
                   type="text"
                   value={selected.formulaNum ?? ''}
@@ -390,7 +357,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>분모 (아래 부분)</label>
+                <label>Denominator</label>
                 <input
                   type="text"
                   value={selected.formulaDen ?? ''}
@@ -398,9 +365,8 @@ export function RightPanel() {
                   placeholder="(-)"
                 />
               </div>
-           
               <div className="prop-group">
-                <label>선 각도 (도)</label>
+                <label>Line angle (°)</label>
                 <input
                   type="number"
                   min={-45}
@@ -414,7 +380,7 @@ export function RightPanel() {
           ) : selected.type === 'textSplit' ? (
             <>
               <div className="prop-group">
-                <label>위쪽 선</label>
+                <label>Above line</label>
                 <input
                   type="text"
                   value={(selected.content ?? '').split('\n')[0] ?? ''}
@@ -426,7 +392,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>선 아래 텍스트</label>
+                <label>Below line</label>
                 <input
                   type="text"
                   value={(selected.content ?? '').split('\n')[1] ?? ''}
@@ -441,7 +407,7 @@ export function RightPanel() {
           ) : selected.type === 'script' ? (
             <>
               <div className="prop-group">
-                <label>기본 기호 (예: P)</label>
+                <label>Base symbol (e.g. P)</label>
                 <input
                   type="text"
                   value={selected.content ?? ''}
@@ -450,7 +416,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>아래 첨자 (Pₐ)</label>
+                <label>Subscript (Pₐ)</label>
                 <input
                   type="text"
                   value={selected.scriptSub ?? ''}
@@ -459,7 +425,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>위 첨자 (x²)</label>
+                <label>Superscript (x²)</label>
                 <input
                   type="text"
                   value={selected.scriptSuper ?? ''}
@@ -470,21 +436,21 @@ export function RightPanel() {
             </>
           ) : (
             <div className="prop-group">
-              <label>{selected.type === 'fraction' ? 'Fraction (e.g., a/b)' : selected.type === 'root' ? 'Expression under the root' : selected.type === 'parentheses' ? '텍스트 (괄호 안)' : 'Text'}</label>
+              <label>{selected.type === 'fraction' ? 'Fraction (e.g., a/b)' : selected.type === 'root' ? 'Expression under root' : selected.type === 'parentheses' ? 'Text (inside parentheses)' : 'Text'}</label>
               <textarea
                 value={selected.type === 'textTemplate' ? (selected.displayContent ?? '') : (selected.content ?? '')}
                 onChange={(e) => updateElement(selected.id, selected.type === 'textTemplate' ? { displayContent: e.target.value } : { content: e.target.value })}
                 rows={3}
               />
               {selected.type === 'textTemplate' && (
-                <p className="panel-hint">PDF va editorda shu matn ko‘rinadi. Backendda «텍스트 + 키» saqlanadi.</p>
+                <p className="panel-hint">Displayed in editor and PDF. Backend stores Text+Key.</p>
               )}
             </div>
           )}
           {selected.type === 'fraction' && (
             <>
               <div className="prop-group">
-                <label>분수선 길이 (%)</label>
+                <label>Line width (%)</label>
                 <input
                   type="number"
                   min={10}
@@ -494,7 +460,7 @@ export function RightPanel() {
                 />
               </div>
               <div className="prop-group">
-                <label>분수선 두께 (px)</label>
+                <label>Line thickness (px)</label>
                 <input
                   type="number"
                   min={1}
@@ -506,7 +472,7 @@ export function RightPanel() {
             </>
           )}
           <div className="prop-group">
-            <label>글자 크기</label>
+            <label>Font size</label>
             <input
               type="number"
               value={selected.style?.fontSize ?? 8}
@@ -514,7 +480,7 @@ export function RightPanel() {
             />
           </div>
           <div className="prop-group">
-            <label>색상</label>
+            <label>Color</label>
             <input
               type="color"
               value={selected.style?.color ?? '#000000'}
@@ -522,50 +488,50 @@ export function RightPanel() {
             />
           </div>
           <div className="prop-group">
-            <label>정렬 (X)</label>
+            <label>Align (X)</label>
             <select
               value={selected.style?.textAlign ?? 'left'}
               onChange={(e) => updateStyle({ textAlign: e.target.value as 'left' | 'center' | 'right' })}
             >
-              <option value="left">왼쪽</option>
-              <option value="center">가운데</option>
-              <option value="right">오른쪽</option>
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
             </select>
           </div>
           <div className="prop-group">
-            <label>정렬 (Y)</label>
+            <label>Align (Y)</label>
             <select
               value={selected.style?.verticalAlign ?? 'middle'}
               onChange={(e) => updateStyle({ verticalAlign: e.target.value as 'top' | 'middle' | 'bottom' })}
             >
-              <option value="top">위쪽</option>
-              <option value="middle">가운데</option>
-              <option value="bottom">아래쪽</option>
+              <option value="top">Top</option>
+              <option value="middle">Middle</option>
+              <option value="bottom">Bottom</option>
             </select>
           </div>
           <div className="prop-group">
-            <label>테두리 (왼쪽, 오른쪽, 위, 아래)</label>
+            <label>Border (left, right, top, bottom)</label>
             <input
               type="text"
-              placeholder="왼쪽: 1px solid #999"
+              placeholder="left: 1px solid #999"
               value={selected.style?.borderLeft ?? ''}
               onChange={(e) => updateStyle({ borderLeft: e.target.value || undefined })}
             />
             <input
               type="text"
-              placeholder="오른쪽: 1px solid #999"
+              placeholder="right: 1px solid #999"
               value={selected.style?.borderRight ?? ''}
               onChange={(e) => updateStyle({ borderRight: e.target.value || undefined })}
             />
             <input
               type="text"
-              placeholder="위쪽: 1px solid #999"
+              placeholder="top: 1px solid #999"
               value={selected.style?.borderTop ?? ''}
               onChange={(e) => updateStyle({ borderTop: e.target.value || undefined })}
             />
             <input
               type="text"
-              placeholder="아래쪽: 1px solid #999"
+              placeholder="bottom: 1px solid #999"
               value={selected.style?.borderBottom ?? ''}
               onChange={(e) => updateStyle({ borderBottom: e.target.value || undefined })}
             />
@@ -585,11 +551,11 @@ export function RightPanel() {
                   setContainer(e.target.checked ? selected.id : null)
                 }}
               />
-              <span>프레임 (모든 요소는 이 안에 있어야 합니다)</span>
+              <span>Frame (all elements must be placed inside)</span>
             </label>
           </div>
           <div className="prop-group">
-            <label>배경색</label>
+            <label>Background color</label>
             <input
               type="color"
               value={selected.style?.backgroundColor ?? '#f0f0f0'}
@@ -597,28 +563,28 @@ export function RightPanel() {
             />
           </div>
           <div className="prop-group">
-            <label>테두리 (왼쪽, 오른쪽, 위쪽, 아래쪽)</label>
+            <label>Border (left, right, top, bottom)</label>
             <input
               type="text"
-              placeholder="Chap: 1px solid #999"
+              placeholder="left: 1px solid #999"
               value={selected.style?.borderLeft ?? ''}
               onChange={(e) => updateStyle({ borderLeft: e.target.value || undefined })}
             />
             <input
               type="text"
-              placeholder="O‘ng"
+              placeholder="right: 1px solid #999"
               value={selected.style?.borderRight ?? ''}
               onChange={(e) => updateStyle({ borderRight: e.target.value || undefined })}
             />
             <input
               type="text"
-              placeholder="Yuqori"
+              placeholder="top: 1px solid #999"
               value={selected.style?.borderTop ?? ''}
               onChange={(e) => updateStyle({ borderTop: e.target.value || undefined })}
             />
             <input
               type="text"
-              placeholder="Past"
+              placeholder="bottom: 1px solid #999"
               value={selected.style?.borderBottom ?? ''}
               onChange={(e) => updateStyle({ borderBottom: e.target.value || undefined })}
             />
@@ -628,7 +594,7 @@ export function RightPanel() {
 
       {selected.type === 'line' && (
         <div className="prop-group">
-          <label>색상 / 두께</label>
+          <label>Color / Thickness</label>
           <input
             type="color"
             value={selected.style?.color ?? '#000000'}
@@ -647,7 +613,7 @@ export function RightPanel() {
       {selected.type === 'table' && selected.table && (
         <>
           <div className="prop-group">
-            <label>행 / 열</label>
+            <label>Rows / Cols</label>
             <div className="row two">
               <input
                 type="number"
@@ -676,7 +642,7 @@ export function RightPanel() {
             </div>
           </div>
           <div className="prop-group">
-            <label>테이블 텍스트 (CSV: 행은 ; 로, 열은 쉼표로 구분)</label>
+            <label>Table text</label>
             <textarea
               placeholder="1,2,3;4,5,6"
               rows={4}

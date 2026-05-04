@@ -53,7 +53,7 @@ function getRowCount(el: EditorElement, type: TemplateType): number {
   if (type === 'mobileScale') return el.mobileScaleRowCount ?? 20
   if (type === 'operation') return el.operationRowCount ?? 11
   if (type === 'envMeasurement') return el.envMeasurementRowCount ?? 31
-  if (type === 'wasteWater') return el.wasteWaterRowCount ?? 45
+  if (type === 'wasteWater') return el.wasteWaterRowCount ?? 31
   return 20
 }
 
